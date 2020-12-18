@@ -1,0 +1,27 @@
+{
+  "name": "any.js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --experimental-worker src/index.js"
+  },
+  "author": "Lucas Urzedo",
+  "license": "ISC",
+  "dependencies": {
+    "bunyan": "^1.8.14",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "ip": "^1.1.5",
+    "mocha": "^8.2.0",
+    "mongoose": "^5.10.16"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "should": "^13.2.3"
+  }
+}
