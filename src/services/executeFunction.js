@@ -1,49 +1,39 @@
-const { Worker, isMainThread, parentPort, workerData} = require('worker_threads');
+const { isMainThread, parentPort, workerData } = require('worker_threads');
+const Pool = require('worker-threads-pool');
+const CPUs = require('os').cpus().length;
+const pool = new Pool({ max : CPUs });
 
-const execute = workerData => {
+const executeFunction = workerData => {
     return new Promise((resolve, reject) => {
-        const worker = new Worker(__filename, { workerData });
-        worker.on('message', resolve);
-        worker.on('error', reject);
-        worker.on('exit', code => {
-            if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`))
+        pool.acquire(__filename, { workerData }, (err, worker) =>{
+            if (err) reject(err);
+            console.log(`started worker (pool size: ${pool.size})`);
+            worker.on('message', resolve);
+            worker.on('error', reject);
+            worker.on('exit', code => {
+                if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
+            });
         });
     });
 };
 
-if(!isMainThread){
-    let tempFunc;
+if(!isMainThread) {
+	let tempFunc;
 
-	if (workerData.dataJson.content.args == 'none')
-		tempFunc = new Function(workerData.dataJson.content.code);
+	if (workerData.jsonData.content.args == 'none')
+		tempFunc = new Function(workerData.jsonData.content.code);
 	else
-		tempFunc = new Function(workerData.dataJson.content.args, workerData.dataJson.content.code);
+		tempFunc = new Function(workerData.jsonData.content.args, workerData.jsonData.content.code);
 
-	if (workerData.jsonObject.input != 'none') {
-		const input = workerData.jsonObject.input;
-
+	if (workerData.parameterValue != 'none') {
+		const input = workerData.parameterValue;
 		const result = tempFunc(input);
-
+		
 		let jsonResult = {
 			"Result": result
 		}
 
-		if (workerData.jsonObject.storage == 'disk') {
-			const pathRes = `./Results/${workerData.reqTicket}.json`;
-
-			fs.writeFile(pathRes, JSON.stringify(jsonResult), (error) => {
-			  if (error) {
-				console.log(error);
-			  }
-			  else {
-				console.log('Result saved!\n');
-			  }
-			});
-		}
-		else if (workerData.jsonObject.storage == 'ram') {
-		    workerData.results.set(workerData.reqTicket, jsonResult);
-			console.log('Result saved!\n');
-		  }
+		parentPort.postMessage(jsonResult);
 	}
 	else {
 		const result = tempFunc();
@@ -51,23 +41,9 @@ if(!isMainThread){
 		let jsonResult = {
 			"Result": result
 		}
-
-		if (workerData.jsonObject.storage == 'disk') {
-			fs.writeFile(pathRes, JSON.stringify(jsonResult), (error) => {
-				if (error) {
-					console.log(error);
-				} else {
-					console.log('Result saved!\n');
-				}
-			});
-		  }
-		else if (workerData.jsonObject.storage == 'ram') {
-			results.set(workerData.reqTicket, jsonResult);
-			console.log('Result saved!\n');
-		}
+		
+		parentPort.postMessage(jsonResult);
 	}
-
-    parentPort.postMessage(workerData.results);
 }
 
-module.exports = execute;
+module.exports = executeFunction;

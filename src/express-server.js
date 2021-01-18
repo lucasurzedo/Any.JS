@@ -9,7 +9,7 @@ require('dotenv/config')
 exports.setupApp = async function setupApp() {
 	app.use(express.json());
 
-	app.use('/api', routes);
+	app.use('/api/anyJS', routes);
 
 	mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => 
 		console.log('Connected to DB!')

@@ -18,7 +18,9 @@
     "express": "^4.17.1",
     "ip": "^1.1.5",
     "mocha": "^8.2.0",
-    "mongoose": "^5.10.16"
+    "mongoose": "^5.10.16",
+    "pluralize": "^8.0.0",
+    "worker-threads-pool": "^2.0.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
