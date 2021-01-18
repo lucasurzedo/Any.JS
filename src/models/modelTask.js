@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const TaskSchema = mongoose.Schema({
     taskName: String,
-    parameterName: String,
     language: String,
     author: String,
     content: Object,
+    executionName: String,
     parameterValue: Object,
     taskResult: Object,
     date: {
@@ -14,4 +14,6 @@ const TaskSchema = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Tasks', TaskSchema)
+
+
+module.exports = TaskSchema

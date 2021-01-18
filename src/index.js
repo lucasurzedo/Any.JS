@@ -1,13 +1,11 @@
 'use strict';
 
 const { setupApp } = require('./express-server');
-const { discoverController } = require('./controllers');
 const cluster = require('cluster');
 const log = require('./log');
 const CPUs = require('os').cpus().length;
 
 if(cluster.isMaster) {
-    discoverController();
     log.info(`Master ${process.pid} is running`);
 
     // forks a process for each CPU core
