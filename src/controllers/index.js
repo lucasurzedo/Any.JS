@@ -4,10 +4,8 @@ const utils = require('../utils/index');
 const executeFunction = require('../services/executeFunction')
 const mongoose = require('mongoose');
 const pluralize = require('pluralize')
-const { Schema } = mongoose;
 
 const ModelTask = require('../models/modelTask');
-const { json } = require('express');
 
 function instantiateStoreController(req, res) {
 	let jsonError = {
@@ -258,6 +256,7 @@ async function getAllTasks (req, res) {
 		uri : req.baseUrl + "" + req.url,
 		tasks: null
 	}
+
 	await mongoose.connection.db.listCollections().toArray( async (err, collections) => {
 		if (err) {
 			console.log(err);
@@ -294,7 +293,7 @@ async function getAllTasks (req, res) {
 						if (jsonResult.tasks === null) {
 							jsonResult.tasks = "there is no tasks in the db";
 						}
-						jsonResult.status = 200;
+						jsonResult.status = 404;
 						res.send(jsonResult);
 					}
 				});
@@ -330,7 +329,7 @@ async function getAllTaskExecutions(req, res) {
 			}
 			if (executions.length === 0) {
 				jsonResult.result = `there is no executions in collection ${req.params['taskName']}`
-				jsonResult.status = 200;
+				jsonResult.status = 404;
 				res.send(jsonResult);
 			}
 			else{
@@ -369,7 +368,7 @@ async function getATask (req, res) {
 			if (jsonResult.task === null) {
 				delete jsonResult.task;
 				jsonResult.result = `there is no task ${req.params['taskName']}`
-				jsonResult.status = 200;
+				jsonResult.status = 404;
 				res.send(jsonResult)
 			}
 			else {
@@ -407,14 +406,13 @@ async function getAExecution (req, res) {
 			if (jsonResult.execution === null) {
 				delete jsonResult.execution;
 				jsonResult.result = `there is no execution ${req.params['executionName']}`
-				jsonResult.status = 200;
+				jsonResult.status = 404;
 				res.send(jsonResult)
 			}
 			else {
 				jsonResult.status = 200;
 				res.send(jsonResult);
 			}
-
 		});
 	});
 }
@@ -462,7 +460,7 @@ async function deleteAExecution(req, res) {
 				}
 				else {
 					jsonResult.result = `execution ${req.params['executionName']} don't exist`;
-					jsonResult.status = 200;
+					jsonResult.status = 404;
 					res.send(jsonResult);
 				}
 			}
