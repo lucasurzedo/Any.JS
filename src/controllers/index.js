@@ -257,6 +257,12 @@ async function getAllTasks (req, res) {
 		tasks: null
 	}
 
+	if (mongoose.connection.db === undefined) {
+		jsonResult.tasks = "there is no tasks in the db";
+		jsonResult.status = 404;
+		res.send(jsonResult);
+	}
+
 	await mongoose.connection.db.listCollections().toArray( async (err, collections) => {
 		if (err) {
 			console.log(err);
@@ -267,7 +273,6 @@ async function getAllTasks (req, res) {
 		var flag = false;
 		var count = 0;
 		for (let i = 0; i < collections.length; i++) {
-
 			await mongoose.connection.db.collection(collections[i].name, async (err, collection) => {
 				if (err) {
 					console.log(err);
@@ -293,7 +298,7 @@ async function getAllTasks (req, res) {
 						if (jsonResult.tasks === null) {
 							jsonResult.tasks = "there is no tasks in the db";
 						}
-						jsonResult.status = 404;
+						jsonResult.status = 200;
 						res.send(jsonResult);
 					}
 				});
