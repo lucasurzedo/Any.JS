@@ -45,11 +45,17 @@ services:
     ports:
       - "4445:4445"
 
-    proxy:
-      image: lucasurzedo/anyjsproxy:1.0
-      ports:
-        - "80:4446"
-      deploy: *default-deploy-manager
+  proxy:
+    image: lucasurzedo/anyjsproxy:1.0
+    deploy: *default-deploy-manager
+    ports:
+      - "80:4446"
+  
+  observer:
+    image: lucasurzedo/anyjsobserver:1.0
+    deploy: *default-deploy-worker
+    ports:
+      
 
   agent:
     image: portainer/agent

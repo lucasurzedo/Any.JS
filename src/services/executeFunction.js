@@ -20,12 +20,12 @@ const executeFunction = workerData => {
 if(!isMainThread) {
 	let tempFunc;
 
-	if (workerData.jsonData.content.args == 'none')
+	if (workerData.jsonData.content.args == null)
 		tempFunc = new Function(workerData.jsonData.content.code);
 	else
 		tempFunc = new Function(workerData.jsonData.content.args, workerData.jsonData.content.code);
 
-	if (workerData.parameterValue != 'none') {
+	if (workerData.parameterValue != null) {
 		const input = workerData.parameterValue;
 		const result = tempFunc(input);
 		
