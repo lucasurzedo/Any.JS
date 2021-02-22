@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { instantiateStoreController, instantiateAccessController, taskCreate, taskExecute, getAllTasks, getAllTaskExecutions, getATask, getAExecution, deleteATask, deleteAExecution } = require('../controllers');
+const { instantiateStoreController, instantiateAccessController, taskCreate, taskExecute, getAllTasks, getAllTaskExecutions, getATask, getAExecution, deleteATask, deleteAExecution, observerExecution } = require('../controllers');
 
 router.post('/instantiate/store', instantiateStoreController);
 router.post('/instantiate/access', instantiateAccessController);

@@ -14,6 +14,4 @@ const TaskSchema = mongoose.Schema({
     }
 });
 
-
-
 module.exports = TaskSchema

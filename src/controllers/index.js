@@ -1,10 +1,8 @@
 'use strict';
 
 const utils = require('../utils/index');
-const executeFunction = require('../services/executeFunction')
 const mongoose = require('mongoose');
-const pluralize = require('pluralize')
-
+const pluralize = require('pluralize');
 const ModelTask = require('../models/modelTask');
 
 function instantiateStoreController(req, res) {
@@ -179,76 +177,51 @@ async function taskCreate (req, res) {
 
 async function taskExecute (req, res) {
 	let jsonError = {
-		uri : req.baseUrl + "" + req.url + `/${req.body.executionName}`,
+		uri : req.baseUrl + "" + req.url,
 		"Error": "Invalid JSON",
 		"status": 400
 	}
 
 	var jsonResult = {
-		uri : req.baseUrl + "" + req.url + `/${req.body.executionName}`
+		uri : req.baseUrl + "" + req.url
 	}
 
-	if (!utils.validVariable(req.body.executionName)) {
-		res.send(jsonError);
-		return;
-	}
-	if (!utils.validVariable(req.body.parameterValue)) {
-		res.send(jsonError);
-		return;
-	}
+	var taskName = req.params['taskName'] + "";
 
-	const collectionName = (req.params['taskName'] + "").toLowerCase();
-	const parameterValueResult = JSON.parse(JSON.stringify(req.body.parameterValue));
-
-	mongoose.connection.db.collection(pluralize(collectionName), (err, collection) => {
-		if (err) {
-			console.log(err);
+	if (!utils.validVariable(req.body.executions)) {
+		if (!utils.validVariable(req.body.executionName)) {
+			res.send(jsonError);
+			return;
 		}
 		
-		collection.findOne({"taskName": req.params['taskName']}, async (error, data) => {
-			if(error) {
-				console.log(error);
-			}
-			else {
-				if (data === null) {
-					jsonResult.result = `Cannot find ${collectionName} task`;
-					jsonResult.status = 404;
-					res.send(jsonResult);
-				}
-				else {
-					const findExecutionName = await collection.findOne({"executionName": req.body.executionName});
-					if (findExecutionName != null) {
-						jsonResult.result = `Execution ${req.body.executionName} already exist`;
-						jsonResult.status = 409;
-						res.send(jsonResult);
-						return;
-					}
-					
-					try {
-						const Task = mongoose.model(req.params['taskName'], ModelTask);
-						const newTask = new Task({
-							executionName: req.body.executionName,
-							parameterValue: parameterValueResult,
-							taskResult: null
-						});
-						jsonResult.result = "saving execution";
-						jsonResult.status = 201;
-						res.send(jsonResult);
+		if (!utils.validVariable(req.body.parameterValue)) {
+			res.send(jsonError);
+			return;
+		}
+		
+		jsonResult.uri = req.baseUrl + "" + req.url + `/${req.body.executionName}`;
+		utils.createExecution(req.body, res, jsonResult, taskName);
+	}
+	else {
+		var executions = [];
+		for (const iterator of req.body.executions) {
+			executions.push(iterator);
+		}
 
-						executeFunction({ parameterValue: req.body.parameterValue, jsonData : data }).then(result => {
-							newTask.taskResult = result;
-							newTask.save();
-						});
-
-					} catch (erro) {
-						jsonResult.error = "server error";
-						jsonResult.status = 404;
-						res.send(jsonResult);
-					}
-				}
+		for (let i = 0; i < executions.length; i++) {
+			if (!utils.validVariable(executions[i].executionName)) {
+				res.send(jsonError);
+				return;
 			}
-		});
-	});
+
+			if (!utils.validVariable(executions[i].parameterValue)) {
+				res.send(jsonError);
+				return;
+			}
+
+			utils.createExecution(executions[i], res, jsonResult, taskName);
+		}
+	}
 }
 
 async function getAllTasks (req, res) {
@@ -352,7 +325,7 @@ async function getATask (req, res) {
 		task : null
 	}
 	const collectionName = (req.params['taskName'] + "").toLowerCase();
-	
+
 	mongoose.connection.db.collection(pluralize(collectionName), (err, collection) => {
 		if (err) {
 			console.log(err);

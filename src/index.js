@@ -2,7 +2,7 @@
 
 const { setupApp } = require('./express-server');
 const cluster = require('cluster');
-const log = require('./log');
+const log = require('./utils/log');
 const CPUs = require('os').cpus().length;
 
 if(cluster.isMaster) {
