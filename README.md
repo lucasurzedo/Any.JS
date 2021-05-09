@@ -13,3 +13,8 @@ Programmers in such languages will be able to submit tasks or manage the life cy
 - **Sync:** Responsible to obtain a task result, creating a synchronization barrier.
 - **Lock and Unlock:** Responsible to guarantee safe access to an object, locking it for safe utilization and unlocking it to deliver the object back to the cluster.
 - **Observe:** Responsible to observe and receive notifications when objects change their states and when tasks conclude their executions.
+
+### The REST API
+The REST API can be called by any client developed with any programming language or by an API caller, like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/product/api-client/).
+
+Details about the REST API at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJS/1.0.0).
