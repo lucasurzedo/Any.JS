@@ -55,7 +55,6 @@ services:
     image: lucasurzedo/anyjsobserver:1.0
     deploy: *default-deploy-worker
     ports:
-      
 
   agent:
     image: portainer/agent

@@ -11,17 +11,24 @@
     "start": "node --experimental-worker src/index.js"
   },
   "author": "Lucas Urzedo",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
+    "ajax-request": "^1.2.3",
+    "bson": "^4.2.3",
     "bunyan": "^1.8.15",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "googleapis": "^71.0.0",
     "ip": "^1.1.5",
     "mocha": "^8.3.0",
     "mongoose": "^5.11.17",
     "mongoose-observer": "^0.2.1",
+    "node-downloader-helper": "^1.0.18",
+    "node-serialize": "0.0.4",
     "pluralize": "^8.0.0",
+    "request": "^2.88.2",
     "underscore": "^1.12.0",
+    "valid-url": "^1.0.9",
     "worker-threads-pool": "^2.0.0"
   },
   "devDependencies": {

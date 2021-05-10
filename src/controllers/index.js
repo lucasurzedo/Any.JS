@@ -4,143 +4,329 @@ const utils = require('../utils/index');
 const mongoose = require('mongoose');
 const pluralize = require('pluralize');
 const ModelTask = require('../models/modelTask');
+const ModelObject = require('../models/modelObject');
+const ModelRegister = require('../models/modelRegister');
+const validUrl = require('valid-url');
+const executeFunction = require('../services/executeFunction');
 
-function instantiateStoreController(req, res) {
-	let jsonError = {
-		"Error": "Invalid JSON"
-	}
-	if (!utils.validVariable(req.body.name)) {
-		res.send(jsonError);
-		return;
-	}
-	if (!utils.validVariable(req.body.type)) {
-		res.send(jsonError);
-		return;
-	}
-	if (!utils.validVariable(req.body.author)) {
-		res.send(jsonError);
-		return;
-	}
-	if (!utils.validVariable(req.body.content)) {
-		res.send(jsonError);
-		return;
-	}
-
-	const globalVar = new GlobalVar({
-		name: req.body.name,
-		type: req.body.type,
-		author: req.body.author,
-		content: req.body.content
-	});
-
-	GlobalVar.findOne({"name": globalVar.name}, async (error, data) => {
-		if(error) {
-			console.log(error);
+async function registerCode(req, res) {
+	if (!req.body.codeName || !req.body.code || !req.body.language) {
+		let jsonError = {
+			uri : req.baseUrl + "" + req.url,
+			"result": "invalid JSON",
+			"status": 400
 		}
-		else {
-			if (data != null) {
-				data.remove();
-			}
-			try {
-				if (req.body.async == "true") {
-					const jsonResult = {
-						message: `saving ${req.body.type}`,
-						id: globalVar._id
-					}
-					res.json(jsonResult);
-					console.log(`saving ${req.body.type}`);
-					await globalVar.save();
-					console.log(`${req.body.type} saved`);
+
+		res.send(jsonError);
+
+		return;
+	}
+
+	var codes = [];
+	for (const iterator of req.body.code) {
+		codes.push(iterator);
+	}
+
+	for (let i = 0; i < codes.length; i++) {
+		for (var key in codes[i]){
+			if (!validUrl.isUri(codes[i][key])) {
+				let jsonError = {
+					uri : req.baseUrl + "" + req.url,
+					"result": "invalid url",
+					"status": 406
 				}
-				else {
-					await globalVar.save();
-					const jsonResult = {
-						id: globalVar._id,
-						message: `${req.body.type} saved`
-					}
-					res.json(jsonResult);
-					console.log(jsonResult.message);
-				}
-			} catch (error) {
-				res.json({ message : err });
+				res.send(jsonError);
+		
+				return;
 			}
 		}
-	});
-}
-
-function instantiateAccessController(req, res) {
-	let jsonError = {
-		"Error": "Invalid JSON"
-	}
-	if (!utils.validVariable(req.body.id)) {
-		res.send(jsonError);
-		return;
 	}
 
-	GlobalVar.findById({_id: req.body.id}, async (error, data) => {
-		if(error) {
+	mongoose.connection.db.collection('registers', (error, collection) => {
+		if (error) {
 			console.log(error);
 		}
-		else {
-			if(data === null) {
-				const jsonResult = {
-					"message": `Cannot find result id: ${req.body._id}`
-				}
 
-				res.send(jsonResult);
+		
+		collection.findOne({"codeName": req.body.codeName}, async (error, data) => {
+			if (error) {
+				console.log(error);
+			}
+
+			if (data) {
+				let jsonError = {
+					uri : req.baseUrl + "" + req.url,
+					"result": "duplicate file",
+					"status": 409
+				}
+				res.send(jsonError);
+				
+				return;
 			}
 			else {
-				try{
-					console.log(data.content);
-					res.send(data.content);
+				const Code = mongoose.model('register', ModelRegister);
+				const newCode = new Code({
+					codeName: req.body.codeName,
+					language: req.body.language,
+					code: req.body.code
+				});
 
-				} catch (err) {
-					res.json({ message : err });
+				newCode.save();
+				
+				let jsonResult = {
+					result : req.baseUrl + "" + req.url + `/${req.body.codeName}`,
+					status : 201
 				}
+				res.send(jsonResult);
 			}
-		}
+		});
 	});
 }
 
-async function taskCreate (req, res) {
+async function getCode(req, res) {
+	const collectionName = 'registers';
+
+	mongoose.connection.db.collection(collectionName, (error, collection) => {
+		if (error) {
+			console.log(err);
+			return;
+		}
+
+		collection.findOne({"codeName": req.params['codeName']}, async (error, data) => {
+			if (error) {
+				console.log(error);
+			}
+			if (!data) {
+				let jsonError = {
+					uri : req.baseUrl + "" + req.url,
+					"result": `cannot find code ${req.params['codeName']}`,
+					"status": 406
+				}
+				res.send(jsonError);
+			}
+			else {
+				var jsonResult = {
+					uri : req.baseUrl + "" + req.url,
+					object : data,
+					status : 200
+				}
+				res.send(jsonResult);
+			}
+		});
+	});
+}
+
+async function deleteCode(req, res) {
+	var jsonResult = {
+		uri : req.baseUrl + "" + req.url
+	}
+
+	mongoose.connection.db.collection('registers', (err, collection) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+
+		collection.deleteOne({ codeName : req.params['codeName']}, (err, result) => {
+			if (err) {
+				console.log(err);
+			}
+			else {
+				if (result.deletedCount > 0) {
+					jsonResult.result = `execution ${req.params['codeName']} deleted`;
+					jsonResult.status = 200;
+					res.send(jsonResult);
+				}
+				else {
+					jsonResult.result = `execution ${req.params['codeName']} do not exist`;
+					jsonResult.status = 404;
+					res.send(jsonResult);
+				}
+			}
+		});
+	});
+}
+
+async function createObject(req, res) {
+	
+}
+
+async function getAllObjects(req, res) {
+	var jsonResult = {
+		uri : req.baseUrl + "" + req.url,
+		objects: null
+	}
+
+	const collectionName = 'cars';
+
+	mongoose.connection.db.collection(collectionName, (err, collection) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+		
+		collection.find({}).toArray( (error, documents) => {
+			if (error) {
+				console.log(error);
+				return;
+			}
+			
+			var objects = [];
+
+			for (const iterator of documents) {
+				objects.push(iterator);
+			}
+			if (objects.length === 0) {
+				jsonResult.result = `there is no objects in collection objects`
+				jsonResult.status = 404;
+				res.send(jsonResult);
+			}
+			else{
+				jsonResult.objects = objects
+				jsonResult.status = 200;
+				res.send(jsonResult);
+			}
+		});
+	});
+}
+
+async function getObject(req, res) {
+	var jsonResult = {
+		uri : req.baseUrl + "" + req.url,
+		object : null
+	}
+	const collectionName = 'objects';
+
+	mongoose.connection.db.collection(collectionName, (err, collection) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+
+		collection.find({}).toArray( (error, documents) => {
+			if (error) {
+				console.log(error);
+				return;
+			}
+
+			for (const iterator of documents) {
+				if (iterator.objectName != undefined) {
+					jsonResult.object = iterator;
+				}
+			}
+			if (jsonResult.object === null) {
+				delete jsonResult.object;
+				jsonResult.result = `there is no object ${req.params['objectName']}`
+				jsonResult.status = 404;
+				res.send(jsonResult)
+			}
+			else {
+				jsonResult.status = 200;
+				res.send(jsonResult);
+			}
+		});
+	});
+}
+
+async function deleteObject(req, res) {
+	var jsonResult = {
+		uri : req.baseUrl + "" + req.url
+	}
+	const collectionName = 'objects';
+
+	mongoose.connection.db.collection(collectionName, (err, collection) => {
+		if (err) {
+			console.log(err);
+			return;
+		}
+		
+		collection.deleteOne({ objectName : req.params['objectName']}, (err, result) => {
+			if (err) {
+				console.log(err);
+			}
+			else{
+				if (result.deletedCount > 0) {
+					jsonResult.result = `object ${req.params['objectName']} deleted`;
+					jsonResult.status = 200;
+					res.send(jsonResult);
+				}
+				else {
+					jsonResult.result = `object ${req.params['objectName']} do not exist`;
+					jsonResult.status = 404;
+					res.send(jsonResult);
+				}
+			}
+		});
+	});
+}
+
+async function createTask (req, res) {
 	let jsonError = {
 		uri : req.baseUrl + "" + req.url + `/${req.body.taskName}`,
 		"Error": "Invalid JSON",
 		"status": 400
 	}
-	
+
 	var jsonResult = {
 		uri : req.baseUrl + "" + req.url + `/${req.body.taskName}`
 	}
 
-	if (!utils.validVariable(req.body.taskName)) {
+	if (!req.body.taskName || !req.body.code || !req.body.args || !req.body.method || !req.body.return) {
 		res.send(jsonError);
 		return;
 	}
 
-	if (!utils.validVariable(req.body.language)) {
-		res.send(jsonError);
-		return;
-	}
+	var taskName = req.body.code + "";
 
-	if (!utils.validVariable(req.body.author)) {
-		res.send(jsonError);
-		return;
-	}
+	mongoose.connection.db.collection('registers', (error, collection) => {
+		if (error) {
+			console.log(err);
+			return;
+		}
 
-	if (!utils.validVariable(req.body.content)) {
-		res.send(jsonError);
-		return;
-	}
+		collection.findOne({"codeName": req.body.code}, async (error, data) => {
+			if (error) {
+				console.log(error);
+			}
+			if (!data) {
+				let jsonError = {
+					uri : req.baseUrl + "" + req.url,
+					"result": `cannot find code ${req.body.code}`,
+					"status": 406
+				}
+				res.send(jsonError);
+			}
+			else {
+				let codes = [];
+				let linkMethod;
+				for (const iterator of data.code) {
+					codes.push(iterator);
+				}
 
-	if (!utils.validVariable(req.body.content.code)) {
-		res.send(jsonError);
-		return;
-	}
+				for (let i = 0; i < codes.length; i++) {
+					for (let key in codes[i]) {
+						if (key === req.body.method) {
+							linkMethod = codes[i][key];
+						}
+					}
+				}
 
-	if (!utils.validVariable(req.body.content.args)) {
-		res.send(jsonError);
-		return;
+				let code = await utils.downloadCode(linkMethod);
+
+				console.log(code);
+
+				// executeFunction({ parameterValue: parameterValue, jsonData : data }).then(result => {
+				// 	console.log(result);
+				// });
+
+			}
+		});
+	});
+
+	return;
+
+	var jsonResult = {
+		uri : req.baseUrl + "" + req.url + `/${req.body.taskName}`
 	}
 
 	mongoose.connection.db.listCollections().toArray(function (err, names) {
@@ -193,12 +379,12 @@ async function taskExecute (req, res) {
 			res.send(jsonError);
 			return;
 		}
-		
+
 		if (!utils.validVariable(req.body.parameterValue)) {
 			res.send(jsonError);
 			return;
 		}
-		
+
 		jsonResult.uri = req.baseUrl + "" + req.url + `/${req.body.executionName}`;
 		utils.createExecution(req.body, res, jsonResult, taskName);
 	}
@@ -310,7 +496,7 @@ async function getAllTaskExecutions(req, res) {
 				jsonResult.status = 404;
 				res.send(jsonResult);
 			}
-			else{
+			else {
 				jsonResult.executions = executions
 				jsonResult.status = 200;
 				res.send(jsonResult);
@@ -319,7 +505,7 @@ async function getAllTaskExecutions(req, res) {
 	});
 }
 
-async function getATask (req, res) {
+async function getTask (req, res) {
 	var jsonResult = {
 		uri : req.baseUrl + "" + req.url,
 		task : null
@@ -357,7 +543,7 @@ async function getATask (req, res) {
 	});
 }
 
-async function getAExecution (req, res) {
+async function getExecution (req, res) {
 	const collectionName = (req.params['taskName'] + "").toLowerCase();
 	var jsonResult = {
 		uri : req.baseUrl + "" + req.url,
@@ -384,7 +570,7 @@ async function getAExecution (req, res) {
 			if (jsonResult.execution === null) {
 				delete jsonResult.execution;
 				jsonResult.result = `there is no execution ${req.params['executionName']}`
-				jsonResult.status = 404;
+				jsonResult.status = 404;	
 				res.send(jsonResult)
 			}
 			else {
@@ -395,7 +581,7 @@ async function getAExecution (req, res) {
 	});
 }
 
-async function deleteATask(req, res) {
+async function deleteTask(req, res) {
 	var jsonResult = {
 		uri : req.baseUrl + "" + req.url
 	}
@@ -414,7 +600,7 @@ async function deleteATask(req, res) {
 	});
 }
 
-async function deleteAExecution(req, res) {
+async function deleteExecution(req, res) {
 	var jsonResult = {
 		uri : req.baseUrl + "" + req.url
 	}
@@ -437,7 +623,7 @@ async function deleteAExecution(req, res) {
 					res.send(jsonResult);
 				}
 				else {
-					jsonResult.result = `execution ${req.params['executionName']} don't exist`;
+					jsonResult.result = `execution ${req.params['executionName']} do not exist`;
 					jsonResult.status = 404;
 					res.send(jsonResult);
 				}
@@ -446,15 +632,26 @@ async function deleteAExecution(req, res) {
 	});
 }
 
+function getResult(x) {
+    return new Promise(resolve => {
+        resolve(x);
+    });
+}
+
 module.exports = {
-	instantiateStoreController,
-	instantiateAccessController,
-	taskCreate,
+	registerCode,
+	getCode,
+	deleteCode,
+	createObject,
+	getAllObjects,
+	getObject,
+	deleteObject,
+	createTask,
 	taskExecute,
 	getAllTasks,
 	getAllTaskExecutions,
-	getATask,
-	getAExecution,
-	deleteATask,
-	deleteAExecution
+	getTask,
+	getExecution,
+	deleteTask,
+	deleteExecution
 };

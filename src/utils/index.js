@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const ModelTask = require('../models/modelTask');
 const pluralize = require('pluralize');
 const executeFunction = require('../services/executeFunction');
+const request = require('request');
+
 
 function createExecution (execution, res, jsonResult, taskName, multipleExecutions) {
 	const collectionName = taskName.toLowerCase();
@@ -13,7 +15,7 @@ function createExecution (execution, res, jsonResult, taskName, multipleExecutio
 		if (err) {
 			console.log(err);
 		}
-		
+
 		collection.findOne({"taskName": taskName}, async (error, data) => {
 			if(error) {
 				console.log(error);
@@ -42,26 +44,29 @@ function createExecution (execution, res, jsonResult, taskName, multipleExecutio
 					else {
 						try {
 							const Task = mongoose.model(taskName, ModelTask);
-							const newTask = new Task({
+							var newTask = new Task({
 								executionName: execution.executionName,
 								parameterValue: parameterValueResult,
 								taskResult: null
 							});
 							try {
-								newTask.save();
+								await newTask.save();
 								jsonResult.result = "saving execution";
 								jsonResult.status = 201;
+
 								if (!multipleExecutions) {
 									res.send(jsonResult);
 								}
+
+								executeFunction({ parameterValue: execution.parameterValue, jsonData : data }).then(result => {
+									newTask.taskResult = result;
+									newTask.save();
+								});
 							} catch (error) {
+								// Retornar um json de erro
 								console.log('Header sent to the client');
 							}
 
-							executeFunction({ parameterValue: execution.parameterValue, jsonData : data }).then(result => {
-								newTask.taskResult = result;
-								newTask.save();
-							});
 						} catch (erro) {
 							try {
 								jsonResult.error = "server error";
@@ -78,12 +83,28 @@ function createExecution (execution, res, jsonResult, taskName, multipleExecutio
 	});
 }
 
+function downloadCode(linkMethod) {
+	return new Promise(function (resolve) {
+		let result;
+		request.get(linkMethod, async (error, res, body) => {
+			if (error) {
+				console.error(error);
+				return;
+			}
+
+			result = body;
+            resolve(result);
+		});
+	});
+}
+
 function validVariable(input) {
 	return (typeof input !== 'undefined') && input;
 }
 
 module.exports = {
 	createExecution,
+	downloadCode,
 	validVariable
   };
   

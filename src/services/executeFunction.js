@@ -26,9 +26,24 @@ if(!isMainThread) {
 		tempFunc = new Function(workerData.jsonData.content.args, workerData.jsonData.content.code);
 
 	if (workerData.parameterValue != null) {
-		const input = workerData.parameterValue;
+		var input = workerData.parameterValue;
+
+		// var json = JSON.stringify(input);
+
+		// var obj = JSON.parse(json, function (key, value) {
+		// 	if (typeof value === "string" &&
+		// 		value.startsWith("/Function(") &&
+		// 		value.endsWith(")/")) {
+		// 		value = value.substring(10, value.length - 2);
+		// 		return (0, eval)("(" + value + ")");
+		// 	}
+		// 	return value;
+		// });
+
+		// input = obj;
+
 		const result = tempFunc(input);
-		
+
 		let jsonResult = {
 			"Result": result
 		}
