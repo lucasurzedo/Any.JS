@@ -1,4 +1,4 @@
-# AnyJS
+# Any.JS
 
 Any.JS (Anywhere JSONs) is a distributed general purpose computing middleware that supports maps, global variables and tasks concepts. It is designed for JavaScript code, but it will also support Python and Java in near future. There is an interoperable REST API sending and receiving JSON objects to the cloud.
 
@@ -19,3 +19,6 @@ The middleware solution is asynchronous, thus object instantiation or storage, m
 The REST API can be called by any client developed with any programming language or by an API caller, like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/product/api-client/).
 
 Details about the REST API at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJS/1.0.0).
+
+### The Python client using the REST API
+The Python client with several facilities for Python developers are detailed at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJSPythonClient/1.0.0).
