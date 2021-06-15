@@ -18,47 +18,16 @@ const executeFunction = workerData => {
 };
 
 if(!isMainThread) {
-	let tempFunc;
+	const Code = require(`../../Results/${workerData.code}`);
+	const functionName = workerData.method;
 
-	if (workerData.jsonData.content.args == null)
-		tempFunc = new Function(workerData.jsonData.content.code);
-	else
-		tempFunc = new Function(workerData.jsonData.content.args, workerData.jsonData.content.code);
+    if (workerData.args.length > 0) {
+        const obj = new Code();
+        parentPort.postMessage(obj[functionName](...workerData.args));
+    }
 
-	if (workerData.parameterValue != null) {
-		var input = workerData.parameterValue;
-
-		// var json = JSON.stringify(input);
-
-		// var obj = JSON.parse(json, function (key, value) {
-		// 	if (typeof value === "string" &&
-		// 		value.startsWith("/Function(") &&
-		// 		value.endsWith(")/")) {
-		// 		value = value.substring(10, value.length - 2);
-		// 		return (0, eval)("(" + value + ")");
-		// 	}
-		// 	return value;
-		// });
-
-		// input = obj;
-
-		const result = tempFunc(input);
-
-		let jsonResult = {
-			"Result": result
-		}
-
-		parentPort.postMessage(jsonResult);
-	}
-	else {
-		const result = tempFunc();
-
-		let jsonResult = {
-			"Result": result
-		}
-		
-		parentPort.postMessage(jsonResult);
-	}
+	const obj = new Code();
+	parentPort.postMessage(obj[functionName]);
 }
 
 module.exports = executeFunction;

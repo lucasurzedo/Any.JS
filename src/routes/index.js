@@ -5,17 +5,21 @@ const router = express.Router();
 const controllers = require('../controllers');
 
 // requests for register service
-router.post('/register', controllers. registerCode);
+router.post('/register', controllers.registerCode);
 router.get('/register/:codeName', controllers.getCode);
 router.delete('/register/:codeName', controllers.deleteCode);
 
 // requests for store service
-router.post('/store/object', controllers.createObject);
+router.post('/store/object', controllers.storeObject);
 router.get('/store/object/', controllers.getAllObjects);
 router.get('/store/object/:objectName', controllers.getObject);
 router.delete('/store/object/:objectName', controllers.deleteObject);
 
 // requests for instantiate service
+router.post('/instantiate/', controllers.instantiateObject);
+router.get('/instantiate/', controllers.getAllObjects);
+router.get('/instantiate/:objectName', controllers.getObject);
+router.delete('/instantiate/:objectName', controllers.deleteObject);
 
 // requests for execute service
 router.post('/execute/task', controllers.createTask);

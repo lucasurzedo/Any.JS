@@ -5,6 +5,7 @@ const ModelTask = require('../models/modelTask');
 const pluralize = require('pluralize');
 const executeFunction = require('../services/executeFunction');
 const request = require('request');
+const Downloader = require('nodejs-file-downloader');
 
 
 function createExecution (execution, res, jsonResult, taskName, multipleExecutions) {
@@ -83,19 +84,26 @@ function createExecution (execution, res, jsonResult, taskName, multipleExecutio
 	});
 }
 
-function downloadCode(linkMethod) {
-	return new Promise(function (resolve) {
-		let result;
-		request.get(linkMethod, async (error, res, body) => {
-			if (error) {
-				console.error(error);
-				return;
-			}
+async function downloadCode(methodsLinks) {
+	console.log(methodsLinks);
+	for (let i = 0; i < methodsLinks.length; i++) {
+		let fileName = methodsLinks[i].name + '.js';
+		let linkMethod = methodsLinks[i].link;
 
-			result = body;
-            resolve(result);
+		let downloader = new Downloader({
+			url: linkMethod,     
+			directory: './Results',
+			fileName: fileName,
 		});
-	});
+		try {
+			await downloader.download();
+			console.log('Download Finished');
+		} catch (error) {
+			console.log(error);
+			return false;
+		}
+	}
+	return true;
 }
 
 function validVariable(input) {
