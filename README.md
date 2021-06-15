@@ -1,20 +1,24 @@
-# AnyJS
+# Any.JS
 
-Any.JS is a distributed JavaScript middleware that assumes that the programmer can instantiate or store Python, Java or JavaScript objects transparently in a cluster of properly containerized virtual machines and, logically, error-tolerant and scalable. In addition to object storage, the middleware offers asynchronous and distributed execution of Python, Java or JavaScript functions in an equally transparent way to the programmer. A REST API and JSON objects guarantee the interoperability of the solution. 
+Any.JS (Anywhere JSONs) is a distributed general purpose computing middleware that supports maps, global variables and tasks concepts. It is designed for JavaScript code, but it will also support Python and Java in near future. There is an interoperable REST API sending and receiving JSON objects to the cloud.
 
-## Solution
-Programmers in such languages will be able to submit tasks or manage the life cycle of their objects, including collaboration between different applications. All the services are provided in a simplified way, so the programmers does not worry about arduous high performance computing issues (precisely, side effects arising from the distribution and parallelism of services). Language interoperability is another very innovative factor in the Any.JS solution.
+Any.JS is a containerized and resilient scalable solution. Programmers can use its API directly or they can also create customized clients in different programming languages. There is a Python client to represent this issue. 
+
+The middleware solution is asynchronous, thus object instantiation or storage, maps manipulations and tasks executions are performed asynchronously. There are ways to observe and wait for a service conclusion. The wait is useful for tasks and it has a time to wait a period of time for a task result. The observe, on the other hand, waits until a global variable or a map or a map entry (key-value pair) changes their states (delete, insert, update, for instance). 
 
 ## Services
-- **Store:** Responsible to store an object.
-- **Instantiate:** Responsible to instantiate and store an object.
-- **Execute:** Responsible to execute a method in a specific language.
-- **Register:** Responsible for uploading all Python, Java or JavaScript code to the cluster.
-- **Sync:** Responsible to obtain a task result, creating a synchronization barrier.
-- **Lock and Unlock:** Responsible to guarantee safe access to an object, locking it for safe utilization and unlocking it to deliver the object back to the cluster.
-- **Observe:** Responsible to observe and receive notifications when objects change their states and when tasks conclude their executions.
+- **Register:** responsible for uploading all Java, Python or JavaScript code to the cluster. Must be done once.
+- **Execute:** responsible to execute a method of a class in a specific language. 
+- **Sync:** responsible to obtain a task result, creating a synchronization barrier.
+- **Store:** responsible to store an object. 
+- **Instantiate:** responsible to instantiate and store an object. 
+- **Lock** and **Unlock:** responsible to guarantee safe access to an object, locking it for safe utilization and unlocking it to deliver the object back to the cluster.
+- **Observe:** responsible to observe and receive notifications when objects change their states and when tasks conclude their executions.
 
 ### The REST API
 The REST API can be called by any client developed with any programming language or by an API caller, like [Insomnia](https://insomnia.rest/) or [Postman](https://www.postman.com/product/api-client/).
 
 Details about the REST API at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJS/1.0.0).
+
+### The Python client using the REST API
+The Python client with several facilities for Python developers are detailed at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJSPythonClient/1.0.0).
