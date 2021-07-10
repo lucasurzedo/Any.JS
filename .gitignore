@@ -10,7 +10,7 @@ node_modules
 package-lock.json
 .nyc_output
 .dockerignore
-Results
+./src/codes
 
 # User-specific files
 *.rsuser

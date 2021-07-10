@@ -13,6 +13,7 @@ const instantiateObj = require('../services/instantiateObj');
 const fs = require('fs');
 
 async function registerCode(req, res) {
+
 	if (!req.body.codeName || !req.body.code || !req.body.language) {
 		let jsonError = {
 			uri : req.baseUrl + "" + req.url,
@@ -50,7 +51,6 @@ async function registerCode(req, res) {
 			console.log(error);
 		}
 
-		
 		collection.findOne({"codeName": req.body.codeName}, async (error, data) => {
 			if (error) {
 				console.log(error);
@@ -151,7 +151,62 @@ async function deleteCode(req, res) {
 }
 
 async function storeObject(req, res) {
-	
+	if (!req.body.objectName || !req.body.code || !req.body.object) {
+		let jsonError = {
+			uri : req.baseUrl + "" + req.url,
+			"result": "invalid JSON",
+			"status": 400
+		}
+
+		res.send(jsonError);
+		return;
+	}
+
+	let codeName = req.body.code + "";
+	codeName = codeName.toLowerCase();
+	req.body.code = codeName;
+
+	const collectionName = req.body.code + "_object";
+
+	mongoose.connection.db.collection(collectionName, (error, collection) => {
+		if (error) {
+			console.log(error);
+		}
+
+		collection.findOne({"objectName": req.body.objectName}, async (error, data) => {
+			if (error) {
+				console.log(error);
+			}
+
+			if (data) {
+				let jsonError = {
+					uri : req.baseUrl + "" + req.url,
+					"result": "duplicate file",
+					"status": 409
+				}
+				res.send(jsonError);
+				
+				return;
+			}
+			else {
+				const Object = mongoose.model(collectionName, ModelObject, collectionName);
+
+				let newObject = new Object({
+					className: req.body.code,
+					objectName: req.body.objectName,
+					object: req.body.object
+				});
+
+				newObject.save();
+				
+				let jsonResult = {
+					result : req.baseUrl + "" + req.url + `/${req.body.objectName}`,
+					status : 201
+				}
+				res.send(jsonResult);
+			}
+		});
+	});
 }
 
 async function instantiateObject(req, res) {
@@ -168,6 +223,7 @@ async function instantiateObject(req, res) {
 
 	let codeName = req.body.code + "";
 	codeName = codeName.toLowerCase();
+	req.body.code = codeName;
 
 	// Open collection registers on db
 	mongoose.connection.db.collection('registers', (error, collection) => {
@@ -194,88 +250,101 @@ async function instantiateObject(req, res) {
 			}
 			else {
 				let codes = [];
-					let methodsLinks = [];
-					// Get all the codes names and links
-					for (const iterator of data.code) {
-						codes.push(iterator);
+				let methodsLinks = [];
+				// Get all the codes names and links
+				for (const iterator of data.code) {
+					codes.push(iterator);
+				}
+
+				// Separate names and links in a object
+				for (let i = 0; i < codes.length; i++) {
+					for (let key in codes[i]) {
+						methodsLinks.push({ name: key, link: codes[i][key]});
 					}
+				}
 
-					// Separate names and links in a object
-					for (let i = 0; i < codes.length; i++) {
-						for (let key in codes[i]) {
-							methodsLinks.push({ name: key, link: codes[i][key]});
-						}
+				// Verify if the file already exists
+				for (let i = 0; i < methodsLinks.length; i++) {
+					let path = `./src/codes/${methodsLinks[i].name}.js`
+
+					if (fs.existsSync(path)) {
+						methodsLinks.splice(i, 1);
+						--i;
 					}
+				}
 
-					// Verify if the file already exists
-					for (let i = 0; i < methodsLinks.length; i++) {
-						let path = `./Results/${methodsLinks[i].name}.js`
+				const collectionName = req.body.code + "_object";
 
-						if (fs.existsSync(path)) {
-							methodsLinks.splice(i, 1);
-							--i;
-						}
+				const objectCollection = mongoose.connection.db.collection(collectionName);
+				
+				const findExecutionName = await objectCollection.findOne({"objectName": req.body.objectName});
+
+				if (findExecutionName != null) {
+					let jsonResult = {
+						uri : req.baseUrl + "" + req.url + `/${req.body.taskName}`,
+						result: `Object ${req.body.objectName} already exist`,
+						status: 409
 					}
+					res.send(jsonResult)
+				}
+				else {
+					const Object = mongoose.model(collectionName, ModelObject, collectionName);
 
-					const collectionName = req.body.code + "";
-
-					const taskCollection = mongoose.connection.db.collection(collectionName);
+					let newTask = new Object({
+						className: req.body.code,
+						objectName: req.body.objectName,
+						object: null
+					});
 					
-					const findExecutionName = await taskCollection.findOne({"objectName": req.body.objectName});
+					await newTask.save();
 
-					if (findExecutionName != null) {
-						let jsonResult = {
-							uri : req.baseUrl + "" + req.url + `/${req.body.taskName}`,
-							result: `Object ${req.body.objectName} already exist`,
-							status: 409
-						}
-						res.send(jsonResult)
-					}
-					else {
-						const Task = mongoose.model(req.body.code, ModelObject, req.body.code);
-
-						let newTask = new Task({
-							className: req.body.code,
-							objectName: req.body.objectName,
-							object: null
-						});
-						
-						await newTask.save();
-
-						// If the file don't exists then its downloaded and executed
-						// If the file exists then its executed
-						if (methodsLinks.length > 0) {
-							let code = await utils.downloadCode(methodsLinks);
-							if (code) {
-								let jsonResult = {
-									uri : req.baseUrl + "" + req.url + `/${req.body.objectName}`,
-									result: "instantiating object",
-									status: 201
-								}
-								res.send(jsonResult);
-
-								instantiateObj(req.body).then(result => {
-									console.log(result);
-									newTask.object = BSON.serialize(result, { serializeFunctions: true});
-									newTask.save();
-								});
-							}
-						}
-						else {
+					// If the file don't exists then its downloaded and executed
+					// If the file exists then its executed
+					if (methodsLinks.length > 0) {
+						let code = await utils.downloadCode(methodsLinks);
+						if (code) {
 							let jsonResult = {
-								uri : req.baseUrl + "" + req.url + `/${req.body.objectName}`,
-								result: "instantiating object",
+								uri : req.baseUrl + '' + req.url + `/${req.body.objectName}`,
+								result: 'instantiating object',
 								status: 201
 							}
 							res.send(jsonResult);
 
 							instantiateObj(req.body).then(result => {
 								console.log(result);
-								newTask.object = BSON.serialize(result, { serializeFunctions: true});
-								newTask.save();
+								if (result === 'error during instantiate process') {
+									newTask.object = result;
+									newTask.save();
+								}
+								else {
+									newTask.object = BSON.serialize(result, { serializeFunctions: true});
+									newTask.save();
+								}
 							});
+
 						}
 					}
+					else {
+						let jsonResult = {
+							uri : req.baseUrl + '' + req.url + `/${req.body.objectName}`,
+								result: 'instantiating object',
+								status: 201
+						}
+						res.send(jsonResult);
+
+						instantiateObj(req.body).then(result => {
+							console.log(result);
+							if (result === 'error during instantiate process') {
+								newTask.object = result;
+								newTask.save();
+							}
+							else {
+								newTask.object = BSON.serialize(result, { serializeFunctions: true});
+								newTask.save();
+							}
+						});
+					}
+				}
 			}
 		});
 	});
@@ -286,8 +355,6 @@ async function getAllObjects(req, res) {
 		uri : req.baseUrl + "" + req.url,
 		objects: null
 	}
-
-	const collectionName = 'cars';
 
 	mongoose.connection.db.collection(collectionName, (err, collection) => {
 		if (err) {
@@ -405,6 +472,7 @@ async function createTask (req, res) {
 
 	let codeName = req.body.code + "";
 	codeName = codeName.toLowerCase();
+	req.body.code = codeName;
 
 	// Open collection registers on db
 	mongoose.connection.db.collection('registers', (error, collection) => {
@@ -445,7 +513,7 @@ async function createTask (req, res) {
 
 				// Verify if the file already exists
 				for (let i = 0; i < methodsLinks.length; i++) {
-					let path = `./Results/${methodsLinks[i].name}.js`
+					let path = `./src/codes/${methodsLinks[i].name}.js`
 
 					if (fs.existsSync(path)) {
 						methodsLinks.splice(i, 1);
@@ -453,7 +521,7 @@ async function createTask (req, res) {
 					}
 				}
 
-				const collectionName = req.body.code + "";
+				const collectionName = req.body.code + '_task';
 
 				const taskCollection = mongoose.connection.db.collection(collectionName);
 				const findExecutionName = await taskCollection.findOne({"executionName": req.body.taskName});
@@ -467,7 +535,7 @@ async function createTask (req, res) {
 					res.send(jsonResult)
 				}
 				else {
-					const Task = mongoose.model(req.body.code, ModelTask, req.body.code);
+					const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
 					let newTask = new Task({
 						executionName: req.body.taskName,
@@ -481,6 +549,7 @@ async function createTask (req, res) {
 					// If the file don't exists then its downloaded and executed
 					// If the file exists then its executed
 					if (methodsLinks.length > 0) {
+						console.log('Download codes');
 						let code = await utils.downloadCode(methodsLinks);
 						if (code) {
 							let jsonResult = {
@@ -491,8 +560,15 @@ async function createTask (req, res) {
 							res.send(jsonResult);
 
 							executeFunction(req.body).then(result => {
-								newTask.taskResult = result;
-								newTask.save();
+								console.log(result);
+								if (result === 'error during execute process') {
+									newTask.taskResult = result;
+									newTask.save();
+								}
+								else {
+									newTask.taskResult = result;
+									newTask.save();
+								}
 							});
 						}
 					}
@@ -506,8 +582,14 @@ async function createTask (req, res) {
 
 						executeFunction(req.body).then(result => {
 							console.log(result);
-							newTask.taskResult = result;
-							newTask.save();
+							if (result === 'error during execute process') {
+								newTask.taskResult = result;
+								newTask.save();
+							}
+							else {
+								newTask.taskResult = result;
+								newTask.save();
+							}
 						});
 					}
 				}

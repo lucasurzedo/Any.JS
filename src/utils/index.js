@@ -92,7 +92,7 @@ async function downloadCode(methodsLinks) {
 
 		let downloader = new Downloader({
 			url: linkMethod,     
-			directory: './Results',
+			directory: './src/codes',
 			fileName: fileName,
 		});
 		try {
