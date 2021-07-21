@@ -198,7 +198,7 @@ async function storeObject(req, res) {
 				});
 
 				newObject.save();
-				
+
 				let jsonResult = {
 					result : req.baseUrl + "" + req.url + `/${req.body.objectName}`,
 					status : 201
@@ -367,7 +367,7 @@ async function getAllObjects(req, res) {
 				console.log(error);
 				return;
 			}
-			
+
 			var objects = [];
 
 			for (const iterator of documents) {
@@ -389,11 +389,11 @@ async function getAllObjects(req, res) {
 }
 
 async function getObject(req, res) {
-	var jsonResult = {
+	let jsonResult = {
 		uri : req.baseUrl + "" + req.url,
 		object : null
 	}
-	const collectionName = 'objects';
+	const collectionName = req.params['codeName'] + "_object";
 
 	mongoose.connection.db.collection(collectionName, (err, collection) => {
 		if (err) {
@@ -408,7 +408,7 @@ async function getObject(req, res) {
 			}
 
 			for (const iterator of documents) {
-				if (iterator.objectName != undefined) {
+				if (iterator.objectName === req.params['objectName']) {
 					jsonResult.object = iterator;
 				}
 			}
@@ -800,7 +800,7 @@ async function getExecution (req, res) {
 			}
 
 			for (const iterator of documents) {
-				if (iterator.executionName === req.params['executionName'] ) {
+				if (iterator.executionName === req.params['executionName']) {
 					jsonResult.execution = iterator;
 				}
 			}

@@ -1,40 +1,48 @@
-'use strict';
+const BSON = require('bson');
+const Measures = require('../src/codes/measures');
+const request = require('request');
+let code = new Measures(14, 15);
 
-var should = require("should");
-var request = require("request");
-var chai = require("chai");
-var expect = chai.expect;
-var urlBase = "http://192.168.2.10:4445/api/execute/access";
-var assert = require('assert');
-
-const testFunction = {
-	"nickname": "bubbleSort",
-	"input": [4, 3, 5, 2, 12, 14, 51, 23, 99, 110, 1, 7, 11, 20],
-	"async": "false",
-	"storage": "ram"
+let Car = function Carro(marca, modelo, ano) {
+	this.marca = marca;
+	this.modelo = modelo;
+	this.ano = ano;
 }
 
-const array = [ 1, 2, 3, 4, 5, 7, 11, 12, 14, 20, 23, 51, 99, 110 ]
+let carro = new Car('BMW', 'M4', '2015');
 
-describe("Teste API Any.JS",function(){
-	it("Deve receber um array ordenado",function(done){
-		request.post(urlBase,
-		{
-			json: testFunction
-		},
-		function(error, response, body){
+console.log(carro);
 
-		// verifica se o resultado da chamada foi sucesso (200)
-		expect(response.statusCode).to.equal(200);
+let bytes = BSON.serialize(carro, {serializeFunctions: true});
 
-		// verifica se retornou a propriedade Result
-		if(body.should.have.property('Result') ){
-			//verifica se o resultado da função está correto
-			expect(body.Result).to.deep.equal(array);
-		}
+let jsonReq = {
+	objectName: "car02",
+	code: "Car",
+	object: bytes
+}
 
-			done(); // avisamos o test runner que acabamos a validacao e ja pode proseeguir
-		}
-		);
-	});
+request.post('http://192.168.2.10:4446/api/anyJS/v1/store/object', {
+	json: jsonReq
+}, async (error, res, body) => {
+	if (error) {
+		console.error(error);
+		return;
+	}
+	console.log(body);
+});
+
+request.get('http://192.168.2.10:4446/api/anyJS/v1/store/object/car/car02', {
+}, async (error, res, body) => {
+	if (error) {
+		console.error(error);
+		return;
+	}
+	console.log(body);
+	let json = JSON.parse(body);
+	console.log(json.object);
+
+	let buffer = Buffer.from(json.object.object);
+	console.log(buffer);
+	let obj = BSON.deserialize(buffer, {evalFunctions: true});
+	console.log(obj);
 });

@@ -4,6 +4,7 @@ const RegisterSchema = mongoose.Schema({
     codeName: String,
     language: String,
     code: Object,
+    notes: String,
     date: {
         type: Date,
         default: Date.now

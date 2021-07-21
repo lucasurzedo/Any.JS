@@ -12,8 +12,8 @@ router.delete('/register/:codeName', controllers.deleteCode);
 // requests for store service
 router.post('/store/object', controllers.storeObject);
 router.get('/store/object/', controllers.getAllObjects);
-router.get('/store/object/:objectName', controllers.getObject);
-router.delete('/store/object/:objectName', controllers.deleteObject);
+router.get('/store/object/:codeName/:objectName', controllers.getObject);
+router.delete('/store/object/:codeName/:objectName', controllers.deleteObject);
 
 // requests for instantiate service
 router.post('/instantiate/', controllers.instantiateObject);
