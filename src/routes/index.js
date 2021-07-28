@@ -1,6 +1,5 @@
-'use strict';
-
 const express = require('express');
+
 const router = express.Router();
 const controllers = require('../controllers');
 
@@ -34,7 +33,5 @@ router.delete('/execute/task/:taskName/execution/:executionName', controllers.de
 // requests for sync service
 
 // requests for lock and unlock service
-
-
 
 module.exports = router;
