@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const utils = require('../utils/index');
-const ModelTask = require('../models/modelTask');
+const ModelTask = require('../models/task');
 const executeFunction = require('../services/executeFunction');
 
 async function createTask(req, res) {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const pluralize = require('pluralize');
 const Downloader = require('nodejs-file-downloader');
-const ModelTask = require('../models/modelTask');
+const ModelTask = require('../models/task');
 const executeFunction = require('../services/executeFunction');
 
 function createExecution(execution, res, jsonResult, taskName, multipleExecutions) {

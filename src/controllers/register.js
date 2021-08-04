@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const validUrl = require('valid-url');
-const ModelRegister = require('../models/modelRegister');
+const ModelRegister = require('../models/register');
 
 async function registerCode(req, res) {
   if (!req.body.codeName || !req.body.code || !req.body.language) {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const BSON = require('bson');
-const ModelObject = require('../models/modelObject');
+const ModelObject = require('../models/object');
 const instantiateObj = require('../services/instantiateObj');
 const utils = require('../utils/index');
 
