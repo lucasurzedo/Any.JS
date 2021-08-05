@@ -25,12 +25,12 @@ function setElement(req, res) {
       console.log(error);
     }
 
-    collection.findOne({ mapName: req.body.mapName }, async (err, data) => {
+    collection.findOne({ key: req.body.key }, async (err, data) => {
       if (err) {
         console.log(err);
       }
 
-      if (data && data.key === req.body.key) {
+      if (data) {
         const jsonError = {
           uri: `${req.baseUrl}${req.url}`,
           result: 'duplicate file',
@@ -60,57 +60,39 @@ function setElement(req, res) {
 }
 
 function getElement(req, res) {
-  if (!req.body.mapName || !req.body.key || !req.body.value) {
-    const jsonError = {
-      uri: `${req.baseUrl}${req.url}`,
-      result: 'invalid JSON',
-      status: 400,
-    };
-
-    res.send(jsonError);
-    return;
-  }
-
-  let mapName = `${req.body.mapName}`;
+  let mapName = `${req.params.mapName}`;
   mapName = mapName.toLowerCase();
-  req.body.mapName = mapName;
+  req.params.mapName = mapName;
 
-  const collectionName = `${req.body.mapName}_map`;
+  const collectionName = `${req.params.mapName}_map`;
 
   mongoose.connection.db.collection(collectionName, (error, collection) => {
     if (error) {
       console.log(error);
     }
 
-    collection.findOne({ mapName: req.body.mapName }, async (err, data) => {
+    collection.findOne({ key: req.params.key }, (err, data) => {
       if (err) {
         console.log(err);
       }
 
-      if (data && data.key === req.body.key) {
+      if (!data) {
         const jsonError = {
           uri: `${req.baseUrl}${req.url}`,
-          result: 'duplicate file',
-          status: 409,
+          result: `there is no key ${req.params.key}`,
+          status: 404,
         };
         res.send(jsonError);
 
         return;
       }
-      const Element = mongoose.model(collectionName, ModelMap, collectionName);
-
-      const newElement = new Element({
-        mapName: req.body.mapName,
-        key: req.body.key,
-        value: req.body.value,
-      });
-
-      newElement.save();
 
       const jsonResult = {
-        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
-        status: 201,
+        uri: `${req.baseUrl}${req.url}`,
+        result: data.value,
+        status: 200,
       };
+
       res.send(jsonResult);
     });
   });
