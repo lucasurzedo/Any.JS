@@ -99,7 +99,23 @@ function getElement(req, res) {
 }
 
 function clearMap(req, res) {
-// TODO
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = `${req.params.mapName}_map`;
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.drop();
+    jsonResult.result = `task ${req.params.mapName} deleted`;
+    jsonResult.status = 200;
+    res.send(jsonResult);
+  });
 }
 
 function deleteKey(req, res) {

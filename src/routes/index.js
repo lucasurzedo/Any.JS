@@ -4,7 +4,7 @@ const router = express.Router();
 const register = require('../controllers/register');
 const store = require('../controllers/store');
 const task = require('../controllers/task');
-const map = require('../controllers/map')
+const map = require('../controllers/map');
 
 // requests for register service
 router.post('/register', register.registerCode);
@@ -36,7 +36,7 @@ router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExe
 // requests for map service
 router.post('/map/set', map.setElement);
 router.get('/map/get/:mapName/:key', map.getElement);
-router.post('/map/clear', map.clearMap);
+router.post('/map/clear/:mapName', map.clearMap);
 router.post('/map/delete', map.deleteKey);
 router.post('/map/entries', map.getIterator);
 router.post('/map/forEach', map.mapForEach);
