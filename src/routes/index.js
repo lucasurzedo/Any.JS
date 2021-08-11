@@ -35,6 +35,8 @@ router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExe
 
 // requests for map service
 router.post('/map/set', map.setElement);
+router.patch('/map/update', map.updateElement);
+router.put('/map/update', map.updateMap);
 router.post('/map/forEach', map.mapForEach);
 router.get('/map/get/:mapName/:key', map.getElement);
 router.get('/map/entries/:mapName', map.getEntries);
