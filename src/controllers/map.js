@@ -281,7 +281,7 @@ function deleteKey(req, res) {
         jsonResult.status = 200;
         res.send(jsonResult);
       } else {
-        jsonResult.result = `element ${req.params.executionName} do not exist`;
+        jsonResult.result = `element ${req.params.key} do not exist`;
         jsonResult.status = 404;
         res.send(jsonResult);
       }
@@ -294,7 +294,7 @@ function clearMap(req, res) {
     uri: `${req.baseUrl}${req.url}`,
   };
 
-  const collectionName = `${req.params.mapName}_map`;
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, async (err, collection) => {
     if (err) {
