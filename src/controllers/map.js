@@ -33,7 +33,7 @@ function setElement(req, res) {
       if (data) {
         const jsonError = {
           uri: `${req.baseUrl}${req.url}`,
-          result: 'duplicate file',
+          result: 'duplicate key',
           status: 409,
         };
         res.send(jsonError);
@@ -145,15 +145,15 @@ function deleteKey(req, res) {
       return;
     }
 
-    collection.deleteOne({ executionName: req.params.executionName }, (error, result) => {
+    collection.deleteOne({ key: req.params.key }, (error, result) => {
       if (error) {
         console.log(error);
       } else if (result.deletedCount > 0) {
-        jsonResult.result = `execution ${req.params.executionName} deleted`;
+        jsonResult.result = `element ${req.params.key} removed`;
         jsonResult.status = 200;
         res.send(jsonResult);
       } else {
-        jsonResult.result = `execution ${req.params.executionName} do not exist`;
+        jsonResult.result = `element ${req.params.executionName} do not exist`;
         jsonResult.status = 404;
         res.send(jsonResult);
       }
