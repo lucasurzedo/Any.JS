@@ -105,21 +105,60 @@ function clearMap(req, res) {
 
   const collectionName = `${req.params.mapName}_map`;
 
+  mongoose.connection.db.collection(collectionName, async (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    const collectionCount = await collection.countDocuments();
+    if (collectionCount === 0) {
+      const jsonError = {
+        uri: `${req.baseUrl}${req.url}`,
+        result: `there is no map ${collectionName}`,
+        status: 404,
+      };
+      res.send(jsonError);
+
+      return;
+    }
+
+    collection.drop();
+
+    jsonResult.result = `map ${req.params.mapName} deleted`;
+    jsonResult.status = 200;
+
+    res.send(jsonResult);
+  });
+}
+
+function deleteKey(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = `${req.params.mapName}_map`;
+
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
       console.log(err);
       return;
     }
 
-    collection.drop();
-    jsonResult.result = `task ${req.params.mapName} deleted`;
-    jsonResult.status = 200;
-    res.send(jsonResult);
+    collection.deleteOne({ executionName: req.params.executionName }, (error, result) => {
+      if (error) {
+        console.log(error);
+      } else if (result.deletedCount > 0) {
+        jsonResult.result = `execution ${req.params.executionName} deleted`;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      } else {
+        jsonResult.result = `execution ${req.params.executionName} do not exist`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      }
+    });
   });
-}
-
-function deleteKey(req, res) {
-// TODO
 }
 
 function getIterator(req, res) {
