@@ -161,8 +161,44 @@ function deleteKey(req, res) {
   });
 }
 
-function getIterator(req, res) {
-// TODO
+function getEntries(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.find({}).toArray((error, documents) => {
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      const elements = [];
+
+      let element;
+      for (const iterator of documents) {
+        if (iterator.taskName === undefined) {
+          element = [iterator.key, iterator.value];
+          elements.push(element);
+        }
+      }
+      if (elements.length === 0) {
+        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      } else {
+        jsonResult.elements = elements;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      }
+    });
+  });
 }
 
 function mapForEach(req, res) {
@@ -170,7 +206,32 @@ function mapForEach(req, res) {
 }
 
 function hasElement(req, res) {
-// TODO
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = `${req.params.mapName}_map`;
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.deleteOne({ key: req.params.key }, (error, result) => {
+      if (error) {
+        console.log(error);
+      } else if (result.deletedCount > 0) {
+        jsonResult.result = `element ${req.params.key} removed`;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      } else {
+        jsonResult.result = `element ${req.params.executionName} do not exist`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      }
+    });
+  });
 }
 
 function getAllKeys(req, res) {
@@ -186,7 +247,7 @@ module.exports = {
   getElement,
   clearMap,
   deleteKey,
-  getIterator,
+  getEntries,
   mapForEach,
   hasElement,
   getAllKeys,

@@ -38,7 +38,7 @@ router.post('/map/set', map.setElement);
 router.get('/map/get/:mapName/:key', map.getElement);
 router.delete('/map/clear/:mapName', map.clearMap);
 router.delete('/map/delete/:mapName/:key', map.deleteKey);
-router.post('/map/entries', map.getIterator);
+router.get('/map/entries/:mapName', map.getEntries);
 router.post('/map/forEach', map.mapForEach);
 router.post('/map/has', map.hasElement);
 router.post('/map/keys', map.getAllKeys);
