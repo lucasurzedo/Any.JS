@@ -59,6 +59,10 @@ function setElement(req, res) {
   });
 }
 
+function mapForEach(req, res) {
+  // TODO
+}
+
 function getElement(req, res) {
   let mapName = `${req.params.mapName}`;
   mapName = mapName.toLowerCase();
@@ -165,6 +169,7 @@ function getEntries(req, res) {
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
   };
+
   const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (err, collection) => {
@@ -201,16 +206,12 @@ function getEntries(req, res) {
   });
 }
 
-function mapForEach(req, res) {
-// TODO
-}
-
 function hasElement(req, res) {
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
   };
 
-  const collectionName = `${req.params.mapName}_map`;
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
@@ -218,16 +219,18 @@ function hasElement(req, res) {
       return;
     }
 
-    collection.deleteOne({ key: req.params.key }, (error, result) => {
+    collection.findOne({ key: req.params.key }, (error, data) => {
       if (error) {
         console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `element ${req.params.key} removed`;
+      }
+
+      if (data) {
+        jsonResult.result = true;
         jsonResult.status = 200;
         res.send(jsonResult);
       } else {
-        jsonResult.result = `element ${req.params.executionName} do not exist`;
-        jsonResult.status = 404;
+        jsonResult.result = false;
+        jsonResult.status = 200;
         res.send(jsonResult);
       }
     });

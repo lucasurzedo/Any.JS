@@ -35,14 +35,14 @@ router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExe
 
 // requests for map service
 router.post('/map/set', map.setElement);
-router.get('/map/get/:mapName/:key', map.getElement);
-router.delete('/map/clear/:mapName', map.clearMap);
-router.delete('/map/delete/:mapName/:key', map.deleteKey);
-router.get('/map/entries/:mapName', map.getEntries);
 router.post('/map/forEach', map.mapForEach);
-router.post('/map/has', map.hasElement);
-router.post('/map/keys', map.getAllKeys);
-router.post('/map/values', map.getAllElements);
+router.get('/map/get/:mapName/:key', map.getElement);
+router.get('/map/entries/:mapName', map.getEntries);
+router.get('/map/has/:mapName/:key', map.hasElement);
+router.get('/map/keys', map.getAllKeys);
+router.get('/map/values', map.getAllElements);
+router.delete('/map/delete/:mapName/:key', map.deleteKey);
+router.delete('/map/clear/:mapName', map.clearMap);
 
 // requests for sync service
 
