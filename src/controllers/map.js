@@ -238,7 +238,42 @@ function hasElement(req, res) {
 }
 
 function getAllKeys(req, res) {
-// TODO
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.find({}).toArray((error, documents) => {
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      const elements = [];
+
+      for (const iterator of documents) {
+        if (iterator.taskName === undefined) {
+          elements.push(iterator.key);
+        }
+      }
+      if (elements.length === 0) {
+        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      } else {
+        jsonResult.keys = elements;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      }
+    });
+  });
 }
 
 function getAllElements(req, res) {
