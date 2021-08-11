@@ -276,8 +276,43 @@ function getAllKeys(req, res) {
   });
 }
 
-function getAllElements(req, res) {
-// TODO
+function getAllValues(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.find({}).toArray((error, documents) => {
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      const elements = [];
+
+      for (const iterator of documents) {
+        if (iterator.taskName === undefined) {
+          elements.push(iterator.value);
+        }
+      }
+      if (elements.length === 0) {
+        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      } else {
+        jsonResult.values = elements;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      }
+    });
+  });
 }
 
 module.exports = {
@@ -289,5 +324,5 @@ module.exports = {
   mapForEach,
   hasElement,
   getAllKeys,
-  getAllElements,
+  getAllValues,
 };
