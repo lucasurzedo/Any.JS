@@ -59,6 +59,14 @@ function setElement(req, res) {
   });
 }
 
+function updateElement(req, res) {
+  // TODO
+}
+
+function updateMap(req, res) {
+  // TODO
+}
+
 function mapForEach(req, res) {
   // TODO
 }
@@ -98,69 +106,6 @@ function getElement(req, res) {
       };
 
       res.send(jsonResult);
-    });
-  });
-}
-
-function clearMap(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = `${req.params.mapName}_map`;
-
-  mongoose.connection.db.collection(collectionName, async (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    const collectionCount = await collection.countDocuments();
-    if (collectionCount === 0) {
-      const jsonError = {
-        uri: `${req.baseUrl}${req.url}`,
-        result: `there is no map ${collectionName}`,
-        status: 404,
-      };
-      res.send(jsonError);
-
-      return;
-    }
-
-    collection.drop();
-
-    jsonResult.result = `map ${req.params.mapName} deleted`;
-    jsonResult.status = 200;
-
-    res.send(jsonResult);
-  });
-}
-
-function deleteKey(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = `${req.params.mapName}_map`;
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.deleteOne({ key: req.params.key }, (error, result) => {
-      if (error) {
-        console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `element ${req.params.key} removed`;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = `element ${req.params.executionName} do not exist`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      }
     });
   });
 }
@@ -315,14 +260,79 @@ function getAllValues(req, res) {
   });
 }
 
+function deleteKey(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = `${req.params.mapName}_map`;
+
+  mongoose.connection.db.collection(collectionName, (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    collection.deleteOne({ key: req.params.key }, (error, result) => {
+      if (error) {
+        console.log(error);
+      } else if (result.deletedCount > 0) {
+        jsonResult.result = `element ${req.params.key} removed`;
+        jsonResult.status = 200;
+        res.send(jsonResult);
+      } else {
+        jsonResult.result = `element ${req.params.executionName} do not exist`;
+        jsonResult.status = 404;
+        res.send(jsonResult);
+      }
+    });
+  });
+}
+
+function clearMap(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = `${req.params.mapName}_map`;
+
+  mongoose.connection.db.collection(collectionName, async (err, collection) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    const collectionCount = await collection.countDocuments();
+    if (collectionCount === 0) {
+      const jsonError = {
+        uri: `${req.baseUrl}${req.url}`,
+        result: `there is no map ${collectionName}`,
+        status: 404,
+      };
+      res.send(jsonError);
+
+      return;
+    }
+
+    collection.drop();
+
+    jsonResult.result = `map ${req.params.mapName} deleted`;
+    jsonResult.status = 200;
+
+    res.send(jsonResult);
+  });
+}
+
 module.exports = {
   setElement,
-  getElement,
-  clearMap,
-  deleteKey,
-  getEntries,
+  updateElement,
+  updateMap,
   mapForEach,
+  getElement,
+  getEntries,
   hasElement,
   getAllKeys,
   getAllValues,
+  deleteKey,
+  clearMap,
 };
