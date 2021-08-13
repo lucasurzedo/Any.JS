@@ -18,7 +18,7 @@ function setElement(req, res) {
   mapName = mapName.toLowerCase();
   req.body.mapName = mapName;
 
-  const collectionName = `${req.body.mapName}_map`;
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (error, collection) => {
     if (error) {
@@ -76,7 +76,7 @@ function getElement(req, res) {
   mapName = mapName.toLowerCase();
   req.params.mapName = mapName;
 
-  const collectionName = `${req.params.mapName}_map`;
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (error, collection) => {
     if (error) {
@@ -265,7 +265,7 @@ function deleteKey(req, res) {
     uri: `${req.baseUrl}${req.url}`,
   };
 
-  const collectionName = `${req.params.mapName}_map`;
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
