@@ -18,7 +18,7 @@ function setElement(req, res) {
   mapName = mapName.toLowerCase();
   req.body.mapName = mapName;
 
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
   mongoose.connection.db.collection(collectionName, (error, collection) => {
     if (error) {
@@ -60,7 +60,62 @@ function setElement(req, res) {
 }
 
 function updateElement(req, res) {
-  // TODO
+  if (!req.body.mapName || !req.body.key || !req.body.value) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
+    res.send(jsonError);
+
+    return;
+  }
+
+  let mapName = `${req.body.mapName}`;
+  mapName = mapName.toLowerCase();
+  req.body.mapName = mapName;
+
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+
+  mongoose.connection.db.collection(collectionName, (error, collection) => {
+    if (error) {
+      console.log(error);
+    }
+
+    collection.findOne({ key: req.body.key }, (err, data) => {
+      if (err) {
+        console.log(err);
+      }
+
+      if (!data) {
+        const jsonError = {
+          uri: `${req.baseUrl}${req.url}`,
+          result: `there is no key ${req.body.key}`,
+          status: 404,
+        };
+        res.send(jsonError);
+
+        return;
+      }
+
+      const newValues = {
+        $set: { key: req.body.key, value: req.body.value },
+        $currentDate: { lastModified: true },
+      };
+
+      collection.updateOne({ key: req.body.key }, newValues, (error) => {
+        if (error) throw err;
+
+        const jsonResult = {
+          uri: `${req.baseUrl}${req.url}`,
+          status: 200,
+        };
+
+        res.send(jsonResult);
+      });
+    });
+  });
 }
 
 function updateMap(req, res) {
