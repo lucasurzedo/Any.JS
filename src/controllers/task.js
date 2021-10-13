@@ -12,7 +12,7 @@ async function createTask(req, res) {
   };
 
   if (!req.body.taskName || !req.body.code || !req.body.args
-      || !req.body.method || !req.body.return) {
+      || !req.body.method) {
     res.send(jsonError);
     return;
   }
@@ -96,7 +96,7 @@ async function createTask(req, res) {
           // If the file don't exists then its downloaded and executed
           // If the file exists then its executed
           if (methodsLinks.length > 0) {
-            console.log('Download codes');
+            console.log('Downloading codes');
             const code = await utils.downloadCode(methodsLinks);
             if (code) {
               const jsonResult = {
@@ -281,11 +281,13 @@ async function getTask(req, res) {
 }
 
 async function getExecution(req, res) {
-  const collectionName = (`${req.params.taskName}`).toLowerCase();
+  const collectionName = (`${req.params.taskName}_task`).toLowerCase();
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
     execution: null,
   };
+
+  console.log(collectionName);
 
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {

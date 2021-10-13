@@ -52,7 +52,13 @@ if (!isMainThread) {
       }
     } else {
       const obj = new Code();
-      parentPort.postMessage(obj[functionName]);
+
+      if (workerData.methodArgs.length > 0) {
+        const args = workerData.methodArgs;
+        parentPort.postMessage(obj[functionName](...args));
+      } else {
+        parentPort.postMessage(obj[functionName]);
+      }
     }
   } catch (error) {
     parentPort.postMessage('error during execute process');

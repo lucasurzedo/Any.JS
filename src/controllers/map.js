@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const ModelMap = require('../models/map');
+const ModelTask = require('../models/task');
+const db = require('../db');
+const executeFunction = require('../services/executeFunction');
 
-function setElement(req, res) {
+async function setElement(req, res) {
   if (!req.body.mapName || !req.body.key || !req.body.value) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
@@ -20,46 +23,35 @@ function setElement(req, res) {
 
   const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
-  mongoose.connection.db.collection(collectionName, (error, collection) => {
-    if (error) {
-      console.log(error);
-    }
+  const document = await db.getDocument(collectionName, 'key', req.body.key);
 
-    collection.findOne({ key: req.body.key }, async (err, data) => {
-      if (err) {
-        console.log(err);
-      }
+  if (document) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'duplicate key',
+      status: 409,
+    };
+    res.send(jsonError);
+  } else {
+    const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
-      if (data) {
-        const jsonError = {
-          uri: `${req.baseUrl}${req.url}`,
-          result: 'duplicate key',
-          status: 409,
-        };
-        res.send(jsonError);
-
-        return;
-      }
-      const Element = mongoose.model(collectionName, ModelMap, collectionName);
-
-      const newElement = new Element({
-        mapName: req.body.mapName,
-        key: req.body.key,
-        value: req.body.value,
-      });
-
-      newElement.save();
-
-      const jsonResult = {
-        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
-        status: 201,
-      };
-      res.send(jsonResult);
+    const newElement = new Element({
+      mapName: req.body.mapName,
+      key: req.body.key,
+      value: req.body.value,
     });
-  });
+
+    newElement.save();
+
+    const jsonResult = {
+      result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+      status: 201,
+    };
+    res.send(jsonResult);
+  }
 }
 
-function updateElement(req, res) {
+async function updateElement(req, res) {
   if (!req.body.mapName || !req.body.key || !req.body.value) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
@@ -72,310 +64,284 @@ function updateElement(req, res) {
     return;
   }
 
-  let mapName = `${req.body.mapName}`;
-  mapName = mapName.toLowerCase();
-  req.body.mapName = mapName;
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+
+  const newValues = {
+    $set: { key: req.body.key, value: req.body.value },
+    $currentDate: { lastModified: true },
+  };
+
+  const updated = await db.updateDocument(collectionName, 'key', req.body.key, newValues);
+
+  if (updated.modifiedCount > 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}/map/get/${req.body.mapName}/${req.body.key}`,
+      status: 200,
+    };
+
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no key ${req.body.key}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
+}
+
+async function updateMap(req, res) {
+  if (!req.body.mapName || !req.body.elements) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
+    res.send(jsonError);
+
+    return;
+  }
 
   const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
-  mongoose.connection.db.collection(collectionName, (error, collection) => {
-    if (error) {
-      console.log(error);
-    }
+  const collection = db.getCollection(collectionName);
+}
 
-    collection.findOne({ key: req.body.key }, (err, data) => {
-      if (err) {
-        console.log(err);
-      }
+async function mapForEach(req, res) {
+  if (!req.body.mapName || !req.body.code || !req.body.args
+    || !req.body.method) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
 
-      if (!data) {
-        const jsonError = {
-          uri: `${req.baseUrl}${req.url}`,
-          result: `there is no key ${req.body.key}`,
-          status: 404,
-        };
-        res.send(jsonError);
+    res.send(jsonError);
+    return;
+  }
 
-        return;
-      }
+  let collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
-      const newValues = {
-        $set: { key: req.body.key, value: req.body.value },
-        $currentDate: { lastModified: true },
-      };
+  const documents = await db.getAllDocuments(collectionName);
 
-      collection.updateOne({ key: req.body.key }, newValues, (error) => {
-        if (error) throw err;
+  const results = [];
+  for (const iterator of documents) {
+    const obj = {};
+    obj[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
+    results.push(obj);
+  }
 
-        const jsonResult = {
-          uri: `${req.baseUrl}${req.url}`,
-          status: 200,
-        };
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+    results,
+    status: 200,
+  };
+  res.send(jsonResult);
 
-        res.send(jsonResult);
-      });
+  collectionName = (`${req.body.mapName}_task`).toLowerCase();
+
+  const Task = mongoose.model(collectionName, ModelTask, collectionName);
+
+  
+
+  for (const iterator of documents) {
+    req.body.methodArgs = [];
+    req.body.methodArgs.push(iterator.value);
+
+    const newTask = new Task({
+      executionName: iterator.key,
+      parameterValue: req.body.args,
+      method: req.body.method,
+      methodArgs: req.body.methodArgs,
+      taskResult: null,
     });
-  });
+
+    // eslint-disable-next-line no-await-in-loop
+    await newTask.save();
+
+    executeFunction(req.body).then((result) => {
+      console.log(result);
+      newTask.taskResult = result;
+      newTask.save();
+    });
+  }
 }
 
-function updateMap(req, res) {
-  // TODO
-}
-
-function mapForEach(req, res) {
-  // TODO
-}
-
-function getElement(req, res) {
+async function getElement(req, res) {
   let mapName = `${req.params.mapName}`;
   mapName = mapName.toLowerCase();
   req.params.mapName = mapName;
 
   const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
-  mongoose.connection.db.collection(collectionName, (error, collection) => {
-    if (error) {
-      console.log(error);
-    }
+  const document = await db.getDocument(collectionName, 'key', req.params.key);
 
-    collection.findOne({ key: req.params.key }, (err, data) => {
-      if (err) {
-        console.log(err);
-      }
-
-      if (!data) {
-        const jsonError = {
-          uri: `${req.baseUrl}${req.url}`,
-          result: `there is no key ${req.params.key}`,
-          status: 404,
-        };
-        res.send(jsonError);
-
-        return;
-      }
-
-      const jsonResult = {
-        uri: `${req.baseUrl}${req.url}`,
-        result: data.value,
-        status: 200,
-      };
-
-      res.send(jsonResult);
-    });
-  });
-}
-
-function getEntries(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      const elements = [];
-
-      let element;
-      for (const iterator of documents) {
-        if (iterator.taskName === undefined) {
-          element = [iterator.key, iterator.value];
-          elements.push(element);
-        }
-      }
-      if (elements.length === 0) {
-        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.elements = elements;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
-function hasElement(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.findOne({ key: req.params.key }, (error, data) => {
-      if (error) {
-        console.log(error);
-      }
-
-      if (data) {
-        jsonResult.result = true;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = false;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
-function getAllKeys(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      const elements = [];
-
-      for (const iterator of documents) {
-        if (iterator.taskName === undefined) {
-          elements.push(iterator.key);
-        }
-      }
-      if (elements.length === 0) {
-        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.keys = elements;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
-function getAllValues(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      const elements = [];
-
-      for (const iterator of documents) {
-        if (iterator.taskName === undefined) {
-          elements.push(iterator.value);
-        }
-      }
-      if (elements.length === 0) {
-        jsonResult.result = `there is no elements in map ${req.params.mapName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.values = elements;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
-function deleteKey(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.deleteOne({ key: req.params.key }, (error, result) => {
-      if (error) {
-        console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `element ${req.params.key} removed`;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = `element ${req.params.key} do not exist`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
-function clearMap(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, async (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    const collectionCount = await collection.countDocuments();
-    if (collectionCount === 0) {
-      const jsonError = {
-        uri: `${req.baseUrl}${req.url}`,
-        result: `there is no map ${collectionName}`,
-        status: 404,
-      };
-      res.send(jsonError);
-
-      return;
-    }
-
-    collection.drop();
-
-    jsonResult.result = `map ${req.params.mapName} deleted`;
-    jsonResult.status = 200;
+  if (!document) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no key ${req.params.key}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: document.value,
+      status: 200,
+    };
 
     res.send(jsonResult);
-  });
+  }
+}
+
+async function getEntries(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const documents = await db.getAllDocuments(collectionName);
+
+  const elements = [];
+
+  for (const iterator of documents) {
+    const obj = {};
+    obj[iterator.key] = iterator.value;
+    elements.push(obj);
+  }
+
+  if (elements.length === 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no elements in map ${req.params.mapName}`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      elements,
+      status: 200,
+    };
+    res.send(jsonResult);
+  }
+}
+
+async function hasElement(req, res) {
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}`,
+  };
+
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const document = await db.getDocument(collectionName, 'key', req.params.key);
+
+  jsonResult.status = 200;
+  if (document) {
+    jsonResult.result = true;
+    res.send(jsonResult);
+  } else {
+    jsonResult.result = false;
+    res.send(jsonResult);
+  }
+}
+
+async function getAllKeys(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const documents = await db.getAllDocuments(collectionName);
+
+  const elements = [];
+
+  for (const iterator of documents) {
+    elements.push(iterator.key);
+  }
+
+  if (elements.length === 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no elements in map ${req.params.mapName}`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      keys: elements,
+      status: 200,
+    };
+    res.send(jsonResult);
+  }
+}
+
+async function getAllValues(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const documents = await db.getAllDocuments(collectionName);
+
+  const elements = [];
+
+  for (const iterator of documents) {
+    elements.push(iterator.value);
+  }
+
+  if (elements.length === 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no elements in map ${req.params.mapName}`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      values: elements,
+      status: 200,
+    };
+    res.send(jsonResult);
+  }
+}
+
+async function deleteKey(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const deleted = await db.deleteDocument(collectionName, 'key', req.params.key);
+
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `element ${req.params.key} removed`,
+      status: 200,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `element ${req.params.key} do not exist`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  }
+}
+
+async function clearMap(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const result = await db.dropCollection(collectionName);
+
+  if (result) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `map ${req.params.mapName} deleted`,
+      status: 200,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no map ${collectionName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
 }
 
 module.exports = {
