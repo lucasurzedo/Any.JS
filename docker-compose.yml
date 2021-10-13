@@ -1,96 +1,85 @@
 version: '3.2'
 
-x-deploy: &default-deploy
-replicas: 1
-restart_policy:
-  condition: on-failure
-
-x-deploy-manager: &default-deploy-manager
-<<: *default-deploy
-placement:
-  constraints:
-    - "node.role==manager"
-
-x-deploy-worker: &default-deploy-worker
-<<: *default-deploy
-placement:
-  constraints:
-    - "node.role==worker"
-
 services:
-db:
-  image: mongo:latest
-  deploy:
-    placement:
-    constraints:
-        - "node.role==manager"
-    restart_policy:
-        condition: none
-  volumes:
-    - "mongodb:/mongodb"
-  ports:
-    - "27017:27017"
+  db:
+    image: mongo:latest
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+      restart_policy:
+          condition: none
+    volumes:
+      - "mongodb:/mongodb"
+    ports:
+      - "27017:27017"
 
-server:
-  image: lucasurzedo/anyjs:1.0
-  environment:
-    NODE_ENV: development
-  depends_on:
-    - db
-  deploy:
-    placement:
-      constraints:
-        - "node.role==worker"
-      replicas: 4
-  ports:
-    - "4445:4445"
+  server:
+    image: lucasurzedo/anyjs:1.0
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - db
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+        replicas: 4
+    ports:
+      - "4445:4445"
 
-proxy:
-  image: lucasurzedo/anyjsproxy:1.0
-  deploy: *default-deploy-manager
-  ports:
-    - "80:4446"
+  proxy:
+    image: lucasurzedo/anyjsproxy:1.0
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+    ports:
+      - "80:4446"
 
-observer:
-  image: lucasurzedo/anyjsobserver:1.0
-  deploy: *default-deploy-worker
-  ports:
-    - "4447:4447"
+  observer:
+    image: lucasurzedo/anyjsobserver:1.0
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+    ports:
+      - "4447:4447"
 
-agent:
-  image: portainer/agent
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /var/lib/docker/volumes:/var/lib/docker/volumes
-  networks:
-    - agent_network
-  deploy:
-    mode: global
-    placement:
-      constraints: [node.platform.os == linux]
+  agent:
+    image: portainer/agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - agent_network
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.platform.os == linux]
 
-portainer:
-  image: portainer/portainer-ce
-  command: -H tcp://tasks.agent:9001 --tlsskipverify
-  ports:
-    - "9000:9000"
-    - "7000:8000"
-  volumes:
-    - portainer_data:/data
-  networks:
-    - agent_network
-  deploy:
-    mode: replicated
-    replicas: 1
-    placement:
-      constraints: [node.role == manager]
+  portainer:
+    image: portainer/portainer-ce
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "7000:8000"
+    volumes:
+      - portainer_data:/data
+    networks:
+      - agent_network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
 networks:
-agent_network:
-  driver: overlay
-  attachable: true
+  agent_network:
+    driver: overlay
+    attachable: true
 
 volumes:
-portainer_data:
-mongodb:
-anyjs:
+  portainer_data:
+  mongodb:
+  anyjs:
