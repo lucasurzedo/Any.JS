@@ -24,11 +24,25 @@ if (!isMainThread) {
     const Code = require(`../codes/${codeName}`);
     const functionName = workerData.method;
 
+    const ms = 10000;
+    const start = new Date().getTime();
+    let end = start;
+
+    while (end < start + ms) {
+      end = new Date().getTime();
+    }
+
     if (workerData.args.length > 0) {
       if (workerData.args.length === 1) {
         const args = workerData.args[0][workerData.code];
         const obj = new Code(...args);
-        parentPort.postMessage(obj[functionName]);
+
+        if (workerData.methodArgs.length > 0) {
+          const methodArgs = workerData.methodArgs;
+          parentPort.postMessage(obj[functionName](...methodArgs));
+        } else {
+          parentPort.postMessage(obj[functionName]);
+        }
       } else {
         // Percorre os args, require usando key
         // Push no array de args
@@ -48,7 +62,13 @@ if (!isMainThread) {
           }
         }
         const obj = new Code(...args);
-        parentPort.postMessage(obj[functionName]);
+
+        if (workerData.methodArgs.length > 0) {
+          const methodArgs = workerData.methodArgs;
+          parentPort.postMessage(obj[functionName](...methodArgs));
+        } else {
+          parentPort.postMessage(obj[functionName]);
+        }
       }
     } else {
       const obj = new Code();

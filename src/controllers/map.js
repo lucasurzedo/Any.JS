@@ -106,6 +106,7 @@ async function updateMap(req, res) {
   const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
   const collection = db.getCollection(collectionName);
+  console.log(collection);
 }
 
 async function mapForEach(req, res) {
@@ -143,8 +144,6 @@ async function mapForEach(req, res) {
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
-  
-
   for (const iterator of documents) {
     req.body.methodArgs = [];
     req.body.methodArgs.push(iterator.value);
@@ -161,7 +160,6 @@ async function mapForEach(req, res) {
     await newTask.save();
 
     executeFunction(req.body).then((result) => {
-      console.log(result);
       newTask.taskResult = result;
       newTask.save();
     });

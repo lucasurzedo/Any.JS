@@ -22,6 +22,10 @@ async function createTask(req, res) {
   req.body.code = codeName;
 
   // Open collection registers on db
+  /**
+   * TODO
+   * CHANGE TO const document = await db.getDocument('registers', 'codeName', codeName);
+   */
   mongoose.connection.db.collection('registers', (error, collection) => {
     if (error) {
       console.log(error);
@@ -69,6 +73,11 @@ async function createTask(req, res) {
 
         const collectionName = `${req.body.code}_task`;
 
+        /**
+         * TODO
+         * CHANGE TO
+         *const findExecutionName = await db.getDocument(collectionName, 'executionName', taskName);
+         */
         const taskCollection = mongoose.connection.db.collection(collectionName);
         // eslint-disable-next-line prefer-destructuring
         const taskName = req.body.taskName;
@@ -119,7 +128,7 @@ async function createTask(req, res) {
             }
           } else {
             const jsonResult = {
-              uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
+              uri: `${req.baseUrl}${req.url}/${req.body.code}/execution/${req.body.taskName}`.toLowerCase(),
               result: 'saving execution',
               status: 201,
             };
@@ -142,75 +151,16 @@ async function createTask(req, res) {
   });
 }
 
-async function taskExecute(req, res) {
-  const jsonError = {
-    uri: `${req.baseUrl}${req.url}`,
-    Error: 'Invalid JSON',
-    status: 400,
-  };
-
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-
-  const taskName = `${req.params.taskName}`;
-
-  if (!utils.validVariable(req.body.executions)) {
-    if (!utils.validVariable(req.body.executionName)) {
-      res.send(jsonError);
-      return;
-    }
-
-    if (!utils.validVariable(req.body.parameterValue)) {
-      res.send(jsonError);
-      return;
-    }
-
-    jsonResult.uri = `${req.baseUrl}${req.url}/${req.body.executionName}`;
-    utils.createExecution(req.body, res, jsonResult, taskName);
-  } else {
-    const executions = [];
-    for (const iterator of req.body.executions) {
-      executions.push(iterator);
-    }
-
-    for (let i = 0; i < executions.length; i += 1) {
-      if (!utils.validVariable(executions[i].executionName)) {
-        res.send(jsonError);
-        return;
-      }
-
-      if (!utils.validVariable(executions[i].parameterValue)) {
-        res.send(jsonError);
-        return;
-      }
-
-      utils.createExecution(executions[i], res, jsonResult, taskName);
-    }
-  }
-}
-
-async function getAllTasks(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-    tasks: null,
-  };
-
-  if (mongoose.connection.db === undefined) {
-    jsonResult.tasks = 'there is no tasks in the db';
-    jsonResult.status = 404;
-    res.send(jsonResult);
-  }
-
-  // TODO
-}
-
 async function getAllTaskExecutions(req, res) {
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
   };
   const collectionName = (`${req.params.taskName}`).toLowerCase();
 
+  /**
+   * TODO
+   * CHANGE TO const documents = await db.getAllDocuments(collectionName);
+   */
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
       console.log(err);
@@ -243,43 +193,6 @@ async function getAllTaskExecutions(req, res) {
   });
 }
 
-async function getTask(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-    task: null,
-  };
-  const collectionName = (`${req.params.taskName}`).toLowerCase();
-
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-
-      for (const iterator of documents) {
-        if (iterator.taskName !== undefined) {
-          jsonResult.task = iterator;
-        }
-      }
-      if (jsonResult.task === null) {
-        delete jsonResult.task;
-        jsonResult.result = `there is no task ${req.params.taskName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
-}
-
 async function getExecution(req, res) {
   const collectionName = (`${req.params.taskName}_task`).toLowerCase();
   const jsonResult = {
@@ -287,8 +200,11 @@ async function getExecution(req, res) {
     execution: null,
   };
 
-  console.log(collectionName);
-
+  /**
+   * TODO
+   * CHANGE TO
+   * const data = await db.getDocument(collectionName, 'executionName', req.params.executionName);
+   */
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
       console.log(err);
@@ -325,6 +241,11 @@ async function deleteTask(req, res) {
   };
   const collectionName = (`${req.params.taskName}`).toLowerCase();
 
+  /**
+   * TODO
+   * CHANGE TO MAP DROP
+   * const result = await db.dropCollection(collectionName)
+   */
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
       console.log(err);
@@ -344,6 +265,11 @@ async function deleteExecution(req, res) {
   };
   const collectionName = (`${req.params.taskName}`).toLowerCase();
 
+  /**
+   * TODO
+   * CHANGE TO MAP DELETE
+   *const data = await db.deleteDocument(collectionName, 'executionName', req.params.executionName);
+   */
   mongoose.connection.db.collection(collectionName, (err, collection) => {
     if (err) {
       console.log(err);
@@ -368,10 +294,7 @@ async function deleteExecution(req, res) {
 
 module.exports = {
   createTask,
-  taskExecute,
-  getAllTasks,
   getAllTaskExecutions,
-  getTask,
   getExecution,
   deleteTask,
   deleteExecution,

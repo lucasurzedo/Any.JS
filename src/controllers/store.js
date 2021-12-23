@@ -129,11 +129,11 @@ async function instantiateObject(req, res) {
         const objectCollection = mongoose.connection.db.collection(collectionName);
 
         const objName = req.body.objectName;
-        const findExecutionName = await objectCollection.findOne({ objectName: objName });
+        const findObjectName = await objectCollection.findOne({ objectName: objName });
 
-        if (findExecutionName != null) {
+        if (findObjectName != null) {
           const jsonResult = {
-            uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
+            uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
             result: `Object ${req.body.objectName} already exist`,
             status: 409,
           };
@@ -155,7 +155,7 @@ async function instantiateObject(req, res) {
             const code = await utils.downloadCode(methodsLinks);
             if (code) {
               const jsonResult = {
-                uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+                uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
                 result: 'instantiating object',
                 status: 201,
               };

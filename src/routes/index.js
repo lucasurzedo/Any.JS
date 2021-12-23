@@ -8,6 +8,7 @@ const map = require('../controllers/map');
 
 // requests for register service
 router.post('/register', register.registerCode);
+router.patch('register/:codeName', register.updateCode);
 router.get('/register/:codeName', register.getCode);
 router.delete('/register/:codeName', register.deleteCode);
 
@@ -25,10 +26,7 @@ router.delete('/instantiate/:objectName', store.deleteObject);
 
 // requests for execute service
 router.post('/execute/task', task.createTask);
-router.post('/execute/task/:taskName/execution', task.taskExecute);
-router.get('/execute/task', task.getAllTasks);
 router.get('/execute/task/:taskName/execution', task.getAllTaskExecutions);
-router.get('/execute/task/:taskName', task.getTask);
 router.get('/execute/task/:taskName/execution/:executionName', task.getExecution);
 router.delete('/execute/task/:taskName', task.deleteTask);
 router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExecution);

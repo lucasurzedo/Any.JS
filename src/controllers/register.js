@@ -72,6 +72,15 @@ async function registerCode(req, res) {
   });
 }
 
+async function updateCode(req, res) {
+  const collectionName = 'registers';
+
+  const newValues = {
+    $set: { code: req.body.code, value: req.body.value },
+    $currentDate: { lastModified: true },
+  };
+}
+
 async function getCode(req, res) {
   const collectionName = 'registers';
 
@@ -133,6 +142,7 @@ async function deleteCode(req, res) {
 
 module.exports = {
   registerCode,
+  updateCode,
   getCode,
   deleteCode,
 };
