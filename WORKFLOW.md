@@ -45,5 +45,5 @@ Create the PR by selecting the branch you just created.
 - refactor: reorganizations in the source code that do not include or change business rules, for example extracting new functions, 
     changing internal interfaces, changing communication, optimizing algorithms, changing dependencies
 - test: adding or changing tests
-- task: tasks not related to functionality or source code; no change in production code
+- chore: tasks not related to functionality or source code; no change in production code
 ```
