@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const db = require('../db');
 const validUrl = require('valid-url');
+const db = require('../db');
 const ModelRegister = require('../models/register');
+
 const collectionName = 'registers';
- 
+
 async function registerCode(req, res) {
   if (!req.body.codeName || !req.body.code) {
     const jsonError = {
@@ -65,22 +66,90 @@ async function registerCode(req, res) {
   }
 }
 
+async function updateCodeElement(req, res) {
+  if (!req.body.codeKey || !req.body.codeValue) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
+    res.send(jsonError);
+
+    return;
+  }
+
+  const document = await db.getDocument(collectionName, 'codeName', req.params.codeName);
+
+  let changed = false;
+  for (const iterator of document.code) {
+    if (iterator[req.body.codeKey]) {
+      iterator[req.body.codeKey] = req.body.codeValue;
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no codeKey ${req.body.codeKey}`,
+      status: 404,
+    };
+
+    res.send(jsonError);
+
+    return;
+  }
+
+  const newValues = {
+    $set: { code: document.code},
+    $currentDate: { lastModified: true },
+  };
+
+  const query = {};
+  query.codeName = req.params.codeName;
+
+  const updated = await db.updateDocument(collectionName, query, newValues);
+
+  if (updated.modifiedCount > 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      status: 200,
+    };
+
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no code ${req.body.key}`,
+      status: 404,
+    };
+
+    res.send(jsonError);
+  }
+}
+
 async function updateCode(req, res) {
-  const collectionName = 'registers';
+  if (!req.body.codeName || !req.body.code) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
+    res.send(jsonError);
+
+    return;
+  }
 
   const newValues = {
     $set: { code: req.body.code, value: req.body.value },
     $currentDate: { lastModified: true },
   };
-}
 
-async function updateCodeElement(req, res) {
-  const collectionName = 'registers';
 }
 
 async function getCode(req, res) {
-  const collectionName = 'registers';
-
   mongoose.connection.db.collection(collectionName, (error, collection) => {
     if (error) {
       console.log(error);

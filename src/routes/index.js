@@ -8,8 +8,8 @@ const map = require('../controllers/map');
 
 // requests for register service
 router.post('/register', register.registerCode);
-router.patch('register/:codeName', register.updateCodeElement);
-router.put('register/:codeName', register.updateCode);
+router.patch('/register/:codeName', register.updateCodeElement);
+router.put('/register/:codeName', register.updateCode);
 router.get('/register/:codeName', register.getCode);
 router.delete('/register/:codeName', register.deleteCode);
 
