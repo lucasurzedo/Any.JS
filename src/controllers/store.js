@@ -230,40 +230,26 @@ async function getAllObjects(req, res) {
 }
 
 async function getObject(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-    object: null,
-  };
-  const collectionName = `${req.params.codeName}_object`;
+  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
 
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const document = await db.getDocument(collectionName, 'objectName', req.params.objectName);
 
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
+  if (document) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: document,
+      status: 200,
+    };
 
-      for (const iterator of documents) {
-        if (iterator.objectName === req.params.objectName) {
-          jsonResult.object = iterator;
-        }
-      }
-      if (jsonResult.object === null) {
-        delete jsonResult.object;
-        jsonResult.result = `there is no object ${req.params.objectName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no object ${req.params.objectName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
 }
 
 async function deleteObject(req, res) {

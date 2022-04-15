@@ -197,10 +197,6 @@ async function mapForEach(req, res) {
 }
 
 async function getElement(req, res) {
-  let mapName = `${req.params.mapName}`;
-  mapName = mapName.toLowerCase();
-  req.params.mapName = mapName;
-
   const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   const document = await db.getDocument(collectionName, 'key', req.params.key);
