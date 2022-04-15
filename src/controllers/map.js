@@ -71,7 +71,10 @@ async function updateElement(req, res) {
     $currentDate: { lastModified: true },
   };
 
-  const updated = await db.updateDocument(collectionName, 'key', req.body.key, newValues);
+  const query = {};
+  query.key = req.body.key;
+
+  const updated = await db.updateDocument(collectionName, query, newValues);
 
   if (updated.modifiedCount > 0) {
     const jsonResult = {

@@ -25,11 +25,8 @@ async function getAllDocuments(collectionName) {
   return documents;
 }
 
-async function updateDocument(collectionName, key, value, newValues) {
+async function updateDocument(collectionName, query, newValues) {
   const collection = await getCollection(collectionName);
-
-  const query = {};
-  query[key] = value;
 
   const result = await collection.updateOne(query, newValues);
 
