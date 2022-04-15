@@ -24,14 +24,6 @@ if (!isMainThread) {
     const Code = require(`../codes/${codeName}`);
     const functionName = workerData.method;
 
-    // const ms = 10000;
-    // const start = new Date().getTime();
-    // let end = start;
-
-    // while (end < start + ms) {
-    //   end = new Date().getTime();
-    // }
-
     if (workerData.args.length > 0) {
       if (workerData.args.length === 1) {
         const args = workerData.args[0][workerData.code];
