@@ -2,8 +2,9 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const BSON = require('bson');
 const ModelObject = require('../models/object');
-const instantiateObj = require('../services/instantiateObj');
+const db = require('../db');
 const utils = require('../utils/index');
+const instantiateObj = require('../services/instantiateObj');
 
 async function storeObject(req, res) {
   if (!req.body.objectName || !req.body.code || !req.body.object) {
@@ -17,48 +18,34 @@ async function storeObject(req, res) {
     return;
   }
 
-  let codeName = `${req.body.code}`;
-  codeName = codeName.toLowerCase();
-  req.body.code = codeName;
+  const collectionName = (`${req.body.code}_object`).toLowerCase();
 
-  const collectionName = `${req.body.code}_object`;
+  const document = await db.getDocument(collectionName, 'objectName', req.params.key);
 
-  mongoose.connection.db.collection(collectionName, (error, collection) => {
-    if (error) {
-      console.log(error);
-    }
+  if (document) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'duplicate file',
+      status: 409,
+    };
+    res.send(jsonError);
+  } else {
+    const Object = mongoose.model(collectionName, ModelObject, collectionName);
 
-    collection.findOne({ objectName: req.body.objectName }, async (err, data) => {
-      if (err) {
-        console.log(err);
-      }
-
-      if (data) {
-        const jsonError = {
-          uri: `${req.baseUrl}${req.url}`,
-          result: 'duplicate file',
-          status: 409,
-        };
-        res.send(jsonError);
-      } else {
-        const Object = mongoose.model(collectionName, ModelObject, collectionName);
-
-        const newObject = new Object({
-          className: req.body.code,
-          objectName: req.body.objectName,
-          object: req.body.object,
-        });
-
-        newObject.save();
-
-        const jsonResult = {
-          result: `${req.baseUrl}${req.url}/${req.body.objectName}`,
-          status: 201,
-        };
-        res.send(jsonResult);
-      }
+    const newObject = new Object({
+      className: req.body.code,
+      objectName: req.body.objectName,
+      object: req.body.object,
     });
-  });
+
+    newObject.save();
+
+    const jsonResult = {
+      result: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      status: 201,
+    };
+    res.send(jsonResult);
+  }
 }
 
 async function instantiateObject(req, res) {
