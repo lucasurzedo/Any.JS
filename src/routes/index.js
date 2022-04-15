@@ -8,7 +8,8 @@ const map = require('../controllers/map');
 
 // requests for register service
 router.post('/register', register.registerCode);
-router.patch('register/:codeName', register.updateCode);
+router.patch('register/:codeName', register.updateCodeElement);
+router.put('register/:codeName', register.updateCode);
 router.get('/register/:codeName', register.getCode);
 router.delete('/register/:codeName', register.deleteCode);
 
@@ -33,9 +34,9 @@ router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExe
 
 // requests for map service
 router.post('/map/set', map.setElement);
+router.post('/map/forEach', map.mapForEach);
 router.patch('/map/update', map.updateElement);
 router.put('/map/update', map.updateMap);
-router.post('/map/forEach', map.mapForEach);
 router.get('/map/get/:mapName/:key', map.getElement);
 router.get('/map/entries/:mapName', map.getEntries);
 router.get('/map/has/:mapName/:key', map.hasElement);
