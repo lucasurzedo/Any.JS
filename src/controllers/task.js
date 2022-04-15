@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
-const utils = require('../utils/index');
 const ModelTask = require('../models/task');
+const db = require('../db');
+const utils = require('../utils/index');
 const executeFunction = require('../services/executeFunction');
 
 async function createTask(req, res) {
@@ -152,45 +153,70 @@ async function createTask(req, res) {
 }
 
 async function getAllTaskExecutions(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-  const collectionName = (`${req.params.taskName}`).toLowerCase();
+  const collectionName = (`${req.params.taskName}_task`).toLowerCase();
 
-  /**
-   * TODO
-   * CHANGE TO const documents = await db.getAllDocuments(collectionName);
-   */
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const documents = await db.getAllDocuments(collectionName);
 
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
+  const executions = [];
+  for (const iterator of documents) {
+    executions.push(iterator);
+  }
 
-      const executions = [];
+  if (executions.length === 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no executions in task ${req.params.taskName}`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      executions,
+      status: 200,
+    };
+    res.send(jsonResult);
+  }
 
-      for (const iterator of documents) {
-        if (iterator.taskName === undefined) {
-          executions.push(iterator);
-        }
-      }
-      if (executions.length === 0) {
-        jsonResult.result = `there is no executions in collection ${req.params.taskName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.executions = executions;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
+  // const jsonResult = {
+  //   uri: `${req.baseUrl}${req.url}`,
+  // };
+  // const collectionName = (`${req.params.taskName}`).toLowerCase();
+
+  // /**
+  //  * TODO
+  //  * CHANGE TO const documents = await db.getAllDocuments(collectionName);
+  //  */
+  // mongoose.connection.db.collection(collectionName, (err, collection) => {
+  //   if (err) {
+  //     console.log(err);
+  //     return;
+  //   }
+
+  //   collection.find({}).toArray((error, documents) => {
+  //     if (error) {
+  //       console.log(error);
+  //       return;
+  //     }
+
+  //     const executions = [];
+
+  //     for (const iterator of documents) {
+  //       if (iterator.taskName === undefined) {
+  //         executions.push(iterator);
+  //       }
+  //     }
+  //     if (executions.length === 0) {
+  //       jsonResult.result = `there is no executions in collection ${req.params.taskName}`;
+  //       jsonResult.status = 404;
+  //       res.send(jsonResult);
+  //     } else {
+  //       jsonResult.executions = executions;
+  //       jsonResult.status = 200;
+  //       res.send(jsonResult);
+  //     }
+  //   });
+  // });
 }
 
 async function getExecution(req, res) {
