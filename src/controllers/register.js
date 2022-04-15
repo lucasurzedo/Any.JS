@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const validUrl = require('valid-url');
 const db = require('../db');
 const ModelRegister = require('../models/register');
@@ -101,7 +102,7 @@ async function updateCodeElement(req, res) {
   }
 
   const newValues = {
-    $set: { code: document.code},
+    $set: { code: document.code },
     $currentDate: { lastModified: true },
   };
 
@@ -142,7 +143,7 @@ async function updateCode(req, res) {
   }
 
   const newValues = {
-    $set: { code: req.body.code},
+    $set: { code: req.body.code },
     $currentDate: { lastModified: true },
   };
 
