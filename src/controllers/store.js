@@ -20,7 +20,7 @@ async function storeObject(req, res) {
 
   const collectionName = (`${req.body.code}_object`).toLowerCase();
 
-  const document = await db.getDocument(collectionName, 'objectName', req.params.key);
+  const document = await db.getDocument(collectionName, 'objectName', req.body.objectName);
 
   if (document) {
     const jsonError = {
@@ -49,20 +49,38 @@ async function storeObject(req, res) {
 }
 
 async function instantiateObject(req, res) {
-  const jsonError = {
-    uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
-    Error: 'Invalid JSON',
-    status: 400,
-  };
-
   if (!req.body.objectName || !req.body.code || !req.body.args) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
     res.send(jsonError);
     return;
   }
 
-  let codeName = `${req.body.code}`;
-  codeName = codeName.toLowerCase();
-  req.body.code = codeName;
+  const collectionName = (`${req.body.code}_object`).toLowerCase();
+  const registerCollection = 'registers';
+
+  const document = await db.getDocument(registerCollection, 'codeName', req.params.codeName);
+
+  if (document) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: document,
+      status: 200,
+    };
+
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no code ${req.params.codeName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
 
   // Open collection registers on db
   mongoose.connection.db.collection('registers', (error, collection) => {
@@ -185,40 +203,30 @@ async function instantiateObject(req, res) {
 }
 
 async function getAllObjects(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-    objects: null,
-  };
+  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
 
-  mongoose.connection.db.collection('collectionName', (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const documents = await db.getAllDocuments(collectionName);
 
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
+  const elements = [];
+  for (const iterator of documents) {
+    elements.push(iterator);
+  }
 
-      const objects = [];
-
-      for (const iterator of documents) {
-        objects.push(iterator);
-      }
-
-      if (objects.length === 0) {
-        jsonResult.result = 'there is no objects in collection objects';
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.objects = objects;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
+  if (elements.length === 0) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no elements in object ${req.params.codeName}`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      elements,
+      status: 200,
+    };
+    res.send(jsonResult);
+  }
 }
 
 async function getObject(req, res) {

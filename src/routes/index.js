@@ -15,14 +15,14 @@ router.delete('/register/:codeName', register.deleteCode);
 
 // requests for store service
 router.post('/store/object', store.storeObject);
-router.get('/store/object/', store.getAllObjects);
+router.get('/store/object/:codeName', store.getAllObjects);
 router.get('/store/object/:codeName/:objectName', store.getObject);
 router.delete('/store/object/:codeName/:objectName', store.deleteObject);
 
 // requests for instantiate service
 router.post('/instantiate/', store.instantiateObject);
-router.get('/instantiate/', store.getAllObjects);
-router.get('/instantiate/:objectName', store.getObject);
+router.get('/instantiate/:codeName', store.getAllObjects);
+router.get('/instantiate/:codeName/:objectName', store.getObject);
 router.delete('/instantiate/:objectName', store.deleteObject);
 
 // requests for execute service

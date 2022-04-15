@@ -156,9 +156,9 @@ async function mapForEach(req, res) {
 
   const documents = await db.getAllDocuments(collectionName);
 
+  const obj = {};
   const results = [];
   for (const iterator of documents) {
-    const obj = {};
     obj[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
     results.push(obj);
   }
@@ -230,8 +230,8 @@ async function getEntries(req, res) {
 
   const elements = [];
 
+  const obj = {};
   for (const iterator of documents) {
-    const obj = {};
     obj[iterator.key] = iterator.value;
     elements.push(obj);
   }
