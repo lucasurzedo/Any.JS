@@ -192,30 +192,23 @@ async function getCode(req, res) {
 }
 
 async function deleteCode(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
+  const deleted = await db.deleteDocument(collectionName, 'codeName', req.params.codeName);
 
-  mongoose.connection.db.collection('registers', (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
-
-    collection.deleteOne({ codeName: req.params.codeName }, (error, result) => {
-      if (error) {
-        console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `execution ${req.params.codeName} deleted`;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = `execution ${req.params.codeName} do not exist`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      }
-    });
-  });
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `code ${req.params.codeName} removed`,
+      status: 200,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `code ${req.params.codeName} do not exist`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  }
 }
 
 module.exports = {
