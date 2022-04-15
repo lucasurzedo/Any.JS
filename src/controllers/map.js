@@ -64,8 +64,6 @@ async function updateElement(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
-
   const newValues = {
     $set: { key: req.body.key, value: req.body.value },
     $currentDate: { lastModified: true },
@@ -73,6 +71,8 @@ async function updateElement(req, res) {
 
   const query = {};
   query.key = req.body.key;
+
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
@@ -94,7 +94,7 @@ async function updateElement(req, res) {
 }
 
 async function updateMap(req, res) {
-  if (!req.body.mapName || !req.body.elements) {
+  if (!req.body.mapName || !req.body.map) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -108,9 +108,35 @@ async function updateMap(req, res) {
 
   const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
-  const collection = db.getCollection(collectionName);
-  console.log(collection);
-  // TODO
+  await db.dropCollection(collectionName);
+
+  for (const element in req.body.map) {
+    try {
+      const Element = mongoose.model(collectionName, ModelMap, collectionName);
+
+      const newElement = new Element({
+        mapName: req.body.mapName,
+        key: element,
+        value: req.body.map[element],
+      });
+
+      newElement.save();
+    } catch (error) {
+      const jsonError = {
+        uri: `${req.baseUrl}${req.url}`,
+        result: 'error during update process',
+        status: 500,
+      };
+      res.send(jsonError);
+      return;
+    }
+  }
+
+  const jsonResult = {
+    result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+    status: 201,
+  };
+  res.send(jsonResult);
 }
 
 async function mapForEach(req, res) {
@@ -144,7 +170,7 @@ async function mapForEach(req, res) {
   };
   res.send(jsonResult);
 
-  collectionName = (`${req.body.mapName}_task`).toLowerCase();
+  collectionName = (`${req.body.mapName}_map_task`).toLowerCase();
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
