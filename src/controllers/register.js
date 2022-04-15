@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const validUrl = require('valid-url');
 const db = require('../db');
 const ModelRegister = require('../models/register');
