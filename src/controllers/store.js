@@ -253,31 +253,25 @@ async function getObject(req, res) {
 }
 
 async function deleteObject(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-  const collectionName = 'objects';
+  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
 
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const deleted = await db.deleteDocument(collectionName, 'objectName', req.params.objectName);
 
-    collection.deleteOne({ objectName: req.params.objectName }, (error, result) => {
-      if (error) {
-        console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `object ${req.params.objectName} deleted`;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = `object ${req.params.objectName} do not exist`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      }
-    });
-  });
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `object ${req.params.objectName} removed`,
+      status: 200,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `object ${req.params.objectName} do not exist`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  }
 }
 
 module.exports = {
