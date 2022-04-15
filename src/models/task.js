@@ -7,6 +7,7 @@ const TaskSchema = mongoose.Schema({
   content: Object,
   executionName: String,
   parameterValue: Object,
+  method: String,
   methodArgs: Object,
   taskResult: Object,
   date: {

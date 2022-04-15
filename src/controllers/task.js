@@ -13,7 +13,7 @@ async function createTask(req, res) {
   };
 
   if (!req.body.taskName || !req.body.code || !req.body.args
-      || !req.body.method) {
+      || !req.body.method || !req.body.methodArgs) {
     res.send(jsonError);
     return;
   }
@@ -98,6 +98,7 @@ async function createTask(req, res) {
             executionName: req.body.taskName,
             parameterValue: req.body.args,
             method: req.body.method,
+            methodArgs: req.body.methodArgs,
             taskResult: null,
           });
 
@@ -177,145 +178,73 @@ async function getAllTaskExecutions(req, res) {
     };
     res.send(jsonResult);
   }
-
-  // const jsonResult = {
-  //   uri: `${req.baseUrl}${req.url}`,
-  // };
-  // const collectionName = (`${req.params.taskName}`).toLowerCase();
-
-  // /**
-  //  * TODO
-  //  * CHANGE TO const documents = await db.getAllDocuments(collectionName);
-  //  */
-  // mongoose.connection.db.collection(collectionName, (err, collection) => {
-  //   if (err) {
-  //     console.log(err);
-  //     return;
-  //   }
-
-  //   collection.find({}).toArray((error, documents) => {
-  //     if (error) {
-  //       console.log(error);
-  //       return;
-  //     }
-
-  //     const executions = [];
-
-  //     for (const iterator of documents) {
-  //       if (iterator.taskName === undefined) {
-  //         executions.push(iterator);
-  //       }
-  //     }
-  //     if (executions.length === 0) {
-  //       jsonResult.result = `there is no executions in collection ${req.params.taskName}`;
-  //       jsonResult.status = 404;
-  //       res.send(jsonResult);
-  //     } else {
-  //       jsonResult.executions = executions;
-  //       jsonResult.status = 200;
-  //       res.send(jsonResult);
-  //     }
-  //   });
-  // });
 }
 
 async function getExecution(req, res) {
   const collectionName = (`${req.params.taskName}_task`).toLowerCase();
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-    execution: null,
-  };
 
-  /**
-   * TODO
-   * CHANGE TO
-   * const data = await db.getDocument(collectionName, 'executionName', req.params.executionName);
-   */
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const document = await db.getDocument(collectionName, 'executionName', req.params.executionName);
 
-    collection.find({}).toArray((error, documents) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
+  if (document) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: document,
+      status: 200,
+    };
 
-      for (const iterator of documents) {
-        if (iterator.executionName === req.params.executionName) {
-          jsonResult.execution = iterator;
-        }
-      }
-      if (jsonResult.execution === null) {
-        delete jsonResult.execution;
-        jsonResult.result = `there is no execution ${req.params.executionName}`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      } else {
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      }
-    });
-  });
+    res.send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no execution ${req.params.executionName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
 }
 
 async function deleteTask(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-  const collectionName = (`${req.params.taskName}`).toLowerCase();
+  const collectionName = (`${req.params.taskName}_task`).toLowerCase();
 
-  /**
-   * TODO
-   * CHANGE TO MAP DROP
-   * const result = await db.dropCollection(collectionName)
-   */
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const result = await db.dropCollection(collectionName);
 
-    collection.drop();
-    jsonResult.result = `task ${req.params.taskName} deleted`;
-    jsonResult.status = 200;
+  if (result) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `task ${req.params.taskName} deleted`,
+      status: 200,
+    };
     res.send(jsonResult);
-  });
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no task ${collectionName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
 }
 
 async function deleteExecution(req, res) {
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}`,
-  };
-  const collectionName = (`${req.params.taskName}`).toLowerCase();
+  const collectionName = (`${req.params.taskName}_task`).toLowerCase();
 
-  /**
-   * TODO
-   * CHANGE TO MAP DELETE
-   *const data = await db.deleteDocument(collectionName, 'executionName', req.params.executionName);
-   */
-  mongoose.connection.db.collection(collectionName, (err, collection) => {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  const deleted = await db.deleteDocument(collectionName, 'executionName', req.params.executionName);
 
-    collection.deleteOne({ executionName: req.params.executionName }, (error, result) => {
-      if (error) {
-        console.log(error);
-      } else if (result.deletedCount > 0) {
-        jsonResult.result = `execution ${req.params.executionName} deleted`;
-        jsonResult.status = 200;
-        res.send(jsonResult);
-      } else {
-        jsonResult.result = `execution ${req.params.executionName} do not exist`;
-        jsonResult.status = 404;
-        res.send(jsonResult);
-      }
-    });
-  });
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `execution ${req.params.executionName} removed`,
+      status: 200,
+    };
+    res.send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `execution ${req.params.executionName} do not exist`,
+      status: 404,
+    };
+    res.send(jsonResult);
+  }
 }
 
 module.exports = {
