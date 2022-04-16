@@ -97,13 +97,8 @@ async function createTask(req, res) {
 
       executeFunction(req.body).then((result) => {
         console.log(result);
-        if (result === 'error during execute process') {
-          newTask.taskResult = result;
-          newTask.save();
-        } else {
-          newTask.taskResult = result;
-          newTask.save();
-        }
+        newTask.taskResult = result;
+        newTask.save();
       });
     }
   } else {
@@ -116,13 +111,8 @@ async function createTask(req, res) {
 
     executeFunction(req.body).then((result) => {
       console.log(result);
-      if (result === 'error during execute process') {
-        newTask.taskResult = result;
-        newTask.save();
-      } else {
-        newTask.taskResult = result;
-        newTask.save();
-      }
+      newTask.taskResult = result;
+      newTask.save();
     });
   }
 }
