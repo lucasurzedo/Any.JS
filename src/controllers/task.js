@@ -6,151 +6,125 @@ const utils = require('../utils/index');
 const executeFunction = require('../services/executeFunction');
 
 async function createTask(req, res) {
-  const jsonError = {
-    uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
-    Error: 'Invalid JSON',
-    status: 400,
-  };
-
   if (!req.body.taskName || !req.body.code || !req.body.args
       || !req.body.method || !req.body.methodArgs) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      result: 'invalid JSON',
+      status: 400,
+    };
+
     res.send(jsonError);
     return;
   }
 
-  let codeName = `${req.body.code}`;
-  codeName = codeName.toLowerCase();
-  req.body.code = codeName;
+  const registerCollection = 'registers';
 
-  // Open collection registers on db
-  /**
-   * TODO
-   * CHANGE TO const document = await db.getDocument('registers', 'codeName', codeName);
-   */
-  mongoose.connection.db.collection('registers', (error, collection) => {
-    if (error) {
-      console.log(error);
-      return;
+  // Try to find the code in collection registers
+  const documentCode = await db.getDocument(registerCollection, 'codeName', req.body.code);
+
+  if (!documentCode) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no code ${req.params.codeName}`,
+      status: 404,
+    };
+    res.send(jsonError);
+  }
+
+  const codes = [];
+  const methodsLinks = [];
+  // Get all the codes names and links
+  for (const iterator of documentCode.code) {
+    codes.push(iterator);
+  }
+
+  // Separate names and links in a object
+  for (let i = 0; i < codes.length; i += 1) {
+    for (const key in codes[i]) {
+      methodsLinks.push({ name: key, link: codes[i][key] });
     }
+  }
 
-    // Try to find a code in collection registers
-    collection.findOne({ codeName }, async (err, data) => {
-      if (err) {
-        console.log(err);
-      }
+  // Verify if the file already exists
+  for (let i = 0; i < methodsLinks.length; i += 1) {
+    const path = `./src/codes/${methodsLinks[i].name}.js`;
 
-      // Verify if the code exists
-      if (!data) {
-        const jsonErr = {
-          uri: `${req.baseUrl}${req.url}`,
-          result: `cannot find code ${codeName}`,
-          status: 406,
-        };
-        res.send(jsonErr);
-      } else {
-        const codes = [];
-        const methodsLinks = [];
-        // Get all the codes names and links
-        for (const iterator of data.code) {
-          codes.push(iterator);
-        }
+    if (fs.existsSync(path)) {
+      methodsLinks.splice(i, 1);
+      i -= 1;
+    }
+  }
 
-        // Separate names and links in a object
-        for (let i = 0; i < codes.length; i += 1) {
-          for (const key in codes[i]) {
-            methodsLinks.push({ name: key, link: codes[i][key] });
-          }
-        }
+  const collectionName = (`${req.body.code}_task`).toLowerCase();
 
-        // Verify if the file already exists
-        for (let i = 0; i < methodsLinks.length; i += 1) {
-          const path = `./src/codes/${methodsLinks[i].name}.js`;
+  const document = await db.getDocument(collectionName, 'executionName', req.body.taskName);
 
-          if (fs.existsSync(path)) {
-            methodsLinks.splice(i, 1);
-            i -= 1;
-          }
-        }
+  if (document) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}${req.body.taskName}`,
+      result: `execution ${req.body.taskName} already exist`,
+      status: 409,
+    };
+    res.send(jsonResult);
+    return;
+  }
 
-        const collectionName = `${req.body.code}_task`;
+  const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
-        /**
-         * TODO
-         * CHANGE TO
-         *const findExecutionName = await db.getDocument(collectionName, 'executionName', taskName);
-         */
-        const taskCollection = mongoose.connection.db.collection(collectionName);
-        // eslint-disable-next-line prefer-destructuring
-        const taskName = req.body.taskName;
-        const findExecutionName = await taskCollection.findOne({ executionName: taskName });
+  const newTask = new Task({
+    executionName: req.body.taskName,
+    parameterValue: req.body.args,
+    method: req.body.method,
+    methodArgs: req.body.methodArgs,
+    taskResult: null,
+  });
 
-        if (findExecutionName != null) {
-          const jsonResult = {
-            uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
-            result: `Execution ${req.body.taskName} already exist`,
-            status: 409,
-          };
-          res.send(jsonResult);
+  await newTask.save();
+
+  // If the file don't exists then its downloaded and executed
+  // If the file exists then its executed
+  if (methodsLinks.length > 0) {
+    console.log('Downloading codes');
+    const code = await utils.downloadCode(methodsLinks);
+    if (code) {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
+        result: 'saving execution',
+        status: 201,
+      };
+      res.send(jsonResult);
+
+      executeFunction(req.body).then((result) => {
+        console.log(result);
+        if (result === 'error during execute process') {
+          newTask.taskResult = result;
+          newTask.save();
         } else {
-          const Task = mongoose.model(collectionName, ModelTask, collectionName);
-
-          const newTask = new Task({
-            executionName: req.body.taskName,
-            parameterValue: req.body.args,
-            method: req.body.method,
-            methodArgs: req.body.methodArgs,
-            taskResult: null,
-          });
-
-          await newTask.save();
-
-          // If the file don't exists then its downloaded and executed
-          // If the file exists then its executed
-          if (methodsLinks.length > 0) {
-            console.log('Downloading codes');
-            const code = await utils.downloadCode(methodsLinks);
-            if (code) {
-              const jsonResult = {
-                uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
-                result: 'saving execution',
-                status: 201,
-              };
-              res.send(jsonResult);
-
-              executeFunction(req.body).then((result) => {
-                console.log(result);
-                if (result === 'error during execute process') {
-                  newTask.taskResult = result;
-                  newTask.save();
-                } else {
-                  newTask.taskResult = result;
-                  newTask.save();
-                }
-              });
-            }
-          } else {
-            const jsonResult = {
-              uri: `${req.baseUrl}${req.url}/${req.body.code}/execution/${req.body.taskName}`.toLowerCase(),
-              result: 'saving execution',
-              status: 201,
-            };
-            res.send(jsonResult);
-
-            executeFunction(req.body).then((result) => {
-              console.log(result);
-              if (result === 'error during execute process') {
-                newTask.taskResult = result;
-                newTask.save();
-              } else {
-                newTask.taskResult = result;
-                newTask.save();
-              }
-            });
-          }
+          newTask.taskResult = result;
+          newTask.save();
         }
+      });
+    }
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}/${req.body.code}/execution/${req.body.taskName}`.toLowerCase(),
+      result: 'saving execution',
+      status: 201,
+    };
+    res.send(jsonResult);
+
+    executeFunction(req.body).then((result) => {
+      console.log(result);
+      if (result === 'error during execute process') {
+        newTask.taskResult = result;
+        newTask.save();
+      } else {
+        newTask.taskResult = result;
+        newTask.save();
       }
     });
-  });
+  }
 }
 
 async function getAllTaskExecutions(req, res) {

@@ -60,7 +60,6 @@ async function instantiateObject(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.code}_object`).toLowerCase();
   const registerCollection = 'registers';
 
   // Try to find the code in collection registers
@@ -73,6 +72,7 @@ async function instantiateObject(req, res) {
       status: 404,
     };
     res.send(jsonError);
+    return;
   }
 
   const codes = [];
@@ -99,7 +99,9 @@ async function instantiateObject(req, res) {
     }
   }
 
-  const documentObject = await db.getDocument(registerCollection, 'objectName', req.body.objectName);
+  const collectionName = (`${req.body.code}_object`).toLowerCase();
+
+  const documentObject = await db.getDocument(collectionName, 'objectName', req.body.objectName);
 
   if (documentObject) {
     const jsonResult = {
@@ -108,6 +110,7 @@ async function instantiateObject(req, res) {
       status: 409,
     };
     res.send(jsonResult);
+    return;
   }
 
   const Object = mongoose.model(collectionName, ModelObject, collectionName);

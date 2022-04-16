@@ -59,7 +59,7 @@ async function registerCode(req, res) {
     newCode.save();
 
     const jsonResult = {
-      result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+      result: `${req.baseUrl}${req.url}/${req.body.codeName}`,
       status: 201,
     };
     res.send(jsonResult);
