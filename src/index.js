@@ -1,5 +1,5 @@
 const cluster = require('cluster');
-// const CPUs = require('os').cpus().length;
+const CPUs = require('os').cpus().length;
 const log = require('./utils/log');
 const { setupApp } = require('./express-server');
 
@@ -7,7 +7,7 @@ if (cluster.isMaster) {
   log.info(`Master ${process.pid} is running`);
 
   // forks a process for each CPU core
-  for (let i = 0; i < 1; i += 1) {
+  for (let i = 0; i < CPUs; i += 1) {
     cluster.fork();
   }
   cluster.on('exit', (worker) => {

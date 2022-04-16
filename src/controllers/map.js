@@ -64,14 +64,17 @@ async function updateElement(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
-
   const newValues = {
     $set: { key: req.body.key, value: req.body.value },
     $currentDate: { lastModified: true },
   };
 
-  const updated = await db.updateDocument(collectionName, 'key', req.body.key, newValues);
+  const query = {};
+  query.key = req.body.key;
+
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+
+  const updated = await db.updateDocument(collectionName, query, newValues);
 
   if (updated.modifiedCount > 0) {
     const jsonResult = {
@@ -91,7 +94,7 @@ async function updateElement(req, res) {
 }
 
 async function updateMap(req, res) {
-  if (!req.body.mapName || !req.body.elements) {
+  if (!req.body.mapName || !req.body.map) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -105,7 +108,35 @@ async function updateMap(req, res) {
 
   const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
-  const collection = db.getCollection(collectionName);
+  await db.dropCollection(collectionName);
+
+  for (const element in req.body.map) {
+    try {
+      const Element = mongoose.model(collectionName, ModelMap, collectionName);
+
+      const newElement = new Element({
+        mapName: req.body.mapName,
+        key: element,
+        value: req.body.map[element],
+      });
+
+      newElement.save();
+    } catch (error) {
+      const jsonError = {
+        uri: `${req.baseUrl}${req.url}`,
+        result: 'error during update process',
+        status: 500,
+      };
+      res.send(jsonError);
+      return;
+    }
+  }
+
+  const jsonResult = {
+    result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+    status: 201,
+  };
+  res.send(jsonResult);
 }
 
 async function mapForEach(req, res) {
@@ -125,9 +156,9 @@ async function mapForEach(req, res) {
 
   const documents = await db.getAllDocuments(collectionName);
 
+  const obj = {};
   const results = [];
   for (const iterator of documents) {
-    const obj = {};
     obj[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
     results.push(obj);
   }
@@ -139,11 +170,9 @@ async function mapForEach(req, res) {
   };
   res.send(jsonResult);
 
-  collectionName = (`${req.body.mapName}_task`).toLowerCase();
+  collectionName = (`${req.body.mapName}_map_task`).toLowerCase();
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
-
-  
 
   for (const iterator of documents) {
     req.body.methodArgs = [];
@@ -161,7 +190,6 @@ async function mapForEach(req, res) {
     await newTask.save();
 
     executeFunction(req.body).then((result) => {
-      console.log(result);
       newTask.taskResult = result;
       newTask.save();
     });
@@ -169,10 +197,6 @@ async function mapForEach(req, res) {
 }
 
 async function getElement(req, res) {
-  let mapName = `${req.params.mapName}`;
-  mapName = mapName.toLowerCase();
-  req.params.mapName = mapName;
-
   const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   const document = await db.getDocument(collectionName, 'key', req.params.key);
@@ -202,8 +226,8 @@ async function getEntries(req, res) {
 
   const elements = [];
 
+  const obj = {};
   for (const iterator of documents) {
-    const obj = {};
     obj[iterator.key] = iterator.value;
     elements.push(obj);
   }

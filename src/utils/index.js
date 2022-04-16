@@ -23,11 +23,6 @@ async function downloadCode(methodsLinks) {
   return true;
 }
 
-function validVariable(input) {
-  return (typeof input !== 'undefined') && input;
-}
-
 module.exports = {
   downloadCode,
-  validVariable,
 };
