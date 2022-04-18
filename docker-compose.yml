@@ -46,6 +46,17 @@ services:
     ports:
       - "4447:4447"
 
+  gatewayapi:
+    image: devopsfaith/krakend:1.2.0
+    volumes:
+      - "./microservices/krakend:/etc/krakend"
+    ports:
+      - "80:8080"
+      - "8090:8090"
+    deploy: *default-deploy-manager
+    networks:
+      - database
+
   agent:
     image: portainer/agent
     volumes:
