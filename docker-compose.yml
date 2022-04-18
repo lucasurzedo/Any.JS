@@ -16,24 +16,15 @@ services:
 
   server:
     image: lucasurzedo/anyjs:1.0
-    environment:
-      NODE_ENV: development
     deploy:
       placement:
         replicas: 4
         constraints:
           - "node.role==worker"
+    environment:
+      NODE_ENV: development
     ports:
       - "4445:4445"
-
-  proxy:
-    image: lucasurzedo/anyjsproxy:1.0
-    deploy:
-      placement:
-        constraints:
-          - "node.role==manager"
-    ports:
-      - "80:4446"
 
   observer:
     image: lucasurzedo/anyjsobserver:1.0
