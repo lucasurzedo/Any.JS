@@ -18,8 +18,6 @@ services:
     image: lucasurzedo/anyjs:1.0
     environment:
       NODE_ENV: development
-    depends_on:
-      - db
     deploy:
       placement:
         replicas: 4
