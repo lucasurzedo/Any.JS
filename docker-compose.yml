@@ -22,9 +22,9 @@ services:
       - db
     deploy:
       placement:
+        replicas: 4
         constraints:
           - "node.role==worker"
-        replicas: 4
     ports:
       - "4445:4445"
 
