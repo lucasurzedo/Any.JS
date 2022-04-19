@@ -36,7 +36,7 @@ services:
   gatewayapi:
     image: devopsfaith/krakend:2
     volumes:
-      - ./microservice/krakend:/etc/krakend
+      - ./microservices/krakend:/etc/krakend
     ports:
       - "1234:1234"
       - "80:8080"
