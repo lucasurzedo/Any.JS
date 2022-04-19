@@ -34,18 +34,14 @@ services:
       - "4447:4447"
 
   gatewayapi:
-    image: devopsfaith/krakend:1.2.0
+    image: devopsfaith/krakend:2
     volumes:
-      - "./microservices/krakend:/etc/krakend"
+      - ./krakend:/etc/krakend
     ports:
+      - "1234:1234"
       - "80:8080"
       - "8090:8090"
-    deploy:
-      placement:
-        constraints:
-          - "node.role==manager"
-    networks:
-      - database
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
 
   agent:
     image: portainer/agent
