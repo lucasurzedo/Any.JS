@@ -18,7 +18,7 @@
         "listen_address": ":8090"
       }
     },
-    "timeout": "3000ms",
+    "timeout": "30000ms",
     "cache_ttl": "300s",
     "output_encoding": "json",
     "name": "gatewayapi",
