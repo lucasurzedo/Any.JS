@@ -1,18 +1,18 @@
 version: '3.2'
 
 services:
-  # db:
-  #   image: mongo:latest
-  #   deploy:
-  #     placement:
-  #       constraints:
-  #         - "node.role==manager"
-  #     restart_policy:
-  #         condition: none
-  #   volumes:
-  #     - "mongodb:/mongodb"
-  #   ports:
-  #     - "27017:27017"
+  db:
+    image: mongo:latest
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+      restart_policy:
+          condition: none
+    volumes:
+      - "mongodb:/mongodb"
+    ports:
+      - "27017:27017"
   server:
     image: lucasurzedo/anyjs:1.0
     deploy:

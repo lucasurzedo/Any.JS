@@ -434,7 +434,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/map/has/{mapName}",
+        "endpoint": "/api/anyJS/v1/map/has/{mapName}/{key}",
         "method": "GET",
         "output_encoding": "json",
         "extra_config": {},
@@ -442,7 +442,7 @@
           {
             "encoding": "json",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/has/{mapName}",
+            "url_pattern": "/api/anyJS/v1/map/has/{mapName}/{key}",
             "host": [
               "http://anyjs_server:4445"
             ],
