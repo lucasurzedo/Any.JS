@@ -11,10 +11,9 @@ async function storeObject(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
     return;
   }
 
@@ -26,9 +25,8 @@ async function storeObject(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'duplicate file',
-      status: 409,
     };
-    res.send(jsonError);
+    res.status(409).send(jsonError);
   } else {
     const Object = mongoose.model(collectionName, ModelObject, collectionName);
 
@@ -42,9 +40,8 @@ async function storeObject(req, res) {
 
     const jsonResult = {
       result: `${req.baseUrl}${req.url}/${req.body.objectName}`,
-      status: 201,
     };
-    res.send(jsonResult);
+    res.status(201).send(jsonResult);
   }
 }
 
@@ -53,10 +50,9 @@ async function instantiateObject(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
     return;
   }
 
@@ -69,9 +65,8 @@ async function instantiateObject(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no code ${req.params.codeName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
     return;
   }
 
@@ -107,9 +102,8 @@ async function instantiateObject(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
       result: `object ${req.body.objectName} already exist`,
-      status: 409,
     };
-    res.send(jsonResult);
+    res.status(409).send(jsonResult);
     return;
   }
 
@@ -131,9 +125,8 @@ async function instantiateObject(req, res) {
       const jsonResult = {
         uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
         result: 'instantiating object',
-        status: 201,
       };
-      res.send(jsonResult);
+      res.status(201).send(jsonResult);
 
       instantiateObj(req.body).then((result) => {
         console.log(result);
@@ -150,9 +143,8 @@ async function instantiateObject(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
       result: 'instantiating object',
-      status: 201,
     };
-    res.send(jsonResult);
+    res.status(201).send(jsonResult);
 
     instantiateObj(req.body).then((result) => {
       console.log(result);
@@ -181,16 +173,14 @@ async function getAllObjects(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no elements in object ${req.params.codeName}`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       elements,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -203,17 +193,15 @@ async function getObject(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: document,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no object ${req.params.objectName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -226,16 +214,14 @@ async function deleteObject(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `object ${req.params.objectName} removed`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `object ${req.params.objectName} do not exist`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   }
 }
 

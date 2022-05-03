@@ -10,10 +10,9 @@ async function registerCode(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -29,9 +28,8 @@ async function registerCode(req, res) {
         const jsonError = {
           uri: `${req.baseUrl}${req.url}`,
           result: 'invalid url',
-          status: 406,
         };
-        res.send(jsonError);
+        res.status(406).send(jsonError);
 
         return;
       }
@@ -44,9 +42,8 @@ async function registerCode(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'duplicate code',
-      status: 409,
     };
-    res.send(jsonError);
+    res.status(409).send(jsonError);
   } else {
     const Code = mongoose.model(collectionName, ModelRegister, collectionName);
 
@@ -60,9 +57,8 @@ async function registerCode(req, res) {
 
     const jsonResult = {
       result: `${req.baseUrl}${req.url}/${req.body.codeName}`,
-      status: 201,
     };
-    res.send(jsonResult);
+    res.status(201).send(jsonResult);
   }
 }
 
@@ -71,10 +67,9 @@ async function updateCodeElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -93,10 +88,9 @@ async function updateCodeElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no codeKey ${req.body.codeKey}`,
-      status: 404,
     };
 
-    res.send(jsonError);
+    res.status(404).send(jsonError);
 
     return;
   }
@@ -114,18 +108,16 @@ async function updateCodeElement(req, res) {
   if (updated.modifiedCount > 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no code ${req.body.key}`,
-      status: 404,
     };
 
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -134,10 +126,9 @@ async function updateCode(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -155,18 +146,16 @@ async function updateCode(req, res) {
   if (updated.modifiedCount > 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no code ${req.body.key}`,
-      status: 404,
     };
 
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -177,17 +166,15 @@ async function getCode(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: document,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no code ${req.params.codeName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -198,16 +185,14 @@ async function deleteCode(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `code ${req.params.codeName} removed`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `code ${req.params.codeName} do not exist`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   }
 }
 

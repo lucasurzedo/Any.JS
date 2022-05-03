@@ -11,10 +11,9 @@ async function createTask(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
     return;
   }
 
@@ -27,9 +26,8 @@ async function createTask(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no code ${req.params.codeName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 
   const codes = [];
@@ -64,9 +62,8 @@ async function createTask(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}${req.body.taskName}`,
       result: `execution ${req.body.taskName} already exist`,
-      status: 409,
     };
-    res.send(jsonResult);
+    res.status(409).send(jsonResult);
     return;
   }
 
@@ -91,9 +88,8 @@ async function createTask(req, res) {
       const jsonResult = {
         uri: `${req.baseUrl}${req.url}/${req.body.taskName}`,
         result: 'saving execution',
-        status: 201,
       };
-      res.send(jsonResult);
+      res.status(201).send(jsonResult);
 
       executeFunction(req.body).then((result) => {
         console.log(result);
@@ -105,9 +101,8 @@ async function createTask(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}/${req.body.code}/execution/${req.body.taskName}`.toLowerCase(),
       result: 'saving execution',
-      status: 201,
     };
-    res.send(jsonResult);
+    res.status(201).send(jsonResult);
 
     executeFunction(req.body).then((result) => {
       console.log(result);
@@ -131,16 +126,14 @@ async function getAllTaskExecutions(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no executions in task ${req.params.taskName}`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       executions,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -153,17 +146,15 @@ async function getExecution(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: document,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no execution ${req.params.executionName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -176,16 +167,14 @@ async function deleteTask(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `task ${req.params.taskName} deleted`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no task ${collectionName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -198,16 +187,14 @@ async function deleteExecution(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `execution ${req.params.executionName} removed`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `execution ${req.params.executionName} do not exist`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   }
 }
 

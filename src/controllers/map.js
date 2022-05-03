@@ -9,10 +9,9 @@ async function setElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -29,9 +28,8 @@ async function setElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'duplicate key',
-      status: 409,
     };
-    res.send(jsonError);
+    res.status(409).send(jsonError);
   } else {
     const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
@@ -45,9 +43,8 @@ async function setElement(req, res) {
 
     const jsonResult = {
       result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
-      status: 201,
     };
-    res.send(jsonResult);
+    res.status(201).send(jsonResult);
   }
 }
 
@@ -56,10 +53,9 @@ async function updateElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -79,17 +75,15 @@ async function updateElement(req, res) {
   if (updated.modifiedCount > 0) {
     const jsonResult = {
       uri: `${req.baseUrl}/map/get/${req.body.mapName}/${req.body.key}`,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no key ${req.body.key}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
@@ -98,10 +92,9 @@ async function updateMap(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
 
     return;
   }
@@ -125,18 +118,16 @@ async function updateMap(req, res) {
       const jsonError = {
         uri: `${req.baseUrl}${req.url}`,
         result: 'error during update process',
-        status: 500,
       };
-      res.send(jsonError);
+      res.status(500).send(jsonError);
       return;
     }
   }
 
   const jsonResult = {
     result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
-    status: 201,
   };
-  res.send(jsonResult);
+  res.status(201).send(jsonResult);
 }
 
 async function mapForEach(req, res) {
@@ -145,10 +136,9 @@ async function mapForEach(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
-      status: 400,
     };
 
-    res.send(jsonError);
+    res.status(400).send(jsonError);
     return;
   }
 
@@ -166,9 +156,8 @@ async function mapForEach(req, res) {
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
     results,
-    status: 200,
   };
-  res.send(jsonResult);
+  res.status(200).send(jsonResult);
 
   collectionName = (`${req.body.mapName}_map_task`).toLowerCase();
 
@@ -205,17 +194,15 @@ async function getElement(req, res) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no key ${req.params.key}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: document.value,
-      status: 200,
     };
 
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -236,16 +223,14 @@ async function getEntries(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no elements in map ${req.params.mapName}`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       elements,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -258,13 +243,12 @@ async function hasElement(req, res) {
 
   const document = await db.getDocument(collectionName, 'key', req.params.key);
 
-  jsonResult.status = 200;
   if (document) {
     jsonResult.result = true;
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     jsonResult.result = false;
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -283,16 +267,14 @@ async function getAllKeys(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no elements in map ${req.params.mapName}`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       keys: elements,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -311,16 +293,14 @@ async function getAllValues(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no elements in map ${req.params.mapName}`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       values: elements,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   }
 }
 
@@ -333,16 +313,14 @@ async function deleteKey(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `element ${req.params.key} removed`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `element ${req.params.key} do not exist`,
-      status: 404,
     };
-    res.send(jsonResult);
+    res.status(404).send(jsonResult);
   }
 }
 
@@ -355,16 +333,14 @@ async function clearMap(req, res) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `map ${req.params.mapName} deleted`,
-      status: 200,
     };
-    res.send(jsonResult);
+    res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no map ${collectionName}`,
-      status: 404,
     };
-    res.send(jsonError);
+    res.status(404).send(jsonError);
   }
 }
 
