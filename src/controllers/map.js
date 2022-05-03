@@ -211,24 +211,22 @@ async function getEntries(req, res) {
 
   const documents = await db.getAllDocuments(collectionName);
 
-  const elements = [];
-
-  const obj = {};
-  for (const iterator of documents) {
-    obj[iterator.key] = iterator.value;
-    elements.push(obj);
-  }
-
-  if (elements.length === 0) {
+  if (documents.length === 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
       result: `there is no elements in map ${req.params.mapName}`,
     };
     res.status(404).send(jsonResult);
   } else {
+    const entries = {};
+
+    for (const iterator of documents) {
+      entries[iterator.key] = iterator.value;
+    }
+
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      elements,
+      entries,
     };
     res.status(200).send(jsonResult);
   }
