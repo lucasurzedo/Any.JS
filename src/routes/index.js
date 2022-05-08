@@ -21,9 +21,9 @@ router.delete('/store/object/:codeName/:objectName', store.deleteObject);
 
 // requests for instantiate service
 router.post('/instantiate/object', store.instantiateObject);
-router.get('/instantiate/:codeName', store.getAllObjects);
-router.get('/instantiate/:codeName/:objectName', store.getObject);
-router.delete('/instantiate/:codeName/:objectName', store.deleteObject);
+router.get('/instantiate/object/:codeName', store.getAllObjects);
+router.get('/instantiate/object/:codeName/:objectName', store.getObject);
+router.delete('/instantiate/object/:codeName/:objectName', store.deleteObject);
 
 // requests for execute service
 router.post('/execute/task', task.createTask);

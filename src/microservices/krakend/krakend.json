@@ -281,7 +281,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
         "method": "GET",
         "output_encoding": "json",
         "extra_config": {},
@@ -289,7 +289,7 @@
           {
             "encoding": "json",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -298,7 +298,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
+        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}",
         "method": "GET",
         "output_encoding": "json",
         "extra_config": {},
@@ -306,7 +306,7 @@
           {
             "encoding": "json",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -315,7 +315,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
         "method": "DELETE",
         "output_encoding": "json",
         "extra_config": {},
@@ -323,7 +323,7 @@
           {
             "encoding": "json",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
             "host": [
               "http://anyjs_server:4445"
             ],
