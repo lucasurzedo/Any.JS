@@ -264,7 +264,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate",
+        "endpoint": "/api/anyJS/v1/instantiate/object",
         "method": "POST",
         "output_encoding": "json",
         "extra_config": {},
@@ -272,7 +272,7 @@
           {
             "encoding": "json",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/instantiate",
+            "url_pattern": "/api/anyJS/v1/instantiate/object",
             "host": [
               "http://anyjs_server:4445"
             ],
