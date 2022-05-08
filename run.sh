@@ -1,26 +1,18 @@
 #!/bin/bash
 
 echo "--------------------------------------------------------------------"
-echo "Adding the microservice images in docker daemon security exception..."
+cat << "EOF"
+                                          
+                 mm                          mmm   mmmm 
+                 ##   m mm   m   m             #  #"   "
+                #  #  #"  #  "m m"             #  "#mmm 
+                #mm#  #   #   #m#              #      "#
+               #    # #   #   "#      #    "mmm"  "mmm#"
+                              m"                        
+                             ""                         
+EOF
+echo "                  a distributed general purpose computing middleware"
 echo "--------------------------------------------------------------------"
-
-echo '{
-  "insecure-registries" : ["myregistry:5050"]
-}
-' > /etc/docker/daemon.json
-
-echo "--------------------------------------------------------------------"
-echo "Restarting docker service..."
-echo "--------------------------------------------------------------------"
-
-service docker restart
-
-echo "--------------------------------------------------------------------"
-echo "Pulling Any.JS images.."
-echo "--------------------------------------------------------------------"
-
-docker pull lucasurzedo/anyjs:1.0
-docker pull lucasurzedo/anyjsobserver:1.0
 
 echo "--------------------------------------------------------------------"
 echo "Deploying Any.JS in swarm cluster..."
