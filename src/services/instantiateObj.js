@@ -55,7 +55,11 @@ if (!isMainThread) {
       parentPort.postMessage(obj);
     }
   } catch (error) {
-    parentPort.postMessage('error during instantiate process');
+    const jsonError = {
+      error: error.message,
+      result: 'error during execute process',
+    };
+    parentPort.postMessage(jsonError);
   }
 }
 

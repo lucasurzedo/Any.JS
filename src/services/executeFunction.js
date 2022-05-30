@@ -73,7 +73,11 @@ if (!isMainThread) {
       }
     }
   } catch (error) {
-    parentPort.postMessage('error during execute process');
+    const jsonError = {
+      error: error.message,
+      result: 'error during execute process',
+    };
+    parentPort.postMessage(jsonError);
   }
 }
 

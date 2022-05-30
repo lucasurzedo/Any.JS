@@ -64,7 +64,7 @@ async function instantiateObject(req, res) {
   if (!documentCode) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${req.params.codeName}`,
+      result: `there is no code ${req.body.code}`,
     };
     res.status(404).send(jsonError);
     return;
@@ -130,7 +130,7 @@ async function instantiateObject(req, res) {
 
       instantiateObj(req.body).then((result) => {
         console.log(result);
-        if (result === 'error during instantiate process') {
+        if (result.error) {
           newObject.object = result;
           newObject.save();
         } else {
@@ -148,7 +148,7 @@ async function instantiateObject(req, res) {
 
     instantiateObj(req.body).then((result) => {
       console.log(result);
-      if (result === 'error during instantiate process') {
+      if (result.error) {
         newObject.object = result;
         newObject.save();
       } else {
