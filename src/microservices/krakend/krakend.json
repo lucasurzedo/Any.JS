@@ -20,7 +20,7 @@
     },
     "timeout": "30000ms",
     "cache_ttl": "300s",
-    "output_encoding": "json",
+    "output_encoding": "no-op",
     "name": "gatewayapi",
     "port": 8080,
     "disable_rest": false,
@@ -28,11 +28,11 @@
       {
         "endpoint": "/api/anyJS/v1/register",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/register",
             "host": [
@@ -45,11 +45,11 @@
       {
         "endpoint": "/api/anyJS/v1/register/{codeName}",
         "method": "PATCH",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "PATCH",
             "url_pattern": "/api/anyJS/v1/register/{codeName}",
             "host": [
@@ -62,11 +62,11 @@
       {
         "endpoint": "/api/anyJS/v1/register/{codeName}",
         "method": "PUT",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "PUT",
             "url_pattern": "/api/anyJS/v1/register/{codeName}",
             "host": [
@@ -79,11 +79,11 @@
       {
         "endpoint": "/api/anyJS/v1/register/{codeName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/register/{codeName}",
             "host": [
@@ -96,11 +96,11 @@
       {
         "endpoint": "/api/anyJS/v1/register/{codeName}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/register/{codeName}",
             "host": [
@@ -113,11 +113,11 @@
       {
         "endpoint": "/api/anyJS/v1/execute/task",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/execute/task",
             "host": [
@@ -130,11 +130,11 @@
       {
         "endpoint": "/api/anyJS/v1/execute/task/{taskName}/execution",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/execute/task/{taskName}/execution",
             "host": [
@@ -147,11 +147,11 @@
       {
         "endpoint": "/api/anyJS/v1/execute/task/{taskName}/execution/{executionName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/execute/task/{taskName}/execution/{executionName}",
             "host": [
@@ -164,11 +164,11 @@
       {
         "endpoint": "/api/anyJS/v1/execute/task/{taskName}/execution",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/execute/task/{taskName}/execution",
             "host": [
@@ -181,11 +181,11 @@
       {
         "endpoint": "/api/anyJS/v1/execute/task/{taskName}/execution/{executionName}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/execute/task/{taskName}/execution/{executionName}",
             "host": [
@@ -198,11 +198,11 @@
       {
         "endpoint": "/api/anyJS/v1/store/object",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/store/object",
             "host": [
@@ -215,11 +215,11 @@
       {
         "endpoint": "/api/anyJS/v1/store/object/{codeName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/store/object/{codeName}",
             "host": [
@@ -232,11 +232,11 @@
       {
         "endpoint": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
             "host": [
@@ -249,11 +249,11 @@
       {
         "endpoint": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
             "host": [
@@ -266,11 +266,11 @@
       {
         "endpoint": "/api/anyJS/v1/instantiate/object",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/instantiate/object",
             "host": [
@@ -283,11 +283,11 @@
       {
         "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
             "host": [
@@ -300,11 +300,11 @@
       {
         "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}",
             "host": [
@@ -317,11 +317,11 @@
       {
         "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
             "host": [
@@ -334,11 +334,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/set",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/map/set",
             "host": [
@@ -351,11 +351,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/forEach",
         "method": "POST",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/map/forEach",
             "host": [
@@ -368,11 +368,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/update",
         "method": "PATCH",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "PATCH",
             "url_pattern": "/api/anyJS/v1/map/update",
             "host": [
@@ -385,11 +385,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/update",
         "method": "PUT",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "PUT",
             "url_pattern": "/api/anyJS/v1/map/update",
             "host": [
@@ -402,11 +402,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/get/{mapName}/{key}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/map/get/{mapName}/{key}",
             "host": [
@@ -419,11 +419,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/entries/{mapName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/map/entries/{mapName}",
             "host": [
@@ -436,11 +436,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/has/{mapName}/{key}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/map/has/{mapName}/{key}",
             "host": [
@@ -453,11 +453,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/keys/{mapName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/map/keys/{mapName}",
             "host": [
@@ -470,11 +470,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/values/{mapName}",
         "method": "GET",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "GET",
             "url_pattern": "/api/anyJS/v1/map/values/{mapName}",
             "host": [
@@ -487,11 +487,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/delete/{mapName}/{key}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/map/delete/{mapName}/{key}",
             "host": [
@@ -504,11 +504,11 @@
       {
         "endpoint": "/api/anyJS/v1/map/clear/{mapName}",
         "method": "DELETE",
-        "output_encoding": "json",
+        "output_encoding": "no-op",
         "extra_config": {},
         "backend": [
           {
-            "encoding": "json",
+            "encoding": "no-op",
             "method": "DELETE",
             "url_pattern": "/api/anyJS/v1/map/clear/{mapName}",
             "host": [

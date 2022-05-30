@@ -45,8 +45,6 @@ router.get('/map/values/:mapName', map.getAllValues);
 router.delete('/map/delete/:mapName/:key', map.deleteKey);
 router.delete('/map/clear/:mapName', map.clearMap);
 
-// requests for sync service
-
 // requests for lock and unlock service
 
 module.exports = router;
