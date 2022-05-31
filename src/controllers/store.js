@@ -48,7 +48,7 @@ async function storeObject(req, res) {
 async function instantiateObject(req, res) {
   if (!req.body.objectName || !req.body.code || !req.body.args) {
     const jsonError = {
-      uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
       result: 'invalid JSON',
     };
 
@@ -100,7 +100,7 @@ async function instantiateObject(req, res) {
 
   if (documentObject) {
     const jsonResult = {
-      uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
+      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
       result: `object ${req.body.objectName} already exist`,
     };
     res.status(409).send(jsonResult);
@@ -123,7 +123,7 @@ async function instantiateObject(req, res) {
     const code = await utils.downloadCode(methodsLinks);
     if (code) {
       const jsonResult = {
-        uri: `${req.baseUrl}${req.url}${req.body.objectName}`,
+        uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
         result: 'instantiating object',
       };
       res.status(201).send(jsonResult);
@@ -141,7 +141,7 @@ async function instantiateObject(req, res) {
     }
   } else {
     const jsonResult = {
-      uri: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
       result: 'instantiating object',
     };
     res.status(201).send(jsonResult);
