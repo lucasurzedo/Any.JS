@@ -205,6 +205,26 @@ async function getObject(req, res) {
   }
 }
 
+async function deleteAllObjects(req, res) {
+  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
+
+  const deleted = await db.deleteAllDocuments(collectionName);
+
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'all objects deleted',
+    };
+    res.status(200).send(jsonResult);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no objects in ${req.params.codeName}`,
+    };
+    res.status(404).send(jsonError);
+  }
+}
+
 async function deleteObject(req, res) {
   const collectionName = (`${req.params.codeName}_object`).toLowerCase();
 
@@ -230,5 +250,6 @@ module.exports = {
   instantiateObject,
   getAllObjects,
   getObject,
+  deleteAllObjects,
   deleteObject,
 };

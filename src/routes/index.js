@@ -18,12 +18,14 @@ router.post('/store/object', store.storeObject);
 router.get('/store/object/:codeName', store.getAllObjects);
 router.get('/store/object/:codeName/:objectName', store.getObject);
 router.delete('/store/object/:codeName/:objectName', store.deleteObject);
+router.delete('/store/object/:codeName', store.deleteAllObjects);
 
 // requests for instantiate service
 router.post('/instantiate/object', store.instantiateObject);
 router.get('/instantiate/object/:codeName', store.getAllObjects);
 router.get('/instantiate/object/:codeName/:objectName', store.getObject);
 router.delete('/instantiate/object/:codeName/:objectName', store.deleteObject);
+router.delete('/instantiate/object/:codeName', store.deleteAllObjects);
 
 // requests for execute service
 router.post('/execute/task', task.createTask);
@@ -33,7 +35,9 @@ router.delete('/execute/task/:taskName', task.deleteTask);
 router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExecution);
 
 // requests for map service
-router.post('/map/set', map.setElement);
+router.post('/map', map.createMap);
+router.post('/map/set', map.setElements);
+router.post('/map/entry', map.setElement);
 router.post('/map/forEach', map.mapForEach);
 router.patch('/map/update', map.updateElement);
 router.put('/map/update', map.updateMap);
@@ -42,9 +46,8 @@ router.get('/map/entries/:mapName', map.getEntries);
 router.get('/map/has/:mapName/:key', map.hasElement);
 router.get('/map/keys/:mapName', map.getAllKeys);
 router.get('/map/values/:mapName', map.getAllValues);
-router.delete('/map/delete/:mapName/:key', map.deleteKey);
-router.delete('/map/clear/:mapName', map.clearMap);
-
-// requests for lock and unlock service
+router.delete('/map/:mapName/:key', map.deleteKey);
+router.delete('/map/clear/:mapName', map.deleteAllEntries);
+router.delete('/map/:mapName', map.clearMap);
 
 module.exports = router;

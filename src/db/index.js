@@ -46,13 +46,21 @@ async function deleteDocument(collectionName, key, value) {
   return false;
 }
 
+async function deleteAllDocuments(collectionName) {
+  const collection = await getCollection(collectionName);
+
+  const result = await collection.deleteMany({});
+
+  if (result.deletedCount > 0) return true;
+
+  return false;
+}
+
 async function dropCollection(collectionName) {
   const collection = await getCollection(collectionName);
 
   const collectionCount = await collection.countDocuments();
-  if (collectionCount === 0) {
-    return false;
-  }
+  if (collectionCount === 0) return false;
 
   await collection.drop();
 
@@ -65,5 +73,6 @@ module.exports = {
   getAllDocuments,
   updateDocument,
   deleteDocument,
+  deleteAllDocuments,
   dropCollection,
 };
