@@ -62,7 +62,7 @@ services:
   server:
     image: lucasurzedo/anyjs:1.0
     depends_on:
-      - mongodb
+      - databaseprimary
     deploy:
       placement:
         constraints:
