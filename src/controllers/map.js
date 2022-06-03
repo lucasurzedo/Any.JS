@@ -4,7 +4,85 @@ const ModelTask = require('../models/task');
 const db = require('../db');
 const executeFunction = require('../services/executeFunction');
 
-async function setElement(req, res) {
+async function createMap(req, res) {
+  if (!req.body.mapName) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+
+    return;
+  }
+
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+
+  const collectionExists = await db.hasCollection(collectionName);
+
+  if (collectionExists) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'duplicated map',
+    };
+    res.status(409).send(jsonError);
+  } else {
+    const collection = await db.createCollection(collectionName);
+
+    if (collection) {
+      const jsonResult = {
+        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+      };
+      res.status(201).send(jsonResult);
+    } else {
+      const jsonResult = {
+        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+        error: 'error during creation process',
+      };
+      res.status(500).send(jsonResult);
+    }
+  }
+}
+
+async function setElements(req, res) {
+  if (!req.body.mapName || !req.body.elements) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+
+    return;
+  }
+
+  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+  const elements = req.body.elements;
+
+  for (const element of elements) {
+    // eslint-disable-next-line no-await-in-loop
+    const document = await db.getDocument(collectionName, 'key', element.key);
+
+    if (!document) {
+      const Element = mongoose.model(collectionName, ModelMap, collectionName);
+
+      const newElement = new Element({
+        key: element.key,
+        value: element.value,
+      });
+
+      newElement.save();
+    }
+  }
+
+  const jsonResult = {
+    result: `${req.baseUrl}${req.url}/entries/${req.body.mapName}`,
+  };
+
+  res.status(201).send(jsonResult);
+}
+
+async function setEntry(req, res) {
   if (!req.body.mapName || !req.body.key || !req.body.value) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
@@ -34,7 +112,6 @@ async function setElement(req, res) {
     const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
     const newElement = new Element({
-      mapName: req.body.mapName,
       key: req.body.key,
       value: req.body.value,
     });
@@ -108,7 +185,6 @@ async function updateMap(req, res) {
       const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
       const newElement = new Element({
-        mapName: req.body.mapName,
         key: element,
         value: req.body.map[element],
       });
@@ -146,12 +222,12 @@ async function mapForEach(req, res) {
 
   const documents = await db.getAllDocuments(collectionName);
 
-  const obj = {};
-  const results = [];
+  const results = {};
   for (const iterator of documents) {
-    obj[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
-    results.push(obj);
+    results[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
   }
+
+  console.log(results);
 
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
@@ -322,7 +398,27 @@ async function deleteKey(req, res) {
   }
 }
 
-async function clearMap(req, res) {
+async function deleteAllEntries(req, res) {
+  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+
+  const deleted = await db.deleteAllDocuments(collectionName);
+
+  if (deleted) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'all elements removed',
+    };
+    res.status(200).send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no elements in map ${req.params.mapName}`,
+    };
+    res.status(404).send(jsonResult);
+  }
+}
+
+async function deleteMap(req, res) {
   const collectionName = (`${req.params.mapName}_map`).toLowerCase();
 
   const result = await db.dropCollection(collectionName);
@@ -343,7 +439,9 @@ async function clearMap(req, res) {
 }
 
 module.exports = {
-  setElement,
+  createMap,
+  setElements,
+  setEntry,
   updateElement,
   updateMap,
   mapForEach,
@@ -353,5 +451,6 @@ module.exports = {
   getAllKeys,
   getAllValues,
   deleteKey,
-  clearMap,
+  deleteAllEntries,
+  deleteMap,
 };

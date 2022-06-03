@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+async function createCollection(collectionName) {
+  try {
+    await mongoose.connection.db.createCollection(collectionName);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 async function getCollection(collectionName) {
   const collection = mongoose.connection.db.collection(collectionName);
 
@@ -23,6 +32,12 @@ async function getAllDocuments(collectionName) {
   const documents = collection.find({}).toArray();
 
   return documents;
+}
+
+async function hasCollection(collectionName) {
+  const collection = await mongoose.connection.db.listCollections({ name: collectionName }).next();
+
+  return collection !== null;
 }
 
 async function updateDocument(collectionName, query, newValues) {
@@ -51,26 +66,27 @@ async function deleteAllDocuments(collectionName) {
 
   const result = await collection.deleteMany({});
 
-  if (result.deletedCount > 0) return true;
-
-  return false;
+  return result.deletedCount > 0;
 }
 
 async function dropCollection(collectionName) {
   const collection = await getCollection(collectionName);
 
-  const collectionCount = await collection.countDocuments();
-  if (collectionCount === 0) return false;
+  try {
+    await collection.drop();
 
-  await collection.drop();
-
-  return true;
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 module.exports = {
+  createCollection,
   getCollection,
   getDocument,
   getAllDocuments,
+  hasCollection,
   updateDocument,
   deleteDocument,
   deleteAllDocuments,

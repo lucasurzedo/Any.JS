@@ -196,7 +196,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/store/object",
+        "endpoint": "/api/anyJS/v1/store",
         "method": "POST",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -204,7 +204,7 @@
           {
             "encoding": "no-op",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/store/object",
+            "url_pattern": "/api/anyJS/v1/store",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -213,7 +213,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/store/object/{codeName}",
+        "endpoint": "/api/anyJS/v1/store/{codeName}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -221,7 +221,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/store/object/{codeName}",
+            "url_pattern": "/api/anyJS/v1/store/{codeName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -230,7 +230,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/store/{codeName}/{objectName}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -238,7 +238,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/store/{codeName}/{objectName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -247,7 +247,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/store/{codeName}/{objectName}",
         "method": "DELETE",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -255,7 +255,7 @@
           {
             "encoding": "no-op",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/store/object/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/store/{codeName}/{objectName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -264,7 +264,24 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/object",
+        "endpoint": "/api/anyJS/v1/store/{codeName}",
+        "method": "DELETE",
+        "output_encoding": "no-op",
+        "extra_config": {},
+        "backend": [
+          {
+            "encoding": "no-op",
+            "method": "DELETE",
+            "url_pattern": "/api/anyJS/v1/store/{codeName}",
+            "host": [
+              "http://anyjs_server:4445"
+            ],
+            "extra_config": {}
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/anyJS/v1/instantiate",
         "method": "POST",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -272,7 +289,7 @@
           {
             "encoding": "no-op",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/instantiate/object",
+            "url_pattern": "/api/anyJS/v1/instantiate",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -281,7 +298,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -289,7 +306,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -298,7 +315,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}",
+        "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -306,7 +323,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -315,7 +332,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
+        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
         "method": "DELETE",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -323,7 +340,41 @@
           {
             "encoding": "no-op",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/instantiate/object/{codeName}/{objectName}",
+            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+            "host": [
+              "http://anyjs_server:4445"
+            ],
+            "extra_config": {}
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
+        "method": "DELETE",
+        "output_encoding": "no-op",
+        "extra_config": {},
+        "backend": [
+          {
+            "encoding": "no-op",
+            "method": "DELETE",
+            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
+            "host": [
+              "http://anyjs_server:4445"
+            ],
+            "extra_config": {}
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/anyJS/v1/map",
+        "method": "POST",
+        "output_encoding": "no-op",
+        "extra_config": {},
+        "backend": [
+          {
+            "encoding": "no-op",
+            "method": "POST",
+            "url_pattern": "/api/anyJS/v1/map",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -341,6 +392,23 @@
             "encoding": "no-op",
             "method": "POST",
             "url_pattern": "/api/anyJS/v1/map/set",
+            "host": [
+              "http://anyjs_server:4445"
+            ],
+            "extra_config": {}
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/anyJS/v1/map/entry",
+        "method": "POST",
+        "output_encoding": "no-op",
+        "extra_config": {},
+        "backend": [
+          {
+            "encoding": "no-op",
+            "method": "POST",
+            "url_pattern": "/api/anyJS/v1/map/entry",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -485,7 +553,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/map/delete/{mapName}/{key}",
+        "endpoint": "/api/anyJS/v1/map/{mapName}/key/{key}",
         "method": "DELETE",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -493,7 +561,24 @@
           {
             "encoding": "no-op",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/map/delete/{mapName}/{key}",
+            "url_pattern": "/api/anyJS/v1/map/{mapName}/key/{key}",
+            "host": [
+              "http://anyjs_server:4445"
+            ],
+            "extra_config": {}
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/anyJS/v1/map/clear/{mapName}",
+        "method": "DELETE",
+        "output_encoding": "no-op",
+        "extra_config": {},
+        "backend": [
+          {
+            "encoding": "no-op",
+            "method": "DELETE",
+            "url_pattern": "/api/anyJS/v1/map/clear/{mapName}",
             "host": [
               "http://anyjs_server:4445"
             ],

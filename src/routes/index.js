@@ -14,40 +14,40 @@ router.get('/register/:codeName', register.getCode);
 router.delete('/register/:codeName', register.deleteCode);
 
 // requests for store service
-router.post('/store/object', store.storeObject);
-router.get('/store/object/:codeName', store.getAllObjects);
-router.get('/store/object/:codeName/:objectName', store.getObject);
-router.delete('/store/object/:codeName/:objectName', store.deleteObject);
-router.delete('/store/object/:codeName', store.deleteAllObjects);
+router.post('/store/', store.storeObject);
+router.get('/store/:codeName', store.getAllObjects);
+router.get('/store/:codeName/:objectName', store.getObject);
+router.delete('/store/:codeName/:objectName', store.deleteObject);
+router.delete('/store/:codeName', store.deleteAllObjects);
 
 // requests for instantiate service
-router.post('/instantiate/object', store.instantiateObject);
-router.get('/instantiate/object/:codeName', store.getAllObjects);
-router.get('/instantiate/object/:codeName/:objectName', store.getObject);
-router.delete('/instantiate/object/:codeName/:objectName', store.deleteObject);
-router.delete('/instantiate/object/:codeName', store.deleteAllObjects);
+router.post('/instantiate', store.instantiateObject);
+router.get('/instantiate/:codeName', store.getAllObjects);
+router.get('/instantiate/:codeName/:objectName', store.getObject);
+router.delete('/instantiate/:codeName/:objectName', store.deleteObject);
+router.delete('/instantiate/:codeName', store.deleteAllObjects);
 
 // requests for execute service
-router.post('/execute/task', task.createTask);
-router.get('/execute/task/:taskName/execution', task.getAllTaskExecutions);
-router.get('/execute/task/:taskName/execution/:executionName', task.getExecution);
-router.delete('/execute/task/:taskName', task.deleteTask);
-router.delete('/execute/task/:taskName/execution/:executionName', task.deleteExecution);
+router.post('/execute', task.createTask);
+router.get('/execute/:taskName/execution', task.getAllTaskExecutions);
+router.get('/execute/:taskName/execution/:executionName', task.getExecution);
+router.delete('/execute/:taskName', task.deleteTask);
+router.delete('/execute/:taskName/execution/:executionName', task.deleteExecution);
 
 // requests for map service
 router.post('/map', map.createMap);
 router.post('/map/set', map.setElements);
-router.post('/map/entry', map.setElement);
+router.post('/map/entry', map.setEntry);
 router.post('/map/forEach', map.mapForEach);
 router.patch('/map/update', map.updateElement);
 router.put('/map/update', map.updateMap);
-router.get('/map/get/:mapName/:key', map.getElement);
+router.get('/map/get/:mapName/key/:key', map.getElement);
 router.get('/map/entries/:mapName', map.getEntries);
-router.get('/map/has/:mapName/:key', map.hasElement);
+router.get('/map/has/:mapName/key/:key', map.hasElement);
 router.get('/map/keys/:mapName', map.getAllKeys);
 router.get('/map/values/:mapName', map.getAllValues);
-router.delete('/map/:mapName/:key', map.deleteKey);
+router.delete('/map/:mapName/key/:key', map.deleteKey);
 router.delete('/map/clear/:mapName', map.deleteAllEntries);
-router.delete('/map/:mapName', map.clearMap);
+router.delete('/map/:mapName', map.deleteMap);
 
 module.exports = router;
