@@ -17,8 +17,8 @@ services:
       - database
     deploy:
       placement:
-      constraints:
-        - "node.role==manager"
+        constraints:
+          - "node.role==manager"
 
   databasesecondary:
     image: "bitnami/mongodb:3.6.17-ol-7-r26"
@@ -36,8 +36,8 @@ services:
       - database
     deploy:
       placement:
-      constraints:
-        - "node.role==worker"
+        constraints:
+          - "node.role==worker"
 
   databasearbiter:
     image: "bitnami/mongodb:3.6.17-ol-7-r26"
@@ -56,8 +56,8 @@ services:
       - database
     deploy:
       placement:
-      constraints:
-        - "node.role==worker"
+        constraints:
+          - "node.role==worker"
 
   server:
     image: lucasurzedo/anyjs:1.0
