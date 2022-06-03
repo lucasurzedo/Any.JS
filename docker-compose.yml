@@ -1,48 +1,63 @@
 version: '3.2'
 
 services:
-  mongodb:
-    image: mongo
-    volumes:
-      - /mnt/mongodb:/data/db
-      - /mnt/mongodump:/dump
-    command: 'mongod --oplogSize 128 --replSet rs0'
+  databaseprimary:
+    image: "bitnami/mongodb:3.6.17-ol-7-r26"
+    ports:
+      - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_DATABASE=admin
-      - MONGO_INITDB_USER=mongodb
-      - MONGO_INITDB_PWD=mongodb
+      - MONGODB_ROOT_PASSWORD=owl45#21
+      - MONGODB_ADVERTISED_HOSTNAME=databaseprimary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_REPLICA_SET_KEY=replicasetkey
+      - MONGODB_REPLICA_SET_NAME=anyjs-db
+    volumes:
+      - "database:/bitnami"
     networks:
-      - proxy
+      - database
     deploy:
       placement:
-        constraints:
-          - "node.role == manager"
-      replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: on-failure
+      constraints:
+        - "node.role==manager"
 
-  mongodb-init-replica:
-    image: mongo
-    command: 'mongo mongo/anyjs-db --eval "rs.initiate({ _id: ''rs0'', members: &#91; { _id: 0, host: ''127.0.0.1:27017'' } ]})"'
+  databasesecondary:
+    image: "bitnami/mongodb:3.6.17-ol-7-r26"
     depends_on:
-      - mongodb
+      - databaseprimary
+    environment:
+      - MONGODB_PRIMARY_HOST=databaseprimary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=owl45#21
+      - MONGODB_ADVERTISED_HOSTNAME=databasesecondary
+      - MONGODB_REPLICA_SET_NAME=anyjs-db
+      - MONGODB_REPLICA_SET_KEY=replicasetkey
+      - MONGODB_REPLICA_SET_MODE=secondary
     networks:
-      - proxy
+      - database
     deploy:
       placement:
-        constraints:
-          - "node.role == manager"
-      replicas: 1
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: on-failure
+      constraints:
+        - "node.role==worker"
+
+  databasearbiter:
+    image: "bitnami/mongodb:3.6.17-ol-7-r26"
+    depends_on:
+      - databaseprimary
+    environment:
+      - MONGODB_PRIMARY_HOST=databaseprimary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=owl45#21
+      - MONGODB_ADVERTISED_HOSTNAME=databasearbiter
+      - MONGODB_REPLICA_SET_KEY=replicasetkey
+      - MONGODB_REPLICA_SET_NAME=anyjs-db
+      - MONGODB_REPLICA_SET_MODE=arbiter
+
+    networks:
+      - database
+    deploy:
+      placement:
+      constraints:
+        - "node.role==worker"
 
   server:
     image: lucasurzedo/anyjs:1.0
@@ -109,16 +124,8 @@ services:
 networks:
   portainer:
   database:
-  agent_network:
-    driver: overlay
-    attachable: true
-  proxy:
 
 volumes:
-  portainer_data:
-  mongodb:
-    driver: "local"
-  mongodump:
-    driver: "local"
+  database:
   anyjs:
   portainer:
