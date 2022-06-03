@@ -113,7 +113,6 @@ networks:
     driver: overlay
     attachable: true
   proxy:
-    external: true
 
 volumes:
   portainer_data:
