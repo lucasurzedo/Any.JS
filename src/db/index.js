@@ -70,9 +70,8 @@ async function deleteAllDocuments(collectionName) {
 }
 
 async function dropCollection(collectionName) {
-  const collection = await getCollection(collectionName);
-
   try {
+    const collection = await getCollection(collectionName);
     await collection.drop();
 
     return true;

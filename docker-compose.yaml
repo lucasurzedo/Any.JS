@@ -1,0 +1,82 @@
+version: '3.7'
+
+services:
+  mongo:
+    image: mongo:3.0.4
+    ports:
+    - "27017:27017" 
+    volumes:
+    - './data:/data/db'
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+
+  server:
+    image: lucasurzedo/anyjs:1.0
+    depends_on:
+      - mongo
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4445:4445"
+
+  observer:
+    image: lucasurzedo/anyjsobserver:1.0
+    deploy:
+      placement:
+        constraints:
+          - "node.role==worker"
+    ports:
+      - "4447:4447"
+
+  gatewayapi:
+    image: devopsfaith/krakend:2
+    volumes:
+      - ./src/microservices/krakend:/etc/krakend
+    ports:
+      - "1234:1234"
+      - "80:8080"
+      - "8090:8090"
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+
+  agent:
+    image: portainer/agent:linux-amd64-2.1.0-alpine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - portainer
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.platform.os==linux"
+
+  portainer:
+    image: portainer/portainer-ce:2.1.1-alpine
+    command: -H tcp://tasks.agent:9001 --tlsskipverify
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - portainer:/data
+    networks:
+      - portainer
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - "node.role==manager"
+
+networks:
+  portainer:
+
+volumes:
+  anyjs:
+  portainer:

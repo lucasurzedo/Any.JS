@@ -18,7 +18,7 @@ echo "--------------------------------------------------------------------"
 echo "Deploying Any.JS in swarm cluster..."
 echo "--------------------------------------------------------------------"
 
-docker stack deploy -c docker-compose.yml anyjs
+docker stack deploy -c docker-compose.yaml anyjs
 
 echo "--------------------------------------------------------------------"
 echo "Updating portainer agent microservice in each cluster node..."
