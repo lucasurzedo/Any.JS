@@ -468,7 +468,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/map/get/{mapName}/{key}",
+        "endpoint": "/api/anyJS/v1/map/get/{mapName}/key/{key}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -476,7 +476,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/get/{mapName}/{key}",
+            "url_pattern": "/api/anyJS/v1/map/get/{mapName}/key/{key}",
             "host": [
               "http://anyjs_server:4445"
             ],
@@ -502,7 +502,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/map/has/{mapName}/{key}",
+        "endpoint": "/api/anyJS/v1/map/has/{mapName}/key/{key}",
         "method": "GET",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -510,7 +510,7 @@
           {
             "encoding": "no-op",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/has/{mapName}/{key}",
+            "url_pattern": "/api/anyJS/v1/map/has/{mapName}/key/{key}",
             "host": [
               "http://anyjs_server:4445"
             ],
