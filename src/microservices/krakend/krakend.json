@@ -162,7 +162,7 @@
         ]
       },
       {
-        "endpoint": "/api/anyJS/v1/execute/{taskName}/execution",
+        "endpoint": "/api/anyJS/v1/execute/{taskName}",
         "method": "DELETE",
         "output_encoding": "no-op",
         "extra_config": {},
@@ -170,7 +170,7 @@
           {
             "encoding": "no-op",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/execute/{taskName}/execution",
+            "url_pattern": "/api/anyJS/v1/execute/{taskName}",
             "host": [
               "http://anyjs_server:4445"
             ],
