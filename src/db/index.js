@@ -29,7 +29,7 @@ async function getDocument(collectionName, key, value) {
 async function getAllDocuments(collectionName) {
   const collection = await getCollection(collectionName);
 
-  const documents = collection.find({}).toArray();
+  const documents = collection.find({}).maxTimeMS(10000).toArray();
 
   return documents;
 }
