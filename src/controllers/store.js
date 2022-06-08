@@ -39,7 +39,7 @@ async function storeObject(req, res) {
     newObject.save();
 
     const jsonResult = {
-      result: `${req.baseUrl}${req.url}/${req.body.objectName}`,
+      result: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
     };
     res.status(201).send(jsonResult);
   }
