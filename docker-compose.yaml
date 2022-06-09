@@ -20,6 +20,8 @@ services:
       placement:
         constraints:
           - "node.role==worker"
+    volumes:
+      - anyjs:/data
     environment:
       NODE_ENV: development
     ports:
