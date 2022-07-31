@@ -27,11 +27,15 @@ async function getDocument(collectionName, key, value) {
 }
 
 async function getAllDocuments(collectionName) {
-  const collection = await getCollection(collectionName);
+  try {
+    const collection = await getCollection(collectionName);
 
-  const documents = collection.find({}).maxTimeMS(10000).toArray();
+    const documents = collection.find().maxTimeMS(60000);
 
-  return documents;
+    return await documents.toArray();
+  } catch (error) {
+    return [];
+  }
 }
 
 async function hasCollection(collectionName) {

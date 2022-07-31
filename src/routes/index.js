@@ -1,10 +1,12 @@
 const express = require('express');
 
-const router = express.Router();
+const lockunlock = require('../controllers/lockunlock');
 const register = require('../controllers/register');
 const store = require('../controllers/store');
 const task = require('../controllers/task');
 const map = require('../controllers/map');
+
+const router = express.Router();
 
 // requests for register service
 router.post('/register', register.registerCode);
@@ -49,5 +51,15 @@ router.get('/map/values/:mapName', map.getAllValues);
 router.delete('/map/:mapName/key/:key', map.deleteKey);
 router.delete('/map/clear/:mapName', map.deleteAllEntries);
 router.delete('/map/:mapName', map.deleteMap);
+
+// requests for lock/unlock service
+router.post('/lock/obj', lockunlock.lockObject);
+router.post('/lock/map', lockunlock.lockMap);
+router.post('/unlock/obj', lockunlock.unlockObject);
+router.post('/unlock/map', lockunlock.unlockMap);
+router.get('/lock/obj/:objName', lockunlock.getLockedObject);
+router.get('/lock/map/:mapName/:key', lockunlock.getLockerMap);
+router.delete('/lock/obj/:objName', lockunlock.deleteObjectLock);
+router.delete('/lock/map/:mapName/:key', lockunlock.deleteMapLock);
 
 module.exports = router;
