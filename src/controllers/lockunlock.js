@@ -102,27 +102,7 @@ async function lockMap(req, res) {
   /**
    {
     type: 'lockMetadata',
-    keys: [
-      {
-        key: "key1",
-        locked: 'id1',
-        lockQueue: [ 'id2', 'id3', 'id4' ]
-      },
-      {
-        key: "key2",
-        locked: 'id1',
-        lockQueue: [ 'id2', 'id3', 'id4' ]
-      },
-      {
-        key: "key3",
-        locked: 'id1',
-        lockQueue: [ 'id2', 'id3', 'id4' ]
-      }
-    ]
-   },
-   {
-    type: 'lockMetadata',
-    keys: {
+    lockedKeys: {
       key1: {
         locked: 'id1',
         lockQueue: [ 'id2', 'id3', 'id4' ]
@@ -179,12 +159,21 @@ async function getLockedObject(req, res) {
   if (collectionExists) {
     const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
-    const jsonResult = {
-      uri: `${req.baseUrl}${req.url}/${objectName}`,
-      result: lockMetadata,
-    };
+    if (lockMetadata) {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${objectName}`,
+        result: lockMetadata,
+      };
 
-    res.status(200).send(jsonResult);
+      res.status(200).send(jsonResult);
+    } else {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${mapName}`,
+        result: `object ${objectName} has not been locked yet`,
+      };
+
+      res.status(404).send(jsonResult);
+    }
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
@@ -195,8 +184,40 @@ async function getLockedObject(req, res) {
   }
 }
 
-async function getLockerMap(req, res) {
+async function getLockedMap(req, res) {
+  const mapName = req.params.mapName;
+  const lockedEntry = req.params.key;
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
+
+  const collectionExists = await db.hasCollection(collectionName);
+
+  if (collectionExists) {
+    const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
+
+    if (lockMetadata && lockMetadata.lockedKeys[lockedEntry]) {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${mapName}`,
+        result: lockMetadata.lockedKeys[lockedEntry],
+      };
+
+      res.status(404).send(jsonResult);
+    } else {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${mapName}`,
+        result: `entry ${lockedEntry} of map ${mapName} has not been locked yet`,
+      };
+
+      res.status(404).send(jsonResult);
+    }
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `map ${mapName} do not exist`,
+    };
+
+    res.status(404).send(jsonResult);
+  }
 }
 
 async function deleteObjectLock(req, res) {
@@ -238,7 +259,42 @@ async function deleteObjectLock(req, res) {
 }
 
 async function deleteMapLock(req, res) {
+  const mapName = req.params.mapName;
+  const lockedEntry = req.params.key;
+  const identifier = req.params.identifier;
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
+
+  const collectionExists = await db.hasCollection(collectionName);
+
+  if (collectionExists) {
+    const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata').lockedKeys[lockedEntry];
+    const lockQueue = Array.from(lockMetadata.lockQueue).filter(data => data !== identifier);
+
+    const newValues = {
+      $set: { lockQueue: lockQueue },
+      $currentDate: { lastModified: true },
+    };
+
+    const query = {};
+    query._id = lockMetadata._id;
+
+    await db.updateDocument(collectionName, query, newValues);
+
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}/${mapName}`,
+      result: `id ${identifier} deleted from queue of locks of map entry ${mapName}:${lockedEntry}`,
+    };
+
+    res.status(200).send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `map ${mapName} do not exist`,
+    };
+
+    res.status(404).send(jsonResult);
+  }
 }
 
 module.exports = {
@@ -247,7 +303,7 @@ module.exports = {
   unlockObject,
   unlockMap,
   getLockedObject,
-  getLockerMap,
+  getLockedMap,
   deleteObjectLock,
   deleteMapLock,
 };
