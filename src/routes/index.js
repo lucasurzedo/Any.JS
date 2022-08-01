@@ -59,7 +59,7 @@ router.post('/unlock/obj', lockunlock.unlockObject);
 router.post('/unlock/map', lockunlock.unlockMap);
 router.get('/lock/obj/:objName', lockunlock.getLockedObject);
 router.get('/lock/map/:mapName/:key', lockunlock.getLockerMap);
-router.delete('/lock/obj/:objName', lockunlock.deleteObjectLock);
+router.delete('/lock/obj/:objName/id/:identifier', lockunlock.deleteObjectLock);
 router.delete('/lock/map/:mapName/:key', lockunlock.deleteMapLock);
 
 module.exports = router;
