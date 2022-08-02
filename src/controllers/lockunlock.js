@@ -108,7 +108,7 @@ async function lockMap(req, res) {
     identifier
   } = req.body;
 
-  if (!mapName || !identifier) {
+  if (!mapName || !key || !identifier) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -252,14 +252,15 @@ async function unlockObject(req, res) {
     return;
   }
 
-  const collectionName = (`${objectName} _object`).toLowerCase();
+  const collectionName = (`${objectName}_object`).toLowerCase();
 
   const collectionExists = await db.hasCollection(collectionName);
 
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
-  const lockQueue = Array.from(lockMetadata.lockQueue);
 
   if (collectionExists && lockMetadata) {
+    const lockQueue = Array.from(lockMetadata.lockQueue);
+
     if (lockMetadata.locked == identifier) {
       const newLocked = lockQueue.shift();
       let newValues = {};
@@ -296,9 +297,9 @@ async function unlockObject(req, res) {
 
       res.status(403).send(jsonResult);
     }
-  } else if (!lockMetadata) {
+  } else if (collectionExists && !lockMetadata) {
     const jsonResult = {
-      uri: `${req.baseUrl}${req.url}/${mapName}`,
+      uri: `${req.baseUrl}${req.url}/${objectName}`,
       result: `object ${objectName} has not been locked yet`,
     };
 
@@ -314,7 +315,84 @@ async function unlockObject(req, res) {
 }
 
 async function unlockMap(req, res) {
+  const {
+    mapName,
+    key,
+    identifier
+  } = req.body;
 
+  if (!mapName || !key || !identifier) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+    return;
+  }
+
+  const collectionName = (`${mapName}_map`).toLowerCase();
+
+  const collectionExists = await db.hasCollection(collectionName);
+
+  const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
+
+  if (collectionExists && lockMetadata.lockedKeys[key]) {
+    const lockQueue = Array.from(lockMetadata.lockedKeys[key].lockQueue);
+
+    if (lockMetadata.lockedKeys[key].locked == identifier) {
+      const newLocked = lockQueue.shift();
+      let lockedKeys = lockMetadata.lockedKeys;
+      let newValues = {};
+
+      if (newLocked) {
+        lockedKeys[key].locked = newLocked;
+        lockedKeys[key].lockQueue = lockQueue;
+      } else {
+        lockedKeys[key].locked = '';
+        lockedKeys[key].lockQueue = lockQueue;
+      }
+
+      newValues = {
+        $set: { lockedKeys: lockedKeys },
+        $currentDate: { lastModified: true },
+      };
+
+      const query = {
+        _id: lockMetadata._id,
+      };
+
+      await db.updateDocument(collectionName, query, newValues);
+
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url} /${mapName}`,
+        result: `map ${mapName} unlocked from id: ${identifier}`,
+      };
+
+      res.status(200).send(jsonResult);
+    } else {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}`,
+        result: `map not locked to id: ${identifier}`,
+      };
+
+      res.status(403).send(jsonResult);
+    }
+  } else if (collectionExists && !lockMetadata) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}/${mapName}`,
+      result: `map ${mapName} has not been locked yet`,
+    };
+
+    res.status(404).send(jsonResult);
+  } else {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `object ${objectName} do not exist`,
+    };
+
+    res.status(404).send(jsonResult);
+  }
 }
 
 async function getLockedObject(req, res) {
