@@ -251,35 +251,3 @@ class Factorial {
   }
 }
 
-const register = new Register();
-const execute = new Execute();
-const store = new Store();
-const instantiate = new Instantiate();
-const map = new Map();
-
-await register.registerCode();
-await register.getCode();
-await register.deleteCode();
-
-await execute.executeCode();
-await execute.getExecution();
-await execute.deleteExecution();
-
-await store.storeObject();
-await store.getObject();
-await store.deleteObject();
-
-await instantiate.instantiateObject();
-await instantiate.getInstantiatedObject();
-await instantiate.deleteInstantiatedObject();
-
-await map.createMap();
-await map.setElements();
-await map.setEntry();
-await map.updateMapElement();
-await map.mapForEach();
-await map.updateMap();
-await map.getMapEntries();
-await map.getMapElement();
-await map.clearMap();
-await map.deleteMap();
