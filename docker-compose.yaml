@@ -31,7 +31,6 @@ services:
   observer:
     image: lucasurzedo/anyjsobserver:1.0
     deploy:
-      mode: global
       placement:
         constraints:
           - "node.role==worker"
