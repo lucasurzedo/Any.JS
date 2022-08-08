@@ -6,7 +6,12 @@ const ModelRegister = require('../models/register');
 const collectionName = 'registers';
 
 async function registerCode(req, res) {
-  if (!req.body.codeName || !req.body.code) {
+  const {
+    codeName,
+    code,
+  } = req.body;
+
+  if (!codeName || !code) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -18,7 +23,7 @@ async function registerCode(req, res) {
   }
 
   const codes = [];
-  for (const iterator of req.body.code) {
+  for (const iterator of code) {
     codes.push(iterator);
   }
 
@@ -36,7 +41,7 @@ async function registerCode(req, res) {
     }
   }
 
-  const document = await db.getDocument(collectionName, 'codeName', req.body.codeName);
+  const document = await db.getDocument(collectionName, 'codeName', codeName);
 
   if (document) {
     const jsonError = {
@@ -48,22 +53,26 @@ async function registerCode(req, res) {
     const Code = mongoose.model(collectionName, ModelRegister, collectionName);
 
     const newCode = new Code({
-      codeName: req.body.codeName,
-      language: req.body.language,
-      code: req.body.code,
+      codeName: codeName,
+      code: code,
     });
 
     newCode.save();
 
     const jsonResult = {
-      result: `${req.baseUrl}${req.url}/${req.body.codeName}`,
+      result: `${req.baseUrl}${req.url}/${codeName}`,
     };
     res.status(201).send(jsonResult);
   }
 }
 
 async function updateCodeElement(req, res) {
-  if (!req.body.codeKey || !req.body.codeValue) {
+  const {
+    codeKey,
+    codeValue,
+  } = req.body;
+
+  if (!codeKey || !codeValue) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -74,12 +83,12 @@ async function updateCodeElement(req, res) {
     return;
   }
 
-  const document = await db.getDocument(collectionName, 'codeName', req.params.codeName);
+  const document = await db.getDocument(collectionName, 'codeName', codeName);
 
   let changed = false;
   for (const iterator of document.code) {
-    if (iterator[req.body.codeKey]) {
-      iterator[req.body.codeKey] = req.body.codeValue;
+    if (iterator[codeKey]) {
+      iterator[codeKey] = codeValue;
       changed = true;
     }
   }
@@ -87,7 +96,7 @@ async function updateCodeElement(req, res) {
   if (!changed) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no codeKey ${req.body.codeKey}`,
+      result: `there is no codeKey ${codeKey}`,
     };
 
     res.status(404).send(jsonError);
@@ -101,7 +110,7 @@ async function updateCodeElement(req, res) {
   };
 
   const query = {};
-  query.codeName = req.params.codeName;
+  query.codeName = codeName;
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
@@ -114,7 +123,7 @@ async function updateCodeElement(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${req.body.key}`,
+      result: `there is no code ${codeKey}`,
     };
 
     res.status(404).send(jsonError);
@@ -122,7 +131,15 @@ async function updateCodeElement(req, res) {
 }
 
 async function updateCode(req, res) {
-  if (!req.body.code) {
+  const {
+    code,
+  } = req.body;
+
+  const {
+    codeName,
+  } = req.params;
+
+  if (!code) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -134,12 +151,12 @@ async function updateCode(req, res) {
   }
 
   const newValues = {
-    $set: { code: req.body.code },
+    $set: { code: code },
     $currentDate: { lastModified: true },
   };
 
   const query = {};
-  query.codeName = req.params.codeName;
+  query.codeName = codeName;
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
@@ -152,7 +169,7 @@ async function updateCode(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${req.body.key}`,
+      result: `there is no code ${key}`,
     };
 
     res.status(404).send(jsonError);
@@ -160,7 +177,11 @@ async function updateCode(req, res) {
 }
 
 async function getCode(req, res) {
-  const document = await db.getDocument(collectionName, 'codeName', req.params.codeName);
+  const {
+    codeName,
+  } = req.params;
+
+  const document = await db.getDocument(collectionName, 'codeName', codeName);
 
   if (document) {
     const jsonResult = {
@@ -172,25 +193,29 @@ async function getCode(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${req.params.codeName}`,
+      result: `there is no code ${codeName}`,
     };
     res.status(404).send(jsonError);
   }
 }
 
 async function deleteCode(req, res) {
-  const deleted = await db.deleteDocument(collectionName, 'codeName', req.params.codeName);
+  const {
+    codeName,
+  } = req.params;
+
+  const deleted = await db.deleteDocument(collectionName, 'codeName', codeName);
 
   if (deleted) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `code ${req.params.codeName} removed`,
+      result: `code ${codeName} removed`,
     };
     res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `code ${req.params.codeName} do not exist`,
+      result: `code ${codeName} do not exist`,
     };
     res.status(404).send(jsonResult);
   }

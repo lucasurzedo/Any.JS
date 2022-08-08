@@ -7,7 +7,13 @@ const utils = require('../utils/index');
 const instantiateObj = require('../services/instantiateObj');
 
 async function storeObject(req, res) {
-  if (!req.body.objectName || !req.body.code || !req.body.object) {
+  const {
+    objectName,
+    code,
+    object,
+  } = req.body;
+
+  if (!objectName || !code || !object) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -17,9 +23,9 @@ async function storeObject(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.code}_object`).toLowerCase();
+  const collectionName = (`${code}_object`).toLowerCase();
 
-  const document = await db.getDocument(collectionName, 'objectName', req.body.objectName);
+  const document = await db.getDocument(collectionName, 'objectName', objectName);
 
   if (document) {
     const jsonError = {
@@ -31,24 +37,30 @@ async function storeObject(req, res) {
     const Object = mongoose.model(collectionName, ModelObject, collectionName);
 
     const newObject = new Object({
-      className: req.body.code,
-      objectName: req.body.objectName,
-      object: req.body.object,
+      className: code,
+      objectName: objectName,
+      object: object,
     });
 
     newObject.save();
 
     const jsonResult = {
-      result: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
+      result: `${req.baseUrl}${req.url}/${code}/${objectName}`,
     };
     res.status(201).send(jsonResult);
   }
 }
 
 async function instantiateObject(req, res) {
-  if (!req.body.objectName || !req.body.code || !req.body.args) {
+  const {
+    objectName,
+    code,
+    args,
+  } = req.body;
+
+  if (!objectName || !code || !args) {
     const jsonError = {
-      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
+      uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
     };
 
@@ -59,12 +71,12 @@ async function instantiateObject(req, res) {
   const registerCollection = 'registers';
 
   // Try to find the code in collection registers
-  const documentCode = await db.getDocument(registerCollection, 'codeName', req.body.code);
+  const documentCode = await db.getDocument(registerCollection, 'codeName', code);
 
   if (!documentCode) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${req.body.code}`,
+      result: `there is no code ${code}`,
     };
     res.status(404).send(jsonError);
     return;
@@ -94,14 +106,14 @@ async function instantiateObject(req, res) {
     }
   }
 
-  const collectionName = (`${req.body.code}_object`).toLowerCase();
+  const collectionName = (`${code}_object`).toLowerCase();
 
-  const documentObject = await db.getDocument(collectionName, 'objectName', req.body.objectName);
+  const documentObject = await db.getDocument(collectionName, 'objectName', objectName);
 
   if (documentObject) {
     const jsonResult = {
-      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
-      result: `object ${req.body.objectName} already exist`,
+      uri: `${req.baseUrl}${req.url}/${code}/${objectName}`,
+      result: `object ${objectName} already exist`,
     };
     res.status(409).send(jsonResult);
     return;
@@ -110,24 +122,23 @@ async function instantiateObject(req, res) {
   const Object = mongoose.model(collectionName, ModelObject, collectionName);
 
   const newObject = new Object({
-    className: req.body.code,
-    objectName: req.body.objectName,
+    className: code,
+    objectName: objectName,
     object: null,
   });
 
   await newObject.save();
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}/${code}/${objectName}`,
+    result: 'instantiating object',
+  };
+  res.status(201).send(jsonResult);
 
   // If the file don't exists then its downloaded and executed
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     const code = await utils.downloadCode(methodsLinks);
     if (code) {
-      const jsonResult = {
-        uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
-        result: 'instantiating object',
-      };
-      res.status(201).send(jsonResult);
-
       instantiateObj(req.body).then((result) => {
         console.log(result);
         if (result.error) {
@@ -138,14 +149,14 @@ async function instantiateObject(req, res) {
           newObject.save();
         }
       });
+    } else {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${code}/${objectName}`.toLowerCase(),
+        result: 'error downloading the codes',
+      };
+      res.status(400).send(jsonResult);
     }
   } else {
-    const jsonResult = {
-      uri: `${req.baseUrl}${req.url}/${req.body.code}/${req.body.objectName}`,
-      result: 'instantiating object',
-    };
-    res.status(201).send(jsonResult);
-
     instantiateObj(req.body).then((result) => {
       console.log(result);
       if (result.error) {
@@ -160,7 +171,11 @@ async function instantiateObject(req, res) {
 }
 
 async function getAllObjects(req, res) {
-  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
+  const {
+    codeName,
+  } = req.params;
+
+  const collectionName = (`${codeName}_object`).toLowerCase();
 
   const documents = await db.getAllDocuments(collectionName);
 
@@ -172,7 +187,7 @@ async function getAllObjects(req, res) {
   if (elements.length === 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no elements in object ${req.params.codeName}`,
+      result: `there is no elements in object ${codeName}`,
     };
     res.status(404).send(jsonResult);
   } else {
@@ -185,9 +200,14 @@ async function getAllObjects(req, res) {
 }
 
 async function getObject(req, res) {
-  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
+  const {
+    codeName,
+    objectName,
+  } = req.params;
 
-  const document = await db.getDocument(collectionName, 'objectName', req.params.objectName);
+  const collectionName = (`${codeName}_object`).toLowerCase();
+
+  const document = await db.getDocument(collectionName, 'objectName', objectName);
 
   if (document) {
     const jsonResult = {
@@ -199,14 +219,18 @@ async function getObject(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no object ${req.params.objectName}`,
+      result: `there is no object ${objectName}`,
     };
     res.status(404).send(jsonError);
   }
 }
 
 async function deleteAllObjects(req, res) {
-  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
+  const {
+    codeName,
+  } = req.params;
+
+  const collectionName = (`${codeName}_object`).toLowerCase();
 
   const deleted = await db.deleteAllDocuments(collectionName);
 
@@ -219,27 +243,32 @@ async function deleteAllObjects(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no objects in ${req.params.codeName}`,
+      result: `there is no objects in ${codeName}`,
     };
     res.status(404).send(jsonError);
   }
 }
 
 async function deleteObject(req, res) {
-  const collectionName = (`${req.params.codeName}_object`).toLowerCase();
+  const {
+    codeName,
+    objectName,
+  } = req.params;
 
-  const deleted = await db.deleteDocument(collectionName, 'objectName', req.params.objectName);
+  const collectionName = (`${codeName}_object`).toLowerCase();
+
+  const deleted = await db.deleteDocument(collectionName, 'objectName', objectName);
 
   if (deleted) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `object ${req.params.objectName} removed`,
+      result: `object ${objectName} removed`,
     };
     res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `object ${req.params.objectName} do not exist`,
+      result: `object ${objectName} do not exist`,
     };
     res.status(404).send(jsonResult);
   }

@@ -16,25 +16,32 @@ router.get('/register/:codeName', register.getCode);
 router.delete('/register/:codeName', register.deleteCode);
 
 // requests for store service
-router.post('/store/', store.storeObject);
+router.post('/store', store.storeObject);
+//router.put('/store', store.updateStoredObject);
 router.get('/store/:codeName', store.getAllObjects);
 router.get('/store/:codeName/:objectName', store.getObject);
 router.delete('/store/:codeName/:objectName', store.deleteObject);
 router.delete('/store/:codeName', store.deleteAllObjects);
 
 // requests for instantiate service
-router.post('/instantiate', store.instantiateObject);
+router.post('/instantiate/javascript', store.instantiateObject);
+router.put('/instantiate/javascript', store.instantiateObject);
 router.get('/instantiate/:codeName', store.getAllObjects);
 router.get('/instantiate/:codeName/:objectName', store.getObject);
 router.delete('/instantiate/:codeName/:objectName', store.deleteObject);
 router.delete('/instantiate/:codeName', store.deleteAllObjects);
 
 // requests for execute service
-router.post('/execute', task.createTask);
-router.get('/execute/:taskName/execution', task.getAllTaskExecutions);
-router.get('/execute/:taskName/execution/:executionName', task.getExecution);
+router.post('/execute/javascript', task.createTask);
+//router.put('/execute/javascript', task.updateCreatedTask);
+//router.post('/execute/java', task.);
+//router.put('/execute/java', task.);
+//router.post('/execute/python', task.);
+//router.put('/execute/python', task.);
+router.get('/execute/:taskName', task.getAllTaskExecutions);
+router.get('/execute/:taskName/:executionName', task.getExecution);
 router.delete('/execute/:taskName', task.deleteTask);
-router.delete('/execute/:taskName/execution/:executionName', task.deleteExecution);
+router.delete('/execute/:taskName/:executionName', task.deleteExecution);
 
 // requests for map service
 router.post('/map', map.createMap);

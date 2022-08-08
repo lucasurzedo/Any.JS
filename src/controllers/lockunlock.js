@@ -396,7 +396,9 @@ async function unlockMap(req, res) {
 }
 
 async function getLockedObject(req, res) {
-  const objectName = req.params.objName;
+  const {
+    objectName,
+  } = req.params;
 
   const collectionName = (`${objectName}_object`).toLowerCase();
 
@@ -431,11 +433,12 @@ async function getLockedObject(req, res) {
 }
 
 async function getLockedMap(req, res) {
-  const mapName = req.params.mapName;
-  const key = req.params.key;
+  const {
+    mapName,
+    key,
+  } = req.params;
 
   const collectionName = (`${mapName}_map`).toLowerCase();
-
   const collectionExists = await db.hasCollection(collectionName);
 
   if (collectionExists) {
@@ -467,12 +470,14 @@ async function getLockedMap(req, res) {
 }
 
 async function deleteObjectLock(req, res) {
-  const objectName = req.params.objName;
-  const identifier = req.params.identifier;
+  const {
+    objectName,
+    identifier,
+  } = req.params;
 
   const collectionName = (`${objectName}_object`).toLowerCase();
-
   const collectionExists = await db.hasCollection(collectionName);
+
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
   if (collectionExists && lockMetadata) {
@@ -506,13 +511,15 @@ async function deleteObjectLock(req, res) {
 }
 
 async function deleteMapLock(req, res) {
-  const mapName = req.params.mapName;
-  const key = req.params.key;
-  const identifier = req.params.identifier;
+  const {
+    mapName,
+    key,
+    identifier,
+  } = req.params;
 
   const collectionName = (`${mapName}_map`).toLowerCase();
-
   const collectionExists = await db.hasCollection(collectionName);
+
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
   if (collectionExists && lockMetadata) {

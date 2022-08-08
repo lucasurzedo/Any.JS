@@ -2,9 +2,8 @@ const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 
-const pool = new Pool({ max: CPUs });
+const pool = new Pool({ max: CPUs / 2 });
 
-// eslint-disable-next-line no-shadow
 const executeFunction = (workerData) => new Promise((resolve, reject) => {
   pool.acquire(__filename, { workerData }, (err, worker) => {
     if (err) reject(err);

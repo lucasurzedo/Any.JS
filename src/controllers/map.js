@@ -5,7 +5,11 @@ const db = require('../db');
 const executeFunction = require('../services/executeFunction');
 
 async function createMap(req, res) {
-  if (!req.body.mapName) {
+  const {
+    mapName,
+  } = req.body;
+
+  if (!mapName) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -16,7 +20,7 @@ async function createMap(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
+  const collectionName = (`${mapName}_map`).toLowerCase();
 
   const collectionExists = await db.hasCollection(collectionName);
 
@@ -31,12 +35,12 @@ async function createMap(req, res) {
 
     if (collection) {
       const jsonResult = {
-        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+        result: `${req.baseUrl}${req.url}/${mapName}`,
       };
       res.status(201).send(jsonResult);
     } else {
       const jsonResult = {
-        result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+        result: `${req.baseUrl}${req.url}/${mapName}`,
         error: 'error during creation process',
       };
       res.status(500).send(jsonResult);
@@ -45,7 +49,12 @@ async function createMap(req, res) {
 }
 
 async function setElements(req, res) {
-  if (!req.body.mapName || !req.body.elements) {
+  const {
+    mapName,
+    elements,
+  } = req.body;
+
+  if (!mapName || !elements) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -56,8 +65,7 @@ async function setElements(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
-  const elements = req.body.elements;
+  const collectionName = (`${mapName}_map`).toLowerCase();
 
   for (const element of elements) {
     // eslint-disable-next-line no-await-in-loop
@@ -76,14 +84,20 @@ async function setElements(req, res) {
   }
 
   const jsonResult = {
-    result: `${req.baseUrl}${req.url}/entries/${req.body.mapName}`,
+    result: `${req.baseUrl}${req.url}/entries/${mapName}`,
   };
 
   res.status(201).send(jsonResult);
 }
 
 async function setEntry(req, res) {
-  if (!req.body.mapName || !req.body.key || !req.body.value) {
+  const {
+    mapName,
+    key,
+    value,
+  } = req.body;
+
+  if (!mapName || !key || !value) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -94,13 +108,8 @@ async function setEntry(req, res) {
     return;
   }
 
-  let mapName = `${req.body.mapName}`;
-  mapName = mapName.toLowerCase();
-  req.body.mapName = mapName;
-
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
-
-  const document = await db.getDocument(collectionName, 'key', req.body.key);
+  const collectionName = (`${mapName}_map`).toLowerCase();
+  const document = await db.getDocument(collectionName, 'key', key);
 
   if (document) {
     const jsonError = {
@@ -112,21 +121,28 @@ async function setEntry(req, res) {
     const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
     const newElement = new Element({
-      key: req.body.key,
-      value: req.body.value,
+      key: key,
+      value: value,
     });
 
     newElement.save();
 
     const jsonResult = {
-      result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+      result: `${req.baseUrl}${req.url}/${mapName}`,
     };
     res.status(201).send(jsonResult);
   }
 }
 
 async function updateElement(req, res) {
-  if (!req.body.mapName || !req.body.key || !req.body.value) {
+  const {
+    mapName,
+    key,
+    value,
+    identifier
+  } = req.body;
+
+  if (!mapName || !key || !value) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -137,35 +153,52 @@ async function updateElement(req, res) {
     return;
   }
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
+  const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
+
+  if (lockMetadata && lockMetadata.lockedKeys[key].locked !== identifier) {
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `map entry locked, entry cannot be updated`,
+    };
+
+    res.status(403).send(jsonResult);
+    return;
+  }
+
   const newValues = {
-    $set: { key: req.body.key, value: req.body.value },
+    $set: { key: key, value: value },
     $currentDate: { lastModified: true },
   };
 
   const query = {};
-  query.key = req.body.key;
+  query.key = key;
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
   if (updated.modifiedCount > 0) {
     const jsonResult = {
-      uri: `${req.baseUrl}/map/get/${req.body.mapName}/${req.body.key}`,
+      uri: `${req.baseUrl}/map/get/${mapName}/${key}`,
     };
 
     res.status(200).send(jsonResult);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no key ${req.body.key}`,
+      result: `there is no key ${key}`,
     };
     res.status(404).send(jsonError);
   }
 }
 
 async function updateMap(req, res) {
-  if (!req.body.mapName || !req.body.map) {
+  const {
+    mapName,
+    map,
+  } = req.body;
+
+  if (!mapName || !map) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -176,17 +209,16 @@ async function updateMap(req, res) {
     return;
   }
 
-  const collectionName = (`${req.body.mapName}_map`).toLowerCase();
-
+  const collectionName = (`${mapName}_map`).toLowerCase();
   await db.dropCollection(collectionName);
 
-  for (const element in req.body.map) {
+  for (const element in map) {
     try {
       const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
       const newElement = new Element({
         key: element,
-        value: req.body.map[element],
+        value: map[element],
       });
 
       newElement.save();
@@ -201,14 +233,22 @@ async function updateMap(req, res) {
   }
 
   const jsonResult = {
-    result: `${req.baseUrl}${req.url}/${req.body.mapName}`,
+    result: `${req.baseUrl}${req.url}/${mapName}`,
   };
   res.status(201).send(jsonResult);
 }
 
 async function mapForEach(req, res) {
-  if (!req.body.mapName || !req.body.code || !req.body.args
-    || !req.body.method) {
+  const {
+    mapName,
+    code,
+    args,
+    method,
+    methodArgs,
+  } = req.body;
+
+  if (!mapName || !code || !args
+    || !method) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -218,13 +258,13 @@ async function mapForEach(req, res) {
     return;
   }
 
-  let collectionName = (`${req.body.mapName}_map`).toLowerCase();
+  let collectionName = (`${mapName}_map`).toLowerCase();
 
   const documents = await db.getAllDocuments(collectionName);
 
   const results = {};
   for (const iterator of documents) {
-    results[iterator.key] = `${req.baseUrl}/execute/task/${req.body.mapName}/execution/${iterator.key}`;
+    results[iterator.key] = `${req.baseUrl}/execute/task/${mapName}/execution/${iterator.key}`;
   }
 
   console.log(results);
@@ -235,19 +275,19 @@ async function mapForEach(req, res) {
   };
   res.status(200).send(jsonResult);
 
-  collectionName = (`${req.body.mapName}_map_task`).toLowerCase();
+  collectionName = (`${mapName}_map_task`).toLowerCase();
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
   for (const iterator of documents) {
-    req.body.methodArgs = [];
-    req.body.methodArgs.push(iterator.value);
+    methodArgs = [];
+    methodArgs.push(iterator.value);
 
     const newTask = new Task({
       executionName: iterator.key,
-      parameterValue: req.body.args,
-      method: req.body.method,
-      methodArgs: req.body.methodArgs,
+      parameterValue: args,
+      method: method,
+      methodArgs: methodArgs,
       taskResult: null,
     });
 
@@ -262,14 +302,18 @@ async function mapForEach(req, res) {
 }
 
 async function getElement(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+    key,
+  } = req.params;
 
-  const document = await db.getDocument(collectionName, 'key', req.params.key);
+  const collectionName = (`${mapName}_map`).toLowerCase();
+  const document = await db.getDocument(collectionName, 'key', key);
 
   if (!document) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no key ${req.params.key}`,
+      result: `there is no key ${key}`,
     };
     res.status(404).send(jsonError);
   } else {
@@ -283,14 +327,18 @@ async function getElement(req, res) {
 }
 
 async function getEntries(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+  } = req.params;
+
+  const collectionName = (`${mapName}_map`).toLowerCase();
 
   const documents = await db.getAllDocuments(collectionName);
 
   if (documents.length === 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no elements in map ${req.params.mapName}`,
+      result: `there is no elements in map ${mapName}`,
     };
     res.status(404).send(jsonResult);
   } else {
@@ -309,13 +357,17 @@ async function getEntries(req, res) {
 }
 
 async function hasElement(req, res) {
+  const {
+    mapName,
+    key,
+  } = req.params;
+
   const jsonResult = {
     uri: `${req.baseUrl}${req.url}`,
   };
 
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
-
-  const document = await db.getDocument(collectionName, 'key', req.params.key);
+  const collectionName = (`${mapName}_map`).toLowerCase();
+  const document = await db.getDocument(collectionName, 'key', key);
 
   if (document) {
     jsonResult.result = true;
@@ -327,7 +379,11 @@ async function hasElement(req, res) {
 }
 
 async function getAllKeys(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+  } = req.params;
+
+  const collectionName = (`${mapName}_map`).toLowerCase();
 
   const documents = await db.getAllDocuments(collectionName);
 
@@ -340,7 +396,7 @@ async function getAllKeys(req, res) {
   if (elements.length === 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no elements in map ${req.params.mapName}`,
+      result: `there is no elements in map ${mapName}`,
     };
     res.status(404).send(jsonResult);
   } else {
@@ -353,12 +409,14 @@ async function getAllKeys(req, res) {
 }
 
 async function getAllValues(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+  } = req.params;
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
   const documents = await db.getAllDocuments(collectionName);
 
   const elements = [];
-
   for (const iterator of documents) {
     elements.push(iterator.value);
   }
@@ -366,7 +424,7 @@ async function getAllValues(req, res) {
   if (elements.length === 0) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no elements in map ${req.params.mapName}`,
+      result: `there is no elements in map ${mapName}`,
     };
     res.status(404).send(jsonResult);
   } else {
@@ -379,28 +437,35 @@ async function getAllValues(req, res) {
 }
 
 async function deleteKey(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+    key,
+  } = req.params;
 
-  const deleted = await db.deleteDocument(collectionName, 'key', req.params.key);
+  const collectionName = (`${mapName}_map`).toLowerCase();
+  const deleted = await db.deleteDocument(collectionName, 'key', key);
 
   if (deleted) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `element ${req.params.key} removed`,
+      result: `element ${key} removed`,
     };
     res.status(200).send(jsonResult);
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `element ${req.params.key} do not exist`,
+      result: `element ${key} do not exist`,
     };
     res.status(404).send(jsonResult);
   }
 }
 
 async function deleteAllEntries(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+  } = req.params;
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
   const deleted = await db.deleteAllDocuments(collectionName);
 
   if (deleted) {
@@ -412,21 +477,24 @@ async function deleteAllEntries(req, res) {
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no elements in map ${req.params.mapName}`,
+      result: `there is no elements in map ${mapName}`,
     };
     res.status(404).send(jsonResult);
   }
 }
 
 async function deleteMap(req, res) {
-  const collectionName = (`${req.params.mapName}_map`).toLowerCase();
+  const {
+    mapName,
+  } = req.params;
 
+  const collectionName = (`${mapName}_map`).toLowerCase();
   const result = await db.dropCollection(collectionName);
 
   if (result) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `map ${req.params.mapName} deleted`,
+      result: `map ${mapName} deleted`,
     };
     res.status(200).send(jsonResult);
   } else {

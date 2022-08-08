@@ -25,7 +25,7 @@ echo "--------------------------------------------------------------------"
 echo "Updating portainer agent microservice in each cluster node..."
 echo "--------------------------------------------------------------------"
 
-docker service update --image portainer/agent  anyjs_agent
+docker service update --image portainer/agent anyjs_agent
 docker service update anyjs_server --force
 
 echo "--------------------------------------------------------------------"

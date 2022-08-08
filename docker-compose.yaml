@@ -4,9 +4,9 @@ services:
   mongo:
     image: mongo
     ports:
-    - "27017:27017" 
+      - "27017:27017"
     volumes:
-    - '/mnt/data:/data/db'
+      - '/mnt/data:/data/db'
     deploy:
       placement:
         constraints:
@@ -17,6 +17,7 @@ services:
     depends_on:
       - mongo
     deploy:
+      mode: global
       placement:
         constraints:
           - "node.role==worker"
@@ -30,6 +31,7 @@ services:
   observer:
     image: lucasurzedo/anyjsobserver:1.0
     deploy:
+      mode: global
       placement:
         constraints:
           - "node.role==worker"
@@ -44,7 +46,7 @@ services:
       - "1234:1234"
       - "80:8080"
       - "8090:8090"
-    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    command: [ "run", "-d", "-c", "/etc/krakend/krakend.json" ]
 
   agent:
     image: portainer/agent:linux-amd64-2.1.0-alpine
@@ -78,6 +80,7 @@ services:
 
 networks:
   portainer:
+
 
 volumes:
   anyjs:
