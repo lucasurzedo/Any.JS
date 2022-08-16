@@ -67,6 +67,17 @@ async function setElements(req, res) {
 
   const collectionName = (`${mapName}_map`).toLowerCase();
 
+  const collectionExists = await db.hasCollection(collectionName);
+
+  if (collectionExists) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'duplicated map',
+    };
+    res.status(409).send(jsonError);
+    return;
+  }
+
   for (const element of elements) {
     // eslint-disable-next-line no-await-in-loop
     const document = await db.getDocument(collectionName, 'key', element.key);
@@ -154,6 +165,18 @@ async function updateElement(req, res) {
   }
 
   const collectionName = (`${mapName}_map`).toLowerCase();
+
+  const collectionExists = await db.hasCollection(collectionName);
+
+  if (!collectionExists) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no map ${collectionName}`,
+    };
+    res.status(404).send(jsonError);
+    return;
+  }
+
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
   if (lockMetadata && lockMetadata.lockedKeys[key].locked !== identifier) {

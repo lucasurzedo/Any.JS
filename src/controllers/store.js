@@ -51,6 +51,47 @@ async function storeObject(req, res) {
   }
 }
 
+async function updateStoredObject(req, res) {
+  const {
+    objectName,
+    code,
+    object,
+  } = req.body;
+
+  if (!objectName || !code || !object) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+    return;
+  }
+
+  const collectionName = (`${code}_object`).toLowerCase();
+
+  const documentObject = await db.getDocument(collectionName, 'objectName', objectName);
+
+  if (documentObject) {
+    await db.deleteDocument(collectionName, 'objectName', objectName);
+  }
+
+  const Object = mongoose.model(collectionName, ModelObject, collectionName);
+
+  const newObject = new Object({
+    className: code,
+    objectName: objectName,
+    object: object,
+  });
+
+  newObject.save();
+
+  const jsonResult = {
+    result: `${req.baseUrl}${req.url}/${code}/${objectName}`,
+  };
+  res.status(201).send(jsonResult);
+}
+
 async function instantiateObject(req, res) {
   const {
     objectName,
@@ -117,6 +158,120 @@ async function instantiateObject(req, res) {
     };
     res.status(409).send(jsonResult);
     return;
+  }
+
+  const Object = mongoose.model(collectionName, ModelObject, collectionName);
+
+  const newObject = new Object({
+    className: code,
+    objectName: objectName,
+    object: null,
+  });
+
+  await newObject.save();
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}/${code}/${objectName}`,
+    result: 'instantiating object',
+  };
+  res.status(201).send(jsonResult);
+
+  // If the file don't exists then its downloaded and executed
+  // If the file exists then its executed
+  if (methodsLinks.length > 0) {
+    const code = await utils.downloadCode(methodsLinks);
+    if (code) {
+      instantiateObj(req.body).then((result) => {
+        console.log(result);
+        if (result.error) {
+          newObject.object = result;
+          newObject.save();
+        } else {
+          newObject.object = BSON.serialize(result, { serializeFunctions: true });
+          newObject.save();
+        }
+      });
+    } else {
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${code}/${objectName}`.toLowerCase(),
+        result: 'error downloading the codes',
+      };
+      res.status(400).send(jsonResult);
+    }
+  } else {
+    instantiateObj(req.body).then((result) => {
+      console.log(result);
+      if (result.error) {
+        newObject.object = result;
+        newObject.save();
+      } else {
+        newObject.object = BSON.serialize(result, { serializeFunctions: true });
+        newObject.save();
+      }
+    });
+  }
+}
+
+async function updateInstantiatedObject(req, res) {
+  const {
+    objectName,
+    code,
+    args,
+  } = req.body;
+
+  if (!objectName || !code || !args) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+    return;
+  }
+
+  const registerCollection = 'registers';
+
+  // Try to find the code in collection registers
+  const documentCode = await db.getDocument(registerCollection, 'codeName', code);
+
+  if (!documentCode) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no code ${code}`,
+    };
+    res.status(404).send(jsonError);
+    return;
+  }
+
+  const codes = [];
+  const methodsLinks = [];
+  // Get all the codes names and links
+  for (const iterator of documentCode.code) {
+    codes.push(iterator);
+  }
+
+  // Separate names and links in a object
+  for (let i = 0; i < codes.length; i += 1) {
+    for (const key in codes[i]) {
+      methodsLinks.push({ name: key, link: codes[i][key] });
+    }
+  }
+
+  // Verify if the file already exists
+  for (let i = 0; i < methodsLinks.length; i += 1) {
+    const path = `./src/codes/${methodsLinks[i].name}.js`;
+
+    if (fs.existsSync(path)) {
+      methodsLinks.splice(i, 1);
+      i -= 1;
+    }
+  }
+
+  const collectionName = (`${code}_object`).toLowerCase();
+
+  const documentObject = await db.getDocument(collectionName, 'objectName', objectName);
+
+  if (documentObject) {
+    await db.deleteDocument(collectionName, 'objectName', objectName);
   }
 
   const Object = mongoose.model(collectionName, ModelObject, collectionName);
@@ -276,7 +431,9 @@ async function deleteObject(req, res) {
 
 module.exports = {
   storeObject,
+  updateStoredObject,
   instantiateObject,
+  updateInstantiatedObject,
   getAllObjects,
   getObject,
   deleteAllObjects,

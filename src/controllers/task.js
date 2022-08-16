@@ -69,7 +69,7 @@ async function createTask(req, res) {
   if (document) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}${taskName}`,
-      result: `execution ${taskName} already exist`,
+      result: `execution ${taskName} already exists`,
     };
     res.status(409).send(jsonResult);
     return;
@@ -117,6 +117,10 @@ async function createTask(req, res) {
       newTask.save();
     });
   }
+}
+
+async function updateCreatedTask(req, res) {
+
 }
 
 async function getAllTaskExecutions(req, res) {
@@ -225,6 +229,7 @@ async function deleteExecution(req, res) {
 
 module.exports = {
   createTask,
+  updateCreatedTask,
   getAllTaskExecutions,
   getExecution,
   deleteTask,

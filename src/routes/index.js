@@ -17,7 +17,7 @@ router.delete('/register/:codeName', register.deleteCode);
 
 // requests for store service
 router.post('/store', store.storeObject);
-//router.put('/store', store.updateStoredObject);
+router.put('/store', store.updateStoredObject);
 router.get('/store/:codeName', store.getAllObjects);
 router.get('/store/:codeName/:objectName', store.getObject);
 router.delete('/store/:codeName/:objectName', store.deleteObject);
@@ -25,7 +25,7 @@ router.delete('/store/:codeName', store.deleteAllObjects);
 
 // requests for instantiate service
 router.post('/instantiate/javascript', store.instantiateObject);
-router.put('/instantiate/javascript', store.instantiateObject);
+router.put('/instantiate/javascript', store.updateInstantiatedObject);
 router.get('/instantiate/:codeName', store.getAllObjects);
 router.get('/instantiate/:codeName/:objectName', store.getObject);
 router.delete('/instantiate/:codeName/:objectName', store.deleteObject);
@@ -47,15 +47,15 @@ router.delete('/execute/:taskName/:executionName', task.deleteExecution);
 router.post('/map', map.createMap);
 router.post('/map/set', map.setElements);
 router.post('/map/entry', map.setEntry);
-router.post('/map/forEach', map.mapForEach);
-router.patch('/map/update', map.updateElement);
-router.put('/map/update', map.updateMap);
-router.get('/map/get/:mapName/key/:key', map.getElement);
-router.get('/map/entries/:mapName', map.getEntries);
-router.get('/map/has/:mapName/key/:key', map.hasElement);
+router.post('/map/forEach/javascript', map.mapForEach);
+router.patch('/map/entry', map.updateElement);
+router.put('/map/set', map.updateMap);
+router.get('/map/entry/:mapName/:key', map.getElement);
+router.get('/map/set/:mapName', map.getEntries);
+router.get('/map/has/:mapName/:key', map.hasElement);
 router.get('/map/keys/:mapName', map.getAllKeys);
 router.get('/map/values/:mapName', map.getAllValues);
-router.delete('/map/:mapName/key/:key', map.deleteKey);
+router.delete('/map/:mapName/:key', map.deleteKey);
 router.delete('/map/clear/:mapName', map.deleteAllEntries);
 router.delete('/map/:mapName', map.deleteMap);
 
