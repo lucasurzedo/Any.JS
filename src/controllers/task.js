@@ -63,16 +63,21 @@ async function createTask(req, res) {
     }
   }
 
+  const DIRECTORY = {
+    javascript: './src/codes/',
+    java: './src/classes/',
+    python: './src/codes/',
+  }
+
+  const FILETYPE = {
+    javascript: '.js',
+    java: '.class',
+    python: 'py',
+  }
+
   // Verify if the file already exists
   for (let i = 0; i < methodsLinks.length; i += 1) {
-    let path = '';
-    if (language == 'javascript') {
-      path = `./src/codes/${methodsLinks[i].name}.js`;
-    } else if (language == 'java') {
-      path = `./src/classes/${methodsLinks[i].name}.class`;
-    } else {
-      path = `./src/code/${methodsLinks[i].name}.py`;
-    }
+    let path = `${DIRECTORY[language]}${methodsLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
       methodsLinks.splice(i, 1);
