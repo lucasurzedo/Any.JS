@@ -6,23 +6,6 @@ const utils = require('../utils/index');
 const executeFunction = require('../services/executeFunction');
 
 async function createTask(req, res) {
-  // const java = require('java');
-  // java.asyncOptions = {
-  //   asyncSuffix: undefined,
-  //   syncSuffix: "",
-  //   promiseSuffix: "Promise",
-  //   promisify: require('util').promisify
-  // }
-
-  // java.classpath.push("./src/classes");
-  // const Teste = java.import('Teste');
-  // const obj1 = new Teste();
-
-  // for (let i = 1; i < 20; i++) {
-  //   console.log(`(${i}): ${obj1['fibo'](i)}`);
-  // }
-
-  // return;
   const {
     taskName,
     code,
