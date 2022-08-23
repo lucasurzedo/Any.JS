@@ -7,16 +7,15 @@
     "test": "test"
   },
   "scripts": {
-    "start": "node --experimental-worker src/index.js"
+    "start": "node src/index.js"
   },
   "author": "Lucas Urzedo",
   "license": "MIT",
   "dependencies": {
     "bson": "^4.2.3",
-    "bunyan": "^1.8.15",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mocha": "^8.3.0",
+    "java": "0.12.1",
     "mongoose": "^5.12.1",
     "nodejs-file-downloader": "^4.5.3",
     "valid-url": "^1.0.9",

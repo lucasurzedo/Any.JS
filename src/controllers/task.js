@@ -6,6 +6,23 @@ const utils = require('../utils/index');
 const executeFunction = require('../services/executeFunction');
 
 async function createTask(req, res) {
+  // const java = require('java');
+  // java.asyncOptions = {
+  //   asyncSuffix: undefined,
+  //   syncSuffix: "",
+  //   promiseSuffix: "Promise",
+  //   promisify: require('util').promisify
+  // }
+
+  // java.classpath.push("./src/classes");
+  // const Teste = java.import('Teste');
+  // const obj1 = new Teste();
+
+  // for (let i = 1; i < 20; i++) {
+  //   console.log(`(${i}): ${obj1['fibo'](i)}`);
+  // }
+
+  // return;
   const {
     taskName,
     code,
@@ -14,7 +31,11 @@ async function createTask(req, res) {
     methodArgs,
   } = req.body;
 
-  if (!taskName || !code || !args || !method || !methodArgs) {
+  const {
+    language,
+  } = req.params;
+
+  if (!taskName || !code || !args || !method || !methodArgs || !language) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -22,44 +43,6 @@ async function createTask(req, res) {
 
     res.status(400).send(jsonError);
     return;
-  }
-
-  const registerCollection = 'registers';
-
-  // Try to find the code in collection registers
-  const documentCode = await db.getDocument(registerCollection, 'codeName', code);
-
-  if (!documentCode) {
-    const jsonError = {
-      uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${code}`,
-    };
-    res.status(404).send(jsonError);
-    return;
-  }
-
-  const codes = [];
-  const methodsLinks = [];
-  // Get all the codes names and links
-  for (const iterator of documentCode.code) {
-    codes.push(iterator);
-  }
-
-  // Separate names and links in a object
-  for (let i = 0; i < codes.length; i += 1) {
-    for (const key in codes[i]) {
-      methodsLinks.push({ name: key, link: codes[i][key] });
-    }
-  }
-
-  // Verify if the file already exists
-  for (let i = 0; i < methodsLinks.length; i += 1) {
-    const path = `./src/codes/${methodsLinks[i].name}.js`;
-
-    if (fs.existsSync(path)) {
-      methodsLinks.splice(i, 1);
-      i -= 1;
-    }
   }
 
   const collectionName = (`${code}_task`).toLowerCase();
@@ -73,6 +56,45 @@ async function createTask(req, res) {
     };
     res.status(409).send(jsonResult);
     return;
+  }
+
+  // Try to find the code in collection registers
+  const documentCode = await db.getDocument('registers', 'codeName', code);
+
+  if (!documentCode) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no code ${code}`,
+    };
+    res.status(404).send(jsonError);
+    return;
+  }
+
+  const codes = documentCode.code;
+  const methodsLinks = [];
+
+  // Separate names and links in a object
+  for (let i = 0; i < codes.length; i += 1) {
+    for (const key in codes[i]) {
+      methodsLinks.push({ name: key, link: codes[i][key] });
+    }
+  }
+
+  // Verify if the file already exists
+  for (let i = 0; i < methodsLinks.length; i += 1) {
+    let path = '';
+    if (language == 'javascript') {
+      path = `./src/codes/${methodsLinks[i].name}.js`;
+    } else if (language == 'java') {
+      path = `./src/classes/${methodsLinks[i].name}.class`;
+    } else {
+      path = `./src/code/${methodsLinks[i].name}.py`;
+    }
+
+    if (fs.existsSync(path)) {
+      methodsLinks.splice(i, 1);
+      i -= 1;
+    }
   }
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
@@ -92,13 +114,13 @@ async function createTask(req, res) {
   };
   res.status(201).send(jsonResult);
 
-  // If the file don't exists then its downloaded and executed
+  // If the file don't exist then its downloaded and executed
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     console.log('Downloading codes');
-    const code = await utils.downloadCode(methodsLinks);
+    const code = await utils.downloadCode(methodsLinks, language);
     if (code) {
-      executeFunction(req.body).then((result) => {
+      executeFunction({ args, code, method, methodArgs, language }).then((result) => {
         console.log(result);
         newTask.taskResult = result;
         newTask.save();
@@ -111,7 +133,7 @@ async function createTask(req, res) {
       res.status(400).send(jsonResult);
     }
   } else {
-    executeFunction(req.body).then((result) => {
+    executeFunction({ args, code, method, methodArgs, language }).then((result) => {
       console.log(result);
       newTask.taskResult = result;
       newTask.save();

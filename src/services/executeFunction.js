@@ -2,75 +2,153 @@ const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 
-const pool = new Pool({ max: CPUs / 2 });
+const pool = new Pool({ max: CPUs });
 
-const executeFunction = (workerData) => new Promise((resolve, reject) => {
-  pool.acquire(__filename, { workerData }, (err, worker) => {
-    if (err) reject(err);
-    console.log(`started worker (pool size: ${pool.size})`);
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
+function executeJsMethod(parameters) {
+  const {
+    args,
+    code,
+    method,
+    methodArgs,
+  } = parameters;
+
+  const Class = require(`../codes/${code}`);
+
+  if (args.length > 0) {
+    if (args.length === 1) {
+      const objArgs = args[0][code];
+      const obj = new Class(...objArgs);
+
+      if (methodArgs.length > 0) {
+        parentPort.postMessage(obj[method](...methodArgs));
+      } else {
+        parentPort.postMessage(obj[method]);
+      }
+    } else {
+      const objArgs = [];
+      let argAux = [];
+      for (let i = 0; i < args.length; i += 1) {
+        for (const key in args[i]) {
+          if (key === code) {
+            objArgs.push(args[i][key]);
+          } else {
+            argAux = args[i][key];
+            const ObjAux = require(`../codes/${key}`);
+            objArgs.push(new ObjAux(...argAux));
+          }
+        }
+      }
+      const obj = new Class(...objArgs);
+
+      if (methodArgs.length > 0) {
+        return obj[method](...methodArgs);
+      } else {
+        return obj[method];
+      }
+    }
+  } else {
+    const obj = new Class();
+
+    if (methodArgs.length > 0) {
+      return obj[method](...methodArgs);
+    } else {
+      return obj[method];
+    }
+  }
+}
+
+function executeJavaMethod(parameters) {
+  const java = require('java');
+
+  java.asyncOptions = {
+    asyncSuffix: undefined,
+    syncSuffix: "",
+    promiseSuffix: "Promise",
+    promisify: require('util').promisify
+  }
+
+  const {
+    args,
+    code,
+    method,
+    methodArgs,
+  } = parameters;
+
+  java.classpath.push("./src/classes");
+
+  const Class = java.import(`${code}`);
+
+  if (args.length > 0) {
+    if (args.length === 1) {
+      const objArgs = args[0][code];
+      const obj = new Class(...objArgs);
+
+      if (methodArgs.length > 0) {
+        parentPort.postMessage(obj[method](...methodArgs));
+      } else {
+        parentPort.postMessage(obj[method]);
+      }
+    } else {
+      const objArgs = [];
+      let argAux = [];
+      for (let i = 0; i < args.length; i += 1) {
+        for (const key in args[i]) {
+          if (key === code) {
+            objArgs.push(args[i][key]);
+          } else {
+            argAux = args[i][key];
+            const ObjAux = java.import(`${key}`);
+            objArgs.push(new ObjAux(...argAux));
+          }
+        }
+      }
+      const obj = new Class(...objArgs);
+
+      if (methodArgs.length > 0) {
+        return obj[method](...methodArgs);
+      } else {
+        return obj[method];
+      }
+    }
+  } else {
+    const obj = new Class();
+
+    if (methodArgs.length > 0) {
+      return obj[method](...methodArgs);
+    } else {
+      return obj[method];
+    }
+  }
+}
+
+function executePythonMethod(parameters) {
+
+}
+
+const LANGUAGEMETHOD = {
+  javascript: executeJsMethod,
+  java: executeJavaMethod,
+  python: executePythonMethod,
+}
+
+function executeFunction(workerData) {
+  return new Promise((resolve, reject) => {
+    pool.acquire(__filename, { workerData }, (err, worker) => {
+      if (err) reject(err);
+      console.log(`started worker (pool size: ${pool.size})`);
+      worker.on('message', resolve);
+      worker.on('error', reject);
+      worker.on('exit', (code) => {
+        if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
+      });
     });
   });
-});
+}
 
 if (!isMainThread) {
   try {
-    const codeName = `${workerData.code}`;
-
-    const Code = require(`../codes/${codeName}`);
-    const functionName = workerData.method;
-
-    if (workerData.args.length > 0) {
-      if (workerData.args.length === 1) {
-        const args = workerData.args[0][workerData.code];
-        const obj = new Code(...args);
-
-        if (workerData.methodArgs.length > 0) {
-          const methodArgs = workerData.methodArgs;
-          parentPort.postMessage(obj[functionName](...methodArgs));
-        } else {
-          parentPort.postMessage(obj[functionName]);
-        }
-      } else {
-        // Percorre os args, require usando key
-        // Push no array de args
-        // Instancia o objeto final usando o array de args
-        const args = [];
-        let argAux = [];
-        for (let i = 0; i < workerData.args.length; i += 1) {
-          for (const key in workerData.args[i]) {
-            if (key === workerData.code) {
-              args.push(workerData.args[i][key]);
-            } else {
-              argAux = workerData.args[i][key];
-              const ObjAux = require(`../codes/${key}`);
-              const aux = new ObjAux(...argAux);
-              args.push(aux);
-            }
-          }
-        }
-        const obj = new Code(...args);
-
-        if (workerData.methodArgs.length > 0) {
-          const methodArgs = workerData.methodArgs;
-          parentPort.postMessage(obj[functionName](...methodArgs));
-        } else {
-          parentPort.postMessage(obj[functionName]);
-        }
-      }
-    } else {
-      const obj = new Code();
-
-      if (workerData.methodArgs.length > 0) {
-        const args = workerData.methodArgs;
-        parentPort.postMessage(obj[functionName](...args));
-      } else {
-        parentPort.postMessage(obj[functionName]);
-      }
-    }
+    const method = LANGUAGEMETHOD[workerData.language];
+    parentPort.postMessage(method(workerData));
   } catch (error) {
     const jsonError = {
       error: error.message,

@@ -2,7 +2,7 @@ const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 
-const pool = new Pool({ max: CPUs / 2 });
+const pool = new Pool({ max: CPUs });
 
 const instantiateObj = (workerData) => new Promise((resolve, reject) => {
   pool.acquire(__filename, { workerData }, (err, worker) => {
