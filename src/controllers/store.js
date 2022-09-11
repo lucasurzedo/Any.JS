@@ -96,6 +96,7 @@ async function instantiateObject(req, res) {
   const {
     objectName,
     code,
+    mainClassPath,
     args,
   } = req.body;
 
@@ -180,7 +181,7 @@ async function instantiateObject(req, res) {
   if (methodsLinks.length > 0) {
     const code = await utils.downloadCode(methodsLinks);
     if (code) {
-      instantiateObj(req.body).then((result) => {
+      instantiateObj({ code, mainClassPath, args }).then((result) => {
         console.log(result);
         if (result.error) {
           newObject.object = result;
@@ -198,7 +199,7 @@ async function instantiateObject(req, res) {
       res.status(400).send(jsonResult);
     }
   } else {
-    instantiateObj(req.body).then((result) => {
+    instantiateObj({ code, mainClassPath, args }).then((result) => {
       console.log(result);
       if (result.error) {
         newObject.object = result;

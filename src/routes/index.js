@@ -44,7 +44,6 @@ router.post('/map', map.createMap);
 router.post('/map/set', map.setElements);
 router.post('/map/entry', map.setEntry);
 router.post('/map/forEach/javascript', map.mapForEach);
-//router.post('/map/forEach/java', map.mapForEach);
 router.patch('/map/entry', map.updateElement);
 router.put('/map/set', map.updateMap);
 router.get('/map/entry/:mapName/:key', map.getElement);

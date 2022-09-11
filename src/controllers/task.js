@@ -10,6 +10,7 @@ async function createTask(req, res) {
     taskName,
     code,
     args,
+    mainClassPath,
     method,
     methodArgs,
   } = req.body;
@@ -71,7 +72,7 @@ async function createTask(req, res) {
 
   const FILETYPE = {
     javascript: '.js',
-    java: '.class',
+    java: '.jar',
     python: 'py',
   }
 
@@ -95,20 +96,20 @@ async function createTask(req, res) {
     taskResult: null,
   });
 
-  await newTask.save();
-  const jsonResult = {
-    uri: `${req.baseUrl}${req.url}/${code}/${taskName}`.toLowerCase(),
-    result: 'saving execution',
-  };
-  res.status(201).send(jsonResult);
-
   // If the file don't exist then its downloaded and executed
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     console.log('Downloading codes');
     const code = await utils.downloadCode(methodsLinks, language);
     if (code) {
-      executeFunction({ args, code, method, methodArgs, language }).then((result) => {
+      await newTask.save();
+      const jsonResult = {
+        uri: `${req.baseUrl}${req.url}/${code}/${taskName}`.toLowerCase(),
+        result: 'saving execution',
+      };
+      res.status(201).send(jsonResult);
+
+      executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
         console.log(result);
         newTask.taskResult = result;
         newTask.save();
@@ -121,7 +122,14 @@ async function createTask(req, res) {
       res.status(400).send(jsonResult);
     }
   } else {
-    executeFunction({ args, code, method, methodArgs, language }).then((result) => {
+    await newTask.save();
+    const jsonResult = {
+      uri: `${req.baseUrl}${req.url}/${code}/${taskName}`.toLowerCase(),
+      result: 'saving execution',
+    };
+    res.status(201).send(jsonResult);
+
+    executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
       console.log(result);
       newTask.taskResult = result;
       newTask.save();

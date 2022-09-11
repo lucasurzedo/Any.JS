@@ -8,14 +8,14 @@ const DIRECTORY = {
 
 const FILETYPE = {
   javascript: '.js',
-  java: '.class',
+  java: '.jar',
   python: 'py',
 }
 
 async function downloadCode(methodsLinks, language) {
   console.log(methodsLinks);
 
-  let directory = DIRECTORY[language];
+  const directory = DIRECTORY[language];
 
   for (let i = 0; i < methodsLinks.length; i += 1) {
     const fileName = `${methodsLinks[i].name}${FILETYPE[language]}`;
