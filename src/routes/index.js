@@ -33,7 +33,7 @@ router.delete('/instantiate/:codeName', store.deleteAllObjects);
 
 // requests for execute service
 router.post('/execute/:language', task.createTask);
-//router.put('/execute/:language', task.updateCreatedTask);
+router.put('/execute/:language', task.updateCreatedTask);
 router.get('/execute/:taskName', task.getAllTaskExecutions);
 router.get('/execute/:taskName/:executionName', task.getExecution);
 router.delete('/execute/:taskName', task.deleteTask);

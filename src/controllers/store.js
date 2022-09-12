@@ -74,6 +74,13 @@ async function updateStoredObject(req, res) {
 
   if (documentObject) {
     await db.deleteDocument(collectionName, 'objectName', objectName);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no object ${objectName}`,
+    };
+    res.status(404).send(jsonError);
+    return;
   }
 
   const Object = mongoose.model(collectionName, ModelObject, collectionName);
@@ -214,10 +221,15 @@ async function updateInstantiatedObject(req, res) {
   const {
     objectName,
     code,
+    mainClassPath,
     args,
   } = req.body;
 
-  if (!objectName || !code || !args) {
+  const {
+    language,
+  } = req.params;
+
+  if (!objectName || !code || !args || !language) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
       result: 'invalid JSON',
@@ -227,10 +239,23 @@ async function updateInstantiatedObject(req, res) {
     return;
   }
 
-  const registerCollection = 'registers';
+  const collectionName = (`${code}_object`).toLowerCase();
+
+  const documentObject = await db.getDocument(collectionName, 'objectName', objectName);
+
+  if (documentObject) {
+    await db.deleteDocument(collectionName, 'objectName', objectName);
+  } else {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: `there is no object ${objectName}`,
+    };
+    res.status(404).send(jsonError);
+    return;
+  }
 
   // Try to find the code in collection registers
-  const documentCode = await db.getDocument(registerCollection, 'codeName', code);
+  const documentCode = await db.getDocument('registers', 'codeName', code);
 
   if (!documentCode) {
     const jsonError = {
@@ -241,36 +266,36 @@ async function updateInstantiatedObject(req, res) {
     return;
   }
 
-  const codes = [];
-  const methodsLinks = [];
-  // Get all the codes names and links
-  for (const iterator of documentCode.code) {
-    codes.push(iterator);
-  }
+  const codes = documentCode.code;
+  const classesLinks = [];
 
   // Separate names and links in a object
   for (let i = 0; i < codes.length; i += 1) {
     for (const key in codes[i]) {
-      methodsLinks.push({ name: key, link: codes[i][key] });
+      classesLinks.push({ name: key, link: codes[i][key] });
     }
+  }
+
+  const DIRECTORY = {
+    javascript: './src/codes/',
+    java: './src/classes/',
+    python: './src/codes/',
+  }
+
+  const FILETYPE = {
+    javascript: '.js',
+    java: '.jar',
+    python: 'py',
   }
 
   // Verify if the file already exists
-  for (let i = 0; i < methodsLinks.length; i += 1) {
-    const path = `./src/codes/${methodsLinks[i].name}.js`;
+  for (let i = 0; i < classesLinks.length; i += 1) {
+    let path = `${DIRECTORY[language]}${classesLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
-      methodsLinks.splice(i, 1);
+      classesLinks.splice(i, 1);
       i -= 1;
     }
-  }
-
-  const collectionName = (`${code}_object`).toLowerCase();
-
-  const documentObject = await db.getDocument(collectionName, 'objectName', objectName);
-
-  if (documentObject) {
-    await db.deleteDocument(collectionName, 'objectName', objectName);
   }
 
   const Object = mongoose.model(collectionName, ModelObject, collectionName);
@@ -290,18 +315,12 @@ async function updateInstantiatedObject(req, res) {
 
   // If the file don't exists then its downloaded and executed
   // If the file exists then its executed
-  if (methodsLinks.length > 0) {
-    const code = await utils.downloadCode(methodsLinks);
+  if (classesLinks.length > 0) {
+    const code = await utils.downloadCode(classesLinks);
     if (code) {
-      instantiateObj(req.body).then((result) => {
-        console.log(result);
-        if (result.error) {
-          newObject.object = result;
-          newObject.save();
-        } else {
-          newObject.object = BSON.serialize(result, { serializeFunctions: true });
-          newObject.save();
-        }
+      instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+        newObject.object = result;
+        newObject.save();
       });
     } else {
       const jsonResult = {
@@ -311,15 +330,9 @@ async function updateInstantiatedObject(req, res) {
       res.status(400).send(jsonResult);
     }
   } else {
-    instantiateObj(req.body).then((result) => {
-      console.log(result);
-      if (result.error) {
-        newObject.object = result;
-        newObject.save();
-      } else {
-        newObject.object = BSON.serialize(result, { serializeFunctions: true });
-        newObject.save();
-      }
+    instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+      newObject.object = result;
+      newObject.save();
     });
   }
 }
