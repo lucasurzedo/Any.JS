@@ -196,8 +196,8 @@ async function instantiateObject(req, res) {
   // If the file don't exists then its downloaded and executed
   // If the file exists then its executed
   if (classesLinks.length > 0) {
-    const code = await utils.downloadCode(classesLinks);
-    if (code) {
+    const downloadedCode = await utils.downloadCode(classesLinks);
+    if (downloadedCode) {
       instantiateObj({ code, mainClassPath, args, language }).then((result) => {
         newObject.object = result;
         newObject.save();

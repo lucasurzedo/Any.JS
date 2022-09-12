@@ -31,7 +31,7 @@ async function executeJsMethod(parameters) {
       for (let i = 0; i < args.length; i += 1) {
         for (const key in args[i]) {
           if (key === code) {
-            objArgs.push(args[i][key]);
+            objArgs.push(...args[i][key]);
           } else {
             argAux = args[i][key];
             const ObjAux = require(`../codes/${key}`);

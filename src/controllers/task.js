@@ -100,8 +100,8 @@ async function createTask(req, res) {
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     console.log('Downloading codes');
-    const code = await utils.downloadCode(methodsLinks, language);
-    if (code) {
+    const downloadedCode = await utils.downloadCode(methodsLinks, language);
+    if (downloadedCode) {
       await newTask.save();
       const jsonResult = {
         uri: `${req.baseUrl}${req.url}/${code}/${taskName}`.toLowerCase(),
