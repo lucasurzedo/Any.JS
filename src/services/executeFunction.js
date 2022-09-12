@@ -23,7 +23,7 @@ async function executeJsMethod(parameters) {
       if (methodArgs.length > 0) {
         return await obj[method](...methodArgs);
       } else {
-        return await obj[method]();
+        return await obj[method];
       }
     } else {
       const objArgs = [];
@@ -44,7 +44,7 @@ async function executeJsMethod(parameters) {
       if (methodArgs.length > 0) {
         return await obj[method](...methodArgs);
       } else {
-        return await obj[method]();
+        return await obj[method];
       }
     }
   } else {
@@ -53,7 +53,7 @@ async function executeJsMethod(parameters) {
     if (methodArgs.length > 0) {
       return await obj[method](...methodArgs);
     } else {
-      return await obj[method]();
+      return await obj[method];
     }
   }
 }
