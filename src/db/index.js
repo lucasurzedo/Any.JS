@@ -60,9 +60,7 @@ async function deleteDocument(collectionName, key, value) {
 
   const result = await collection.deleteOne(query);
 
-  if (result.deletedCount > 0) return true;
-
-  return false;
+  return result.deletedCount > 0;
 }
 
 async function deleteAllDocuments(collectionName) {

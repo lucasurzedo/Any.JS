@@ -166,7 +166,7 @@ async function updateCreatedTask(req, res) {
   const document = await db.getDocument(collectionName, 'executionName', taskName);
 
   if (document) {
-    await db.deleteDocument(collectionName, 'taskName', taskName);
+    await db.deleteDocument(collectionName, 'executionName', taskName);
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
