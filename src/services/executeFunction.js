@@ -142,7 +142,6 @@ async function main() {
   if (!isMainThread) {
     try {
       const method = LANGUAGEMETHOD[workerData.language];
-
       parentPort.postMessage(await method(workerData));
     } catch (error) {
       const jsonError = {

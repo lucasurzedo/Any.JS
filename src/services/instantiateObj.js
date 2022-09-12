@@ -1,6 +1,8 @@
 const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
+const fs = require('fs');
+const BSON = require('bson');
 
 const pool = new Pool({ max: CPUs });
 
@@ -103,8 +105,8 @@ async function main() {
   if (!isMainThread) {
     try {
       const method = LANGUAGEMETHOD[workerData.language];
-
-      parentPort.postMessage(await method(workerData));
+      const obj = await method(workerData);
+      parentPort.postMessage(BSON.serialize(obj, { serializeFunctions: true }));
     } catch (error) {
       const jsonError = {
         error: error.message,

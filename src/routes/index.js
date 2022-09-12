@@ -24,8 +24,8 @@ router.delete('/store/:codeName/:objectName', store.deleteObject);
 router.delete('/store/:codeName', store.deleteAllObjects);
 
 // requests for instantiate service
-router.post('/instantiate/javascript', store.instantiateObject);
-router.put('/instantiate/javascript', store.updateInstantiatedObject);
+router.post('/instantiate/:language', store.instantiateObject);
+router.put('/instantiate/:language', store.updateInstantiatedObject);
 router.get('/instantiate/:codeName', store.getAllObjects);
 router.get('/instantiate/:codeName/:objectName', store.getObject);
 router.delete('/instantiate/:codeName/:objectName', store.deleteObject);
@@ -43,7 +43,7 @@ router.delete('/execute/:taskName/:executionName', task.deleteExecution);
 router.post('/map', map.createMap);
 router.post('/map/set', map.setElements);
 router.post('/map/entry', map.setEntry);
-router.post('/map/forEach/javascript', map.mapForEach);
+router.post('/map/forEach/:language', map.mapForEach);
 router.patch('/map/entry', map.updateElement);
 router.put('/map/set', map.updateMap);
 router.get('/map/entry/:mapName/:key', map.getElement);
