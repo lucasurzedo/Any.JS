@@ -354,9 +354,14 @@ async function getEntries(req, res) {
     mapName,
   } = req.params;
 
+  const {
+    skip,
+    limit,
+  } = req.query;
+
   const collectionName = (`${mapName}_map`).toLowerCase();
 
-  const documents = await db.getAllDocuments(collectionName);
+  const documents = await db.getAllDocuments(collectionName, skip, limit);
 
   if (documents.length === 0) {
     const jsonResult = {
@@ -406,9 +411,14 @@ async function getAllKeys(req, res) {
     mapName,
   } = req.params;
 
+  const {
+    skip,
+    limit,
+  } = req.query;
+
   const collectionName = (`${mapName}_map`).toLowerCase();
 
-  const documents = await db.getAllDocuments(collectionName);
+  const documents = await db.getAllDocuments(collectionName, skip, limit);
 
   const elements = [];
 
@@ -436,8 +446,14 @@ async function getAllValues(req, res) {
     mapName,
   } = req.params;
 
+  const {
+    skip,
+    limit,
+  } = req.query;
+
   const collectionName = (`${mapName}_map`).toLowerCase();
-  const documents = await db.getAllDocuments(collectionName);
+
+  const documents = await db.getAllDocuments(collectionName, skip, limit);
 
   const elements = [];
   for (const iterator of documents) {

@@ -41,13 +41,13 @@ router.delete('/execute/:taskName/:executionName', task.deleteExecution);
 
 // requests for map service
 router.post('/map', map.createMap);
-router.post('/map/set', map.setElements);
+router.post('/map/elements', map.setElements);
 router.post('/map/entry', map.setEntry);
 router.post('/map/forEach/:language', map.mapForEach);
 router.patch('/map/entry', map.updateElement);
-router.put('/map/set', map.updateMap);
+router.put('/map/elements', map.updateMap);
 router.get('/map/entry/:mapName/:key', map.getElement);
-router.get('/map/set/:mapName', map.getEntries);
+router.get('/map/elements/:mapName', map.getEntries);
 router.get('/map/has/:mapName/:key', map.hasElement);
 router.get('/map/keys/:mapName', map.getAllKeys);
 router.get('/map/values/:mapName', map.getAllValues);

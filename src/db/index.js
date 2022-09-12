@@ -26,11 +26,18 @@ async function getDocument(collectionName, key, value) {
   return document;
 }
 
-async function getAllDocuments(collectionName) {
+async function getAllDocuments(collectionName, skip, limit) {
   try {
     const collection = await getCollection(collectionName);
 
-    const documents = collection.find().maxTimeMS(60000);
+    if (!skip) {
+      skip = 0;
+    }
+    if (!limit) {
+      limit = 0;
+    }
+
+    const documents = collection.find().skip(parseInt(skip)).limit(parseInt(limit));
 
     return await documents.toArray();
   } catch (error) {

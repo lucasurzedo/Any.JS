@@ -276,9 +276,14 @@ async function getAllTaskExecutions(req, res) {
     taskName,
   } = req.params;
 
+  const {
+    skip,
+    limit,
+  } = req.query;
+
   const collectionName = (`${taskName}_task`).toLowerCase();
 
-  const documents = await db.getAllDocuments(collectionName);
+  const documents = await db.getAllDocuments(collectionName, skip, limit);
 
   const executions = [];
   for (const iterator of documents) {
