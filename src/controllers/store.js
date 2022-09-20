@@ -157,9 +157,9 @@ async function instantiateObject(req, res) {
   }
 
   const DIRECTORY = {
-    javascript: './src/codes/',
-    java: './src/classes/',
-    python: './src/codes/',
+    javascript: `./src/codesJs/${code}/`,
+    java: `./src/codesJava/${code}/`,
+    python: `./src/codesPy/${code}/`,
   }
 
   const FILETYPE = {
@@ -196,7 +196,7 @@ async function instantiateObject(req, res) {
   // If the file don't exists then its downloaded and executed
   // If the file exists then its executed
   if (classesLinks.length > 0) {
-    const downloadedCode = await utils.downloadCode(classesLinks);
+    const downloadedCode = await utils.downloadCode(classesLinks, language, code);
     if (downloadedCode) {
       instantiateObj({ code, mainClassPath, args, language }).then((result) => {
         newObject.object = result;
@@ -277,9 +277,9 @@ async function updateInstantiatedObject(req, res) {
   }
 
   const DIRECTORY = {
-    javascript: './src/codes/',
-    java: './src/classes/',
-    python: './src/codes/',
+    javascript: `./src/codesJs/${code}/`,
+    java: `./src/codesJava/${code}/`,
+    python: `./src/codesPy/${code}/`,
   }
 
   const FILETYPE = {
@@ -316,8 +316,8 @@ async function updateInstantiatedObject(req, res) {
   // If the file don't exists then its downloaded and executed
   // If the file exists then its executed
   if (classesLinks.length > 0) {
-    const code = await utils.downloadCode(classesLinks);
-    if (code) {
+    const downloadedCode = await utils.downloadCode(classesLinks, language, code);
+    if (downloadedCode) {
       instantiateObj({ code, mainClassPath, args, language }).then((result) => {
         newObject.object = result;
         newObject.save();

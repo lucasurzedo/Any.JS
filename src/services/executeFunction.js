@@ -13,7 +13,7 @@ async function executeJsMethod(parameters) {
     methodArgs,
   } = parameters;
 
-  const Class = require(`../codes/${code}`);
+  const Class = require(`../codesJs/${code}/${code}`);
 
   if (args.length > 0) {
     if (args.length === 1) {
@@ -34,7 +34,7 @@ async function executeJsMethod(parameters) {
             objArgs.push(...args[i][key]);
           } else {
             argAux = args[i][key];
-            const ObjAux = require(`../codes/${key}`);
+            const ObjAux = require(`../codesJs/${code}/${key}`);
             objArgs.push(new ObjAux(...argAux));
           }
         }
@@ -59,6 +59,14 @@ async function executeJsMethod(parameters) {
 }
 
 async function executeJavaMethod(parameters) {
+  const {
+    args,
+    code,
+    mainClassPath,
+    method,
+    methodArgs,
+  } = parameters;
+
   const java = require('java');
 
   java.asyncOptions = {
@@ -68,20 +76,12 @@ async function executeJavaMethod(parameters) {
     promisify: require('util').promisify
   }
 
-  const path = './src/classes';
+  const path = `./src/codesJava/${code}`;
 
   const files = fs.readdirSync(path);
   files.forEach(element => {
     java.classpath.push(`${path}/${element}`)
   });
-
-  const {
-    args,
-    code,
-    mainClassPath,
-    method,
-    methodArgs,
-  } = parameters;
 
   const Class = java.import(mainClassPath);
 

@@ -65,9 +65,9 @@ async function createTask(req, res) {
   }
 
   const DIRECTORY = {
-    javascript: './src/codes/',
-    java: './src/classes/',
-    python: './src/codes/',
+    javascript: `./src/codesJs/${code}/`,
+    java: `./src/codesJava/${code}/`,
+    python: `./src/codesPy/${code}/`,
   }
 
   const FILETYPE = {
@@ -100,7 +100,7 @@ async function createTask(req, res) {
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     console.log('Downloading codes');
-    const downloadedCode = await utils.downloadCode(methodsLinks, language);
+    const downloadedCode = await utils.downloadCode(methodsLinks, language, code);
     if (downloadedCode) {
       await newTask.save();
       const jsonResult = {
@@ -199,9 +199,9 @@ async function updateCreatedTask(req, res) {
   }
 
   const DIRECTORY = {
-    javascript: './src/codes/',
-    java: './src/classes/',
-    python: './src/codes/',
+    javascript: `./src/codesJs/${code}/`,
+    java: `./src/codesJava/${code}/`,
+    python: `./src/codesPy/${code}/`,
   }
 
   const FILETYPE = {
@@ -234,8 +234,8 @@ async function updateCreatedTask(req, res) {
   // If the file exists then its executed
   if (methodsLinks.length > 0) {
     console.log('Downloading codes');
-    const code = await utils.downloadCode(methodsLinks, language);
-    if (code) {
+    const downloadedCode = await utils.downloadCode(methodsLinks, language, code);
+    if (downloadedCode) {
       await newTask.save();
       const jsonResult = {
         uri: `${req.baseUrl}${req.url}/${code}/${taskName}`.toLowerCase(),

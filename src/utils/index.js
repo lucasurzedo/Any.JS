@@ -1,9 +1,9 @@
 const Downloader = require('nodejs-file-downloader');
 
 const DIRECTORY = {
-  javascript: './src/codes',
-  java: './src/classes',
-  python: './src/codes',
+  javascript: './src/codesJs',
+  java: './src/codesJava',
+  python: './src/codesPy',
 }
 
 const FILETYPE = {
@@ -12,10 +12,10 @@ const FILETYPE = {
   python: 'py',
 }
 
-async function downloadCode(methodsLinks, language) {
+async function downloadCode(methodsLinks, language, codeName) {
   console.log(methodsLinks);
 
-  const directory = DIRECTORY[language];
+  const directory = `${DIRECTORY[language]}/${codeName}`;
 
   for (let i = 0; i < methodsLinks.length; i += 1) {
     const fileName = `${methodsLinks[i].name}${FILETYPE[language]}`;
