@@ -165,7 +165,7 @@ async function instantiateObject(req, res) {
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
-    python: 'py',
+    python: '.py',
   }
 
   // Verify if the file already exists
@@ -285,7 +285,7 @@ async function updateInstantiatedObject(req, res) {
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
-    python: 'py',
+    python: '.py',
   }
 
   // Verify if the file already exists

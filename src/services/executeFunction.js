@@ -27,15 +27,13 @@ async function executeJsMethod(parameters) {
       }
     } else {
       const objArgs = [];
-      let argAux = [];
-      for (let i = 0; i < args.length; i += 1) {
+      for (let i = 0; i < args.length; i++) {
         for (const key in args[i]) {
           if (key === code) {
             objArgs.push(...args[i][key]);
           } else {
-            argAux = args[i][key];
             const ObjAux = require(`../codesJs/${code}/${key}`);
-            objArgs.push(new ObjAux(...argAux));
+            objArgs.push(new ObjAux(...args[i][key]));
           }
         }
       }
@@ -98,7 +96,7 @@ async function executeJavaMethod(parameters) {
     } else {
       const objArgs = [];
       let argAux = [];
-      for (let i = 0; i < args.length; i += 1) {
+      for (let i = 0; i < args.length; i++) {
         for (const key in args[i]) {
           if (key === code) {
             objArgs.push(args[i][key]);
@@ -129,7 +127,43 @@ async function executeJavaMethod(parameters) {
 }
 
 async function executePythonMethod(parameters) {
+  const { python } = require('pythonia');
 
+  const {
+    args,
+    code,
+    method,
+    methodArgs,
+  } = parameters;
+
+  const classes = []
+  for (const keys of args) {
+    classes.push(Object.keys(keys)[0])
+  }
+
+  const sysPy = await python('sys');
+  await sysPy.path.append(`./src/codesPy/${code}`);
+
+  const Class = await python(code);
+
+  const objArgs = [];
+  let mainClass;
+  for (let i = 0; i < args.length; i++) {
+    for (const key in args[i]) {
+      if (i == 0) {
+        mainClass = key;
+        objArgs.push(...args[i][key]);
+      } else {
+        objArgs.push(await Class[key](...args[i][key]));
+      }
+    }
+  }
+
+  const obj = await Class[mainClass](...objArgs);
+
+  const result = obj[method](...methodArgs);
+  python.exit();
+  return result;
 }
 
 const LANGUAGEMETHOD = {

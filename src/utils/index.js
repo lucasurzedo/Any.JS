@@ -9,7 +9,7 @@ const DIRECTORY = {
 const FILETYPE = {
   javascript: '.js',
   java: '.jar',
-  python: 'py',
+  python: '.py',
 }
 
 async function downloadCode(methodsLinks, language, codeName) {

@@ -73,7 +73,7 @@ async function createTask(req, res) {
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
-    python: 'py',
+    python: '.py',
   }
 
   // Verify if the file already exists
@@ -207,7 +207,7 @@ async function updateCreatedTask(req, res) {
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
-    python: 'py',
+    python: '.py',
   }
 
   // Verify if the file already exists

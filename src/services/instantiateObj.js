@@ -92,7 +92,40 @@ async function instantiateJavaObject(parameters) {
 }
 
 async function instantiatePythonObject(parameters) {
+  const { python } = require('pythonia');
 
+  const {
+    args,
+    code,
+  } = parameters;
+
+  const classes = []
+  for (const keys of args) {
+    classes.push(Object.keys(keys)[0])
+  }
+
+  const sysPy = await python('sys');
+  await sysPy.path.append(`./src/codesPy/${code}`);
+
+  const Class = await python(code);
+
+  const objArgs = [];
+  let mainClass;
+  for (let i = 0; i < args.length; i++) {
+    for (const key in args[i]) {
+      if (i == 0) {
+        mainClass = key;
+        objArgs.push(...args[i][key]);
+      } else {
+        objArgs.push(await Class[key](...args[i][key]));
+      }
+    }
+  }
+
+  const obj = await Class[mainClass](...objArgs);
+
+  python.exit();
+  return obj;
 }
 
 const LANGUAGEMETHOD = {
