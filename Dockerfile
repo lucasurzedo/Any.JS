@@ -2,16 +2,18 @@ FROM ubuntu:20.04
 
 WORKDIR /app/
 
-RUN apt-get update && apt-get install -y \
-    npm
-RUN npm install npm@latest -g && \
-    npm install n -g && \
-    n latest
-
+ARG DEBIAN_FRONTEND=noninteractive
 ARG JAVA_VERSION=9
 ARG JAVA_RELEASE=JDK
 
 ENV JAVA_HOME=/usr
+
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    npm
+RUN npm install npm@latest -g && \
+    npm install n -g && \
+    n latest
 
 RUN bash -c ' \
     set -euxo pipefail && \
