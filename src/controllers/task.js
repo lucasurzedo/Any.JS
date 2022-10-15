@@ -228,7 +228,7 @@ async function createTaskBatch(req, res) {
 
     const body = JSON.stringify(localBatch);
     // eslint-disable-next-line no-await-in-loop
-    await fetch(`http://anyjs_server.${index}:4445/api/anyJS/v1/task/localBatch/${language}`, {
+    await fetch(`http://anyjs_server:4445/api/anyJS/v1/task/localBatch/${language}`, {
       method: 'POST',
       body,
       headers: {
