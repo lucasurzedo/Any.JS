@@ -4,13 +4,13 @@ const DIRECTORY = {
   javascript: './src/codesJs',
   java: './src/codesJava',
   python: './src/codesPy',
-}
+};
 
 const FILETYPE = {
   javascript: '.js',
   java: '.jar',
   python: '.py',
-}
+};
 
 async function downloadCode(methodsLinks, language, codeName) {
   console.log(methodsLinks);

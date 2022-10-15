@@ -53,8 +53,8 @@ async function registerCode(req, res) {
     const Code = mongoose.model(collectionName, ModelRegister, collectionName);
 
     const newCode = new Code({
-      codeName: codeName,
-      code: code,
+      codeName,
+      code,
     });
 
     newCode.save();
@@ -83,7 +83,7 @@ async function updateCodeElement(req, res) {
     return;
   }
 
-  const document = await db.getDocument(collectionName, 'codeName', codeName);
+  const document = await db.getDocument(collectionName, 'codeName', collectionName);
 
   let changed = false;
   for (const iterator of document.code) {
@@ -110,7 +110,7 @@ async function updateCodeElement(req, res) {
   };
 
   const query = {};
-  query.codeName = codeName;
+  query.codeName = codeKey;
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
@@ -151,7 +151,7 @@ async function updateCode(req, res) {
   }
 
   const newValues = {
-    $set: { code: code },
+    $set: { code },
     $currentDate: { lastModified: true },
   };
 
@@ -169,7 +169,7 @@ async function updateCode(req, res) {
   } else {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `there is no code ${key}`,
+      result: `there is no code ${codeName}`,
     };
 
     res.status(404).send(jsonError);

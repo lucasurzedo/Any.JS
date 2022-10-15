@@ -18,6 +18,6 @@
         "global-require": "off",
         "import/no-dynamic-require": "off",
         "prefer-destructuring": "off",
-        "no-underscore-dangle": "off",
+        "no-underscore-dangle": "off"
     }
 }

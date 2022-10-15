@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes');
-require('dotenv/config');
 
 const app = express();
 const port = 4445;
@@ -16,10 +15,11 @@ async function setupApp() {
 }
 
 setupApp()
+  // eslint-disable-next-line no-shadow
   .then((app) => {
     app.listen({ port }, () => console.log(`app running on port ${port}`));
     return app;
   })
   .catch((error) => {
-    log.error(error);
+    console.log(error);
   });

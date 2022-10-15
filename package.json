@@ -20,7 +20,8 @@
     "nodejs-file-downloader": "^4.5.3",
     "pythonia": "^1.0.0",
     "valid-url": "^1.0.9",
-    "worker-threads-pool": "^2.0.0"
+    "worker-threads-pool": "^2.0.0",
+    "node-fetch": "^1.7.3"
   },
   "devDependencies": {
     "eslint": "^8.13.0",

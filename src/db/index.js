@@ -37,7 +37,7 @@ async function getAllDocuments(collectionName, skip, limit) {
       limit = 0;
     }
 
-    const documents = collection.find().skip(parseInt(skip)).limit(parseInt(limit));
+    const documents = collection.find().skip(parseInt(skip, 10)).limit(parseInt(limit, 10));
 
     return await documents.toArray();
   } catch (error) {

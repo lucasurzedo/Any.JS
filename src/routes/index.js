@@ -33,6 +33,8 @@ router.delete('/instance/:codeName', store.deleteAllObjects);
 
 // requests for execute service
 router.post('/task/:language', task.createTask);
+router.post('/task/localBatch/:language', task.executeLocalBatch);
+router.post('/task/batch/:language', task.createTaskBatch);
 router.put('/task/:language', task.updateCreatedTask);
 router.get('/task/:taskName', task.getAllTaskExecutions);
 router.get('/task/:taskName/:executionName', task.getExecution);

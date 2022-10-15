@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-else-return */
 const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
@@ -12,7 +14,7 @@ async function instantiateJsObject(parameters) {
     code,
   } = parameters;
 
-  const Class = require(`../codes/${codeName}`);
+  const Class = require(`../codes/${code}`);
 
   if (args.length > 0) {
     if (args.length === 1) {
@@ -45,16 +47,16 @@ async function instantiateJavaObject(parameters) {
 
   java.asyncOptions = {
     asyncSuffix: undefined,
-    syncSuffix: "",
-    promiseSuffix: "Promise",
-    promisify: require('util').promisify
-  }
+    syncSuffix: '',
+    promiseSuffix: 'Promise',
+    promisify: require('util').promisify,
+  };
 
   const path = './src/classes';
 
   const files = fs.readdirSync(path);
-  files.forEach(element => {
-    java.classpath.push(`${path}/${element}`)
+  files.forEach((element) => {
+    java.classpath.push(`${path}/${element}`);
   });
 
   const {
@@ -99,9 +101,9 @@ async function instantiatePythonObject(parameters) {
     code,
   } = parameters;
 
-  const classes = []
+  const classes = [];
   for (const keys of args) {
-    classes.push(Object.keys(keys)[0])
+    classes.push(Object.keys(keys)[0]);
   }
 
   const sysPy = await python('sys');
@@ -111,9 +113,9 @@ async function instantiatePythonObject(parameters) {
 
   const objArgs = [];
   let mainClass;
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     for (const key in args[i]) {
-      if (i == 0) {
+      if (i === 0) {
         mainClass = key;
         objArgs.push(...args[i][key]);
       } else {
@@ -132,7 +134,7 @@ const LANGUAGEMETHOD = {
   javascript: instantiateJsObject,
   java: instantiateJavaObject,
   python: instantiatePythonObject,
-}
+};
 
 async function main() {
   if (!isMainThread) {
@@ -150,6 +152,7 @@ async function main() {
   }
 }
 
+// eslint-disable-next-line no-shadow
 function instantiateObj(workerData) {
   return new Promise((resolve, reject) => {
     pool.acquire(__filename, { workerData }, (err, worker) => {

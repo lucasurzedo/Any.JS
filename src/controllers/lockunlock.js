@@ -6,7 +6,7 @@ const db = require('../db');
 async function lockObject(req, res) {
   const {
     objectName,
-    identifier
+    identifier,
   } = req.body;
 
   if (!objectName || !identifier) {
@@ -57,7 +57,7 @@ async function lockObject(req, res) {
       lockQueue.push(identifier);
 
       const newValues = {
-        $set: { lockQueue: lockQueue },
+        $set: { lockQueue },
         $currentDate: { lastModified: true },
       };
 
@@ -105,7 +105,7 @@ async function lockMap(req, res) {
   const {
     mapName,
     key,
-    identifier
+    identifier,
   } = req.body;
 
   if (!mapName || !key || !identifier) {
@@ -128,10 +128,10 @@ async function lockMap(req, res) {
     const lockQueue = Array.from(lockMetadata.lockedKeys[key].lockQueue);
 
     if (lockMetadata.lockedKeys[key].locked === '') {
-      let lockedKeys = lockMetadata.lockedKeys;
+      const lockedKeys = lockMetadata.lockedKeys;
       lockedKeys[key].locked = identifier;
       const newValues = {
-        $set: { lockedKeys: lockedKeys },
+        $set: { lockedKeys },
         $currentDate: { lastModified: true },
       };
 
@@ -147,7 +147,8 @@ async function lockMap(req, res) {
       };
 
       res.status(200).send(jsonResult);
-    } else if (lockMetadata.lockedKeys[key].locked === identifier || lockQueue.includes(identifier)) {
+    } else if (lockMetadata.lockedKeys[key].locked === identifier
+      || lockQueue.includes(identifier)) {
       const jsonResult = {
         uri: `${req.baseUrl}${req.url}`,
         result: `id ${identifier} already on lock state or lock queue`,
@@ -155,12 +156,12 @@ async function lockMap(req, res) {
 
       res.status(409).send(jsonResult);
     } else {
-      let lockedKeys = lockMetadata.lockedKeys;
+      const lockedKeys = lockMetadata.lockedKeys;
       lockQueue.push(identifier);
       lockedKeys[key].lockQueue = lockQueue;
 
       const newValues = {
-        $set: { lockedKeys: lockedKeys },
+        $set: { lockedKeys },
         $currentDate: { lastModified: true },
       };
 
@@ -181,12 +182,12 @@ async function lockMap(req, res) {
     const Map = mongoose.model(collectionName, ModelMap, collectionName);
 
     if (!lockMetadata) {
-      let lockedKeys = {}
+      const lockedKeys = {};
 
       lockedKeys[key] = {
         locked: identifier,
         lockQueue: [],
-      }
+      };
 
       const newMap = new Map({
         type: 'lockMetadata',
@@ -202,14 +203,14 @@ async function lockMap(req, res) {
 
       res.status(200).send(jsonResult);
     } else {
-      let lockedKeys = lockMetadata.lockedKeys;
+      const lockedKeys = lockMetadata.lockedKeys;
       lockedKeys[key] = {
         locked: identifier,
         lockQueue: [],
-      }
+      };
 
       const newValues = {
-        $set: { lockedKeys: lockedKeys },
+        $set: { lockedKeys },
         $currentDate: { lastModified: true },
       };
 
@@ -239,7 +240,7 @@ async function lockMap(req, res) {
 async function unlockObject(req, res) {
   const {
     objectName,
-    identifier
+    identifier,
   } = req.body;
 
   if (!objectName || !identifier) {
@@ -261,18 +262,18 @@ async function unlockObject(req, res) {
   if (collectionExists && lockMetadata) {
     const lockQueue = Array.from(lockMetadata.lockQueue);
 
-    if (lockMetadata.locked == identifier) {
+    if (lockMetadata.locked === identifier) {
       const newLocked = lockQueue.shift();
       let newValues = {};
 
       if (newLocked) {
         newValues = {
-          $set: { locked: newLocked, lockQueue: lockQueue },
+          $set: { locked: newLocked, lockQueue },
           $currentDate: { lastModified: true },
         };
       } else {
         newValues = {
-          $set: { locked: '', lockQueue: lockQueue },
+          $set: { locked: '', lockQueue },
           $currentDate: { lastModified: true },
         };
       }
@@ -318,7 +319,7 @@ async function unlockMap(req, res) {
   const {
     mapName,
     key,
-    identifier
+    identifier,
   } = req.body;
 
   if (!mapName || !key || !identifier) {
@@ -340,9 +341,9 @@ async function unlockMap(req, res) {
   if (collectionExists && lockMetadata.lockedKeys[key]) {
     const lockQueue = Array.from(lockMetadata.lockedKeys[key].lockQueue);
 
-    if (lockMetadata.lockedKeys[key].locked == identifier) {
+    if (lockMetadata.lockedKeys[key].locked === identifier) {
       const newLocked = lockQueue.shift();
-      let lockedKeys = lockMetadata.lockedKeys;
+      const lockedKeys = lockMetadata.lockedKeys;
       let newValues = {};
 
       if (newLocked) {
@@ -354,7 +355,7 @@ async function unlockMap(req, res) {
       }
 
       newValues = {
-        $set: { lockedKeys: lockedKeys },
+        $set: { lockedKeys },
         $currentDate: { lastModified: true },
       };
 
@@ -388,7 +389,7 @@ async function unlockMap(req, res) {
   } else {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `object ${objectName} do not exist`,
+      result: `map ${mapName} do not exist`,
     };
 
     res.status(404).send(jsonResult);
@@ -416,7 +417,7 @@ async function getLockedObject(req, res) {
       res.status(200).send(jsonResult);
     } else {
       const jsonResult = {
-        uri: `${req.baseUrl}${req.url}/${mapName}`,
+        uri: `${req.baseUrl}${req.url}/${objectName}`,
         result: `object ${objectName} has not been locked yet`,
       };
 
@@ -481,10 +482,10 @@ async function deleteObjectLock(req, res) {
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
   if (collectionExists && lockMetadata) {
-    const lockQueue = Array.from(lockMetadata.lockQueue).filter(data => data !== identifier);
+    const lockQueue = Array.from(lockMetadata.lockQueue).filter((data) => data !== identifier);
 
     const newValues = {
-      $set: { lockQueue: lockQueue },
+      $set: { lockQueue },
       $currentDate: { lastModified: true },
     };
 
@@ -523,13 +524,14 @@ async function deleteMapLock(req, res) {
   const lockMetadata = await db.getDocument(collectionName, 'type', 'lockMetadata');
 
   if (collectionExists && lockMetadata) {
-    const lockQueue = Array.from(lockMetadata.lockedKeys[key].lockQueue).filter(data => data !== identifier);
+    const lockQueue = Array.from(lockMetadata.lockedKeys[key].lockQueue)
+      .filter((data) => data !== identifier);
 
-    let lockedKeys = lockMetadata.lockedKeys;
+    const lockedKeys = lockMetadata.lockedKeys;
     lockedKeys[key].lockQueue = lockQueue;
 
     const newValues = {
-      $set: { lockedKeys: lockedKeys },
+      $set: { lockedKeys },
       $currentDate: { lastModified: true },
     };
 

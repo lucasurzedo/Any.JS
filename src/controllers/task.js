@@ -1,9 +1,12 @@
+/* eslint-disable no-unused-vars */
 const mongoose = require('mongoose');
+const fetch = require('node-fetch');
 const fs = require('fs');
-const ModelTask = require('../models/task');
-const db = require('../db');
-const utils = require('../utils/index');
+
 const executeFunction = require('../services/executeFunction');
+const ModelTask = require('../models/task');
+const utils = require('../utils/index');
+const db = require('../db');
 
 async function createTask(req, res) {
   const {
@@ -68,17 +71,17 @@ async function createTask(req, res) {
     javascript: `./src/codesJs/${code}/`,
     java: `./src/codesJava/${code}/`,
     python: `./src/codesPy/${code}/`,
-  }
+  };
 
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
     python: '.py',
-  }
+  };
 
   // Verify if the file already exists
   for (let i = 0; i < methodsLinks.length; i += 1) {
-    let path = `${DIRECTORY[language]}${methodsLinks[i].name}${FILETYPE[language]}`;
+    const path = `${DIRECTORY[language]}${methodsLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
       methodsLinks.splice(i, 1);
@@ -91,8 +94,8 @@ async function createTask(req, res) {
   const newTask = new Task({
     executionName: taskName,
     parameterValue: args,
-    method: method,
-    methodArgs: methodArgs,
+    method,
+    methodArgs,
     taskResult: null,
   });
 
@@ -109,7 +112,9 @@ async function createTask(req, res) {
       };
       res.status(201).send(jsonResult);
 
-      executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
+      executeFunction({
+        args, code, mainClassPath, method, methodArgs, language,
+      }).then((result) => {
         console.log(result);
         newTask.taskResult = result;
         newTask.save();
@@ -129,12 +134,116 @@ async function createTask(req, res) {
     };
     res.status(201).send(jsonResult);
 
-    executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
+    executeFunction({
+      args, code, mainClassPath, method, methodArgs, language,
+    }).then((result) => {
       console.log(result);
       newTask.taskResult = result;
       newTask.save();
     });
   }
+}
+
+async function executeLocalBatch(req, res) {
+  const {
+    taskNamePrefix,
+    code,
+    args,
+    mainClassPath,
+    method,
+    methodArgs,
+  } = req.body;
+
+  const {
+    language,
+  } = req.params;
+
+  const collectionName = (`${code}_task`).toLowerCase();
+
+  const Task = mongoose.model(collectionName, ModelTask, collectionName);
+
+  for (let i = 0; i < methodArgs.length; i += 1) {
+    const newTask = new Task({
+      executionName: `${taskNamePrefix}${i}`,
+      parameterValue: args,
+      method,
+      methodArgs: methodArgs[i],
+      taskResult: null,
+    });
+
+    // eslint-disable-next-line no-await-in-loop
+    await newTask.save();
+
+    executeFunction(req.body).then((result) => {
+      newTask.taskResult = result;
+      newTask.save();
+    });
+  }
+
+  const jsonResult = {
+    result: 'success',
+  };
+
+  res.status(200).send(jsonResult);
+}
+
+async function createTaskBatch(req, res) {
+  const {
+    taskNamePrefix,
+    code,
+    args,
+    mainClassPath,
+    method,
+    methodArgs,
+  } = req.body;
+
+  const {
+    language,
+  } = req.params;
+
+  if (!taskNamePrefix || !code || !args || !method || !methodArgs || !language) {
+    const jsonError = {
+      uri: `${req.baseUrl}${req.url}`,
+      result: 'invalid JSON',
+    };
+
+    res.status(400).send(jsonError);
+    return;
+  }
+
+  let clusterSize = process.env.CLUSTER_SIZE;
+
+  for (let index = 1; index <= process.env.CLUSTER_SIZE; index += 1) {
+    const splicedArgs = methodArgs.splice(0, Math.ceil(methodArgs.length / clusterSize));
+    clusterSize -= 1;
+
+    const localBatch = {
+      taskNamePrefix,
+      code,
+      args,
+      mainClassPath,
+      method,
+      methodArgs: splicedArgs,
+    };
+
+    const body = JSON.stringify(localBatch);
+    // anyjs_server.${index}
+    // eslint-disable-next-line no-await-in-loop
+    await fetch(`http://localhost:4445/api/anyJS/v1/task/localBatch/${language}`, {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  const jsonResult = {
+    uri: `${req.baseUrl}${req.url}/${code}`.toLowerCase(),
+    result: 'batch execution started',
+  };
+
+  res.status(200).send(jsonResult);
 }
 
 async function updateCreatedTask(req, res) {
@@ -202,17 +311,17 @@ async function updateCreatedTask(req, res) {
     javascript: `./src/codesJs/${code}/`,
     java: `./src/codesJava/${code}/`,
     python: `./src/codesPy/${code}/`,
-  }
+  };
 
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
     python: '.py',
-  }
+  };
 
   // Verify if the file already exists
   for (let i = 0; i < methodsLinks.length; i += 1) {
-    let path = `${DIRECTORY[language]}${methodsLinks[i].name}${FILETYPE[language]}`;
+    const path = `${DIRECTORY[language]}${methodsLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
       methodsLinks.splice(i, 1);
@@ -225,8 +334,8 @@ async function updateCreatedTask(req, res) {
   const newTask = new Task({
     executionName: taskName,
     parameterValue: args,
-    method: method,
-    methodArgs: methodArgs,
+    method,
+    methodArgs,
     taskResult: null,
   });
 
@@ -243,7 +352,9 @@ async function updateCreatedTask(req, res) {
       };
       res.status(201).send(jsonResult);
 
-      executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
+      executeFunction({
+        args, code, mainClassPath, method, methodArgs, language,
+      }).then((result) => {
         console.log(result);
         newTask.taskResult = result;
         newTask.save();
@@ -263,7 +374,9 @@ async function updateCreatedTask(req, res) {
     };
     res.status(201).send(jsonResult);
 
-    executeFunction({ args, code, mainClassPath, method, methodArgs, language }).then((result) => {
+    executeFunction({
+      args, code, mainClassPath, method, methodArgs, language,
+    }).then((result) => {
       console.log(result);
       newTask.taskResult = result;
       newTask.save();
@@ -382,6 +495,8 @@ async function deleteExecution(req, res) {
 
 module.exports = {
   createTask,
+  executeLocalBatch,
+  createTaskBatch,
   updateCreatedTask,
   getAllTaskExecutions,
   getExecution,

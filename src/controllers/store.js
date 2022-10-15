@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
-const BSON = require('bson');
 const ModelObject = require('../models/object');
 const db = require('../db');
 const utils = require('../utils/index');
@@ -38,8 +37,8 @@ async function storeObject(req, res) {
 
     const newObject = new Object({
       className: code,
-      objectName: objectName,
-      object: object,
+      objectName,
+      object,
     });
 
     newObject.save();
@@ -87,8 +86,8 @@ async function updateStoredObject(req, res) {
 
   const newObject = new Object({
     className: code,
-    objectName: objectName,
-    object: object,
+    objectName,
+    object,
   });
 
   newObject.save();
@@ -160,17 +159,17 @@ async function instantiateObject(req, res) {
     javascript: `./src/codesJs/${code}/`,
     java: `./src/codesJava/${code}/`,
     python: `./src/codesPy/${code}/`,
-  }
+  };
 
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
     python: '.py',
-  }
+  };
 
   // Verify if the file already exists
   for (let i = 0; i < classesLinks.length; i += 1) {
-    let path = `${DIRECTORY[language]}${classesLinks[i].name}${FILETYPE[language]}`;
+    const path = `${DIRECTORY[language]}${classesLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
       classesLinks.splice(i, 1);
@@ -182,7 +181,7 @@ async function instantiateObject(req, res) {
 
   const newObject = new Object({
     className: code,
-    objectName: objectName,
+    objectName,
     object: null,
   });
 
@@ -198,19 +197,23 @@ async function instantiateObject(req, res) {
   if (classesLinks.length > 0) {
     const downloadedCode = await utils.downloadCode(classesLinks, language, code);
     if (downloadedCode) {
-      instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+      instantiateObj({
+        code, mainClassPath, args, language,
+      }).then((result) => {
         newObject.object = result;
         newObject.save();
       });
     } else {
-      const jsonResult = {
+      const jsonError = {
         uri: `${req.baseUrl}${req.url}/${code}/${objectName}`.toLowerCase(),
         result: 'error downloading the codes',
       };
-      res.status(400).send(jsonResult);
+      res.status(400).send(jsonError);
     }
   } else {
-    instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+    instantiateObj({
+      code, mainClassPath, args, language,
+    }).then((result) => {
       newObject.object = result;
       newObject.save();
     });
@@ -280,17 +283,17 @@ async function updateInstantiatedObject(req, res) {
     javascript: `./src/codesJs/${code}/`,
     java: `./src/codesJava/${code}/`,
     python: `./src/codesPy/${code}/`,
-  }
+  };
 
   const FILETYPE = {
     javascript: '.js',
     java: '.jar',
     python: '.py',
-  }
+  };
 
   // Verify if the file already exists
   for (let i = 0; i < classesLinks.length; i += 1) {
-    let path = `${DIRECTORY[language]}${classesLinks[i].name}${FILETYPE[language]}`;
+    const path = `${DIRECTORY[language]}${classesLinks[i].name}${FILETYPE[language]}`;
 
     if (fs.existsSync(path)) {
       classesLinks.splice(i, 1);
@@ -302,7 +305,7 @@ async function updateInstantiatedObject(req, res) {
 
   const newObject = new Object({
     className: code,
-    objectName: objectName,
+    objectName,
     object: null,
   });
 
@@ -318,19 +321,23 @@ async function updateInstantiatedObject(req, res) {
   if (classesLinks.length > 0) {
     const downloadedCode = await utils.downloadCode(classesLinks, language, code);
     if (downloadedCode) {
-      instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+      instantiateObj({
+        code, mainClassPath, args, language,
+      }).then((result) => {
         newObject.object = result;
         newObject.save();
       });
     } else {
-      const jsonResult = {
+      const jsonError = {
         uri: `${req.baseUrl}${req.url}/${code}/${objectName}`.toLowerCase(),
         result: 'error downloading the codes',
       };
-      res.status(400).send(jsonResult);
+      res.status(400).send(jsonError);
     }
   } else {
-    instantiateObj({ code, mainClassPath, args, language }).then((result) => {
+    instantiateObj({
+      code, mainClassPath, args, language,
+    }).then((result) => {
       newObject.object = result;
       newObject.save();
     });

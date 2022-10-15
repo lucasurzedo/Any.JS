@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 const mongoose = require('mongoose');
 const ModelMap = require('../models/map');
 const ModelTask = require('../models/task');
@@ -132,8 +133,8 @@ async function setEntry(req, res) {
     const Element = mongoose.model(collectionName, ModelMap, collectionName);
 
     const newElement = new Element({
-      key: key,
-      value: value,
+      key,
+      value,
     });
 
     newElement.save();
@@ -182,7 +183,7 @@ async function updateElement(req, res) {
   if (lockMetadata && lockMetadata.lockedKeys[key].locked !== identifier) {
     const jsonResult = {
       uri: `${req.baseUrl}${req.url}`,
-      result: `map entry locked, entry cannot be updated`,
+      result: 'map entry locked, entry cannot be updated',
     };
 
     res.status(403).send(jsonResult);
@@ -190,13 +191,12 @@ async function updateElement(req, res) {
   }
 
   const newValues = {
-    $set: { key: key, value: value },
+    $set: { key, value },
     $currentDate: { lastModified: true },
   };
 
   const query = {};
   query.key = key;
-
 
   const updated = await db.updateDocument(collectionName, query, newValues);
 
@@ -267,7 +267,6 @@ async function mapForEach(req, res) {
     code,
     args,
     method,
-    methodArgs,
   } = req.body;
 
   if (!mapName || !code || !args
@@ -303,14 +302,14 @@ async function mapForEach(req, res) {
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
   for (const iterator of documents) {
-    methodArgs = [];
+    const methodArgs = [];
     methodArgs.push(iterator.value);
 
     const newTask = new Task({
       executionName: iterator.key,
       parameterValue: args,
-      method: method,
-      methodArgs: methodArgs,
+      method,
+      methodArgs,
       taskResult: null,
     });
 

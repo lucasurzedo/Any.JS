@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-return-await */
 const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
@@ -22,38 +24,33 @@ async function executeJsMethod(parameters) {
 
       if (methodArgs.length > 0) {
         return await obj[method](...methodArgs);
-      } else {
-        return await obj[method];
       }
-    } else {
-      const objArgs = [];
-      for (let i = 0; i < args.length; i++) {
-        for (const key in args[i]) {
-          if (key === code) {
-            objArgs.push(...args[i][key]);
-          } else {
-            const ObjAux = require(`../codesJs/${code}/${key}`);
-            objArgs.push(new ObjAux(...args[i][key]));
-          }
+      return await obj[method];
+    }
+    const objArgs = [];
+    for (let i = 0; i < args.length; i += 1) {
+      for (const key in args[i]) {
+        if (key === code) {
+          objArgs.push(...args[i][key]);
+        } else {
+          const ObjAux = require(`../codesJs/${code}/${key}`);
+          objArgs.push(new ObjAux(...args[i][key]));
         }
       }
-      const obj = new Class(...objArgs);
-
-      if (methodArgs.length > 0) {
-        return await obj[method](...methodArgs);
-      } else {
-        return await obj[method];
-      }
     }
-  } else {
-    const obj = new Class();
+    const obj = new Class(...objArgs);
 
     if (methodArgs.length > 0) {
       return await obj[method](...methodArgs);
-    } else {
-      return await obj[method];
     }
+    return await obj[method];
   }
+  const obj = new Class();
+
+  if (methodArgs.length > 0) {
+    return await obj[method](...methodArgs);
+  }
+  return await obj[method];
 }
 
 async function executeJavaMethod(parameters) {
@@ -69,16 +66,16 @@ async function executeJavaMethod(parameters) {
 
   java.asyncOptions = {
     asyncSuffix: undefined,
-    syncSuffix: "",
-    promiseSuffix: "Promise",
-    promisify: require('util').promisify
-  }
+    syncSuffix: '',
+    promiseSuffix: 'Promise',
+    promisify: require('util').promisify,
+  };
 
   const path = `./src/codesJava/${code}`;
 
   const files = fs.readdirSync(path);
-  files.forEach(element => {
-    java.classpath.push(`${path}/${element}`)
+  files.forEach((element) => {
+    java.classpath.push(`${path}/${element}`);
   });
 
   const Class = java.import(mainClassPath);
@@ -90,40 +87,35 @@ async function executeJavaMethod(parameters) {
 
       if (methodArgs.length > 0) {
         return await obj[method](...methodArgs);
-      } else {
-        return await obj[method];
       }
-    } else {
-      const objArgs = [];
-      let argAux = [];
-      for (let i = 0; i < args.length; i++) {
-        for (const key in args[i]) {
-          if (key === code) {
-            objArgs.push(args[i][key]);
-          } else {
-            argAux = args[i][key];
-            const ObjAux = java.import(`${key}`);
-            objArgs.push(new ObjAux(...argAux));
-          }
+      return await obj[method];
+    }
+    const objArgs = [];
+    let argAux = [];
+    for (let i = 0; i < args.length; i += 1) {
+      for (const key in args[i]) {
+        if (key === code) {
+          objArgs.push(args[i][key]);
+        } else {
+          argAux = args[i][key];
+          const ObjAux = java.import(`${key}`);
+          objArgs.push(new ObjAux(...argAux));
         }
       }
-      const obj = new Class(...objArgs);
-
-      if (methodArgs.length > 0) {
-        return await obj[method](...methodArgs);
-      } else {
-        return await obj[method]();
-      }
     }
-  } else {
-    const obj = new Class();
+    const obj = new Class(...objArgs);
 
     if (methodArgs.length > 0) {
       return await obj[method](...methodArgs);
-    } else {
-      return await obj[method]();
     }
+    return await obj[method]();
   }
+  const obj = new Class();
+
+  if (methodArgs.length > 0) {
+    return await obj[method](...methodArgs);
+  }
+  return await obj[method]();
 }
 
 async function executePythonMethod(parameters) {
@@ -136,11 +128,6 @@ async function executePythonMethod(parameters) {
     methodArgs,
   } = parameters;
 
-  const classes = []
-  for (const keys of args) {
-    classes.push(Object.keys(keys)[0])
-  }
-
   const sysPy = await python('sys');
   await sysPy.path.append(`./src/codesPy/${code}`);
 
@@ -148,9 +135,9 @@ async function executePythonMethod(parameters) {
 
   const objArgs = [];
   let mainClass;
-  for (let i = 0; i < args.length; i++) {
+  for (let i = 0; i < args.length; i += 1) {
     for (const key in args[i]) {
-      if (i == 0) {
+      if (i === 0) {
         mainClass = key;
         objArgs.push(...args[i][key]);
       } else {
@@ -170,7 +157,7 @@ const LANGUAGEMETHOD = {
   javascript: executeJsMethod,
   java: executeJavaMethod,
   python: executePythonMethod,
-}
+};
 
 async function main() {
   if (!isMainThread) {
@@ -187,6 +174,7 @@ async function main() {
   }
 }
 
+// eslint-disable-next-line no-shadow
 function executeFunction(workerData) {
   return new Promise((resolve, reject) => {
     pool.acquire(__filename, { workerData }, (err, worker) => {
