@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     npm
 
-RUN apt apt-get install wget -y && apt-get install curl -y
+RUN apt-get install wget -y && apt-get install curl -y
 
 RUN npm install npm@latest -g && \
     npm install n -g && \
