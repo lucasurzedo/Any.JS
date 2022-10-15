@@ -15,7 +15,7 @@ RUN apt-get install wget -y && apt-get install curl -y
 
 RUN npm install npm@latest -g && \
     npm install n -g && \
-    n latest
+    n 14.17.3
 
 RUN apt install openjdk-8-jdk -y && apt install python3 -y
 
