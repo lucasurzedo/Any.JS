@@ -24,7 +24,7 @@ services:
     volumes:
       - anyjs:/data
     environment:
-      NODE_ENV: development
+      CLUSTER_SIZE: 4
     ports:
       - "4445:4445"
 
