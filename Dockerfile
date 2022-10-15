@@ -4,9 +4,6 @@ WORKDIR /app/
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV JAVA_HOME=/usr
-
-
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     npm
@@ -15,9 +12,13 @@ RUN apt-get install wget -y && apt-get install curl -y
 
 RUN npm install npm@latest -g && \
     npm install n -g && \
-    n 14.17.3
+    n 14
 
-RUN apt install openjdk-8-jdk -y && apt install python3 -y
+RUN apt install openjdk-8-jdk -y && apt install python2 -y
+
+RUN export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+RUN export PATH=$PATH:$JAVA_HOME/bin
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
