@@ -3,8 +3,6 @@ FROM ubuntu:20.04
 WORKDIR /app/
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG JAVA_VERSION=9
-ARG JAVA_RELEASE=JDK
 
 ENV JAVA_HOME=/usr
 
@@ -19,19 +17,7 @@ RUN npm install npm@latest -g && \
     npm install n -g && \
     n latest
 
-RUN bash -c ' \
-    set -euxo pipefail && \
-    apt-get update && \
-    pkg="openjdk-$JAVA_VERSION"; \
-    if [ "$JAVA_RELEASE" = "JDK" ]; then \
-    pkg="$pkg-jdk-headless"; \
-    else \
-    pkg="$pkg-jre-headless"; \
-    fi; \
-    apt-get install -y --no-install-recommends wget unzip "$pkg" && \
-    apt-get clean && \
-    apt-get update \
-    apt install python3'
+RUN apt install openjdk-8-jdk -y && apt install python3 -y
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
