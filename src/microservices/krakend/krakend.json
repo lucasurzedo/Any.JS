@@ -2,21 +2,21 @@
     "$schema": "https://www.krakend.io/schema/v3.json",
     "version": 3,
     "extra_config": {
-      "telemetry/logging": {
-        "level": "ERROR",
-        "prefix": "[KRAKEND]",
-        "syslog": false,
-        "stdout": true,
-        "format": "default"
-      },
-      "telemetry/metrics": {
-        "collection_time": "60s",
-        "proxy_disabled": false,
-        "router_disabled": false,
-        "backend_disabled": false,
-        "endpoint_disabled": false,
-        "listen_address": ":8090"
-      }
+        "telemetry/logging": {
+            "level": "ERROR",
+            "prefix": "[KRAKEND]",
+            "syslog": false,
+            "stdout": true,
+            "format": "default"
+        },
+        "telemetry/metrics": {
+            "collection_time": "60s",
+            "proxy_disabled": false,
+            "router_disabled": false,
+            "backend_disabled": false,
+            "endpoint_disabled": false,
+            "listen_address": ":8090"
+        }
     },
     "timeout": "30000ms",
     "cache_ttl": "300s",
@@ -25,583 +25,787 @@
     "port": 8080,
     "disable_rest": false,
     "endpoints": [
-      {
-        "endpoint": "/api/anyJS/v1/register",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+        {
+            "endpoint": "/api/anyJS/v1/registry",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/register",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/register/{codeName}",
-        "method": "PATCH",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/registry",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/registry/{codeName}",
             "method": "PATCH",
-            "url_pattern": "/api/anyJS/v1/register/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/register/{codeName}",
-        "method": "PUT",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PATCH",
+                    "url_pattern": "/api/anyJS/v1/registry/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/registry/{codeName}",
             "method": "PUT",
-            "url_pattern": "/api/anyJS/v1/register/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/register/{codeName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PUT",
+                    "url_pattern": "/api/anyJS/v1/registry/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/registry/{codeName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/register/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/register/{codeName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/registry/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/registry/{codeName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/register/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/execute",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/registry/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{language}",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/execute",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/execute/{taskName}/execution",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/task/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/batch/{language}",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/task/batch/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{language}",
+            "method": "PUT",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PUT",
+                    "url_pattern": "/api/anyJS/v1/task/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{taskName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/execute/{taskName}/execution",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/execute/{taskName}/execution/{executionName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/task/{taskName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{taskName}/{executionName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/execute/{taskName}/execution/{executionName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/execute/{taskName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/task/{taskName}/{executionName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{taskName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/execute/{taskName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/execute/{taskName}/execution/{executionName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/task/{taskName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/task/{taskName}/{executionName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/execute/{taskName}/execution/{executionName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/store",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/task/{taskName}/{executionName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/store",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/store/{codeName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/storage",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage",
+            "method": "PUT",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PUT",
+                    "url_pattern": "/api/anyJS/v1/storage",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage/{codeName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/store/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/store/{codeName}/{objectName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/storage/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage/{codeName}/{objectName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/store/{codeName}/{objectName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/store/{codeName}/{objectName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/storage/{codeName}/{objectName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage/{codeName}/{objectName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/store/{codeName}/{objectName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/store/{codeName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/storage/{codeName}/{objectName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/storage/{codeName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/store/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/instantiate",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/storage/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{language}",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/instantiate",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{language}",
+            "method": "PUT",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PUT",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{codeName}/{objectName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/instantiate/{codeName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/instantiate/{codeName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/map",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/set",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/map",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/elements",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/map/set",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/entry",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/map/elements",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/entry",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/map/entry",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/forEach",
-        "method": "POST",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/map/entry",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/forEach/{language}",
             "method": "POST",
-            "url_pattern": "/api/anyJS/v1/map/forEach",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/update",
-        "method": "PATCH",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/map/forEach/{language}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/entry",
             "method": "PATCH",
-            "url_pattern": "/api/anyJS/v1/map/update",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/update",
-        "method": "PUT",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PATCH",
+                    "url_pattern": "/api/anyJS/v1/map/entry",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/elements",
             "method": "PUT",
-            "url_pattern": "/api/anyJS/v1/map/update",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/get/{mapName}/key/{key}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "PUT",
+                    "url_pattern": "/api/anyJS/v1/map/elements",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/entry/{mapName}/{key}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/get/{mapName}/key/{key}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/entries/{mapName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/map/entry/{mapName}/{key}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/elements/{mapName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/entries/{mapName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/has/{mapName}/key/{key}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/map/elements/{mapName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/has/{mapName}/{key}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/has/{mapName}/key/{key}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/keys/{mapName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/map/has/{mapName}/{key}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/keys/{mapName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/keys/{mapName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/values/{mapName}",
-        "method": "GET",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/map/keys/{mapName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/values/{mapName}",
             "method": "GET",
-            "url_pattern": "/api/anyJS/v1/map/values/{mapName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/{mapName}/key/{key}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/map/values/{mapName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/{mapName}/{key}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/map/{mapName}/key/{key}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/clear/{mapName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/map/{mapName}/{key}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/clear/{mapName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/map/clear/{mapName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      },
-      {
-        "endpoint": "/api/anyJS/v1/map/{mapName}",
-        "method": "DELETE",
-        "output_encoding": "no-op",
-        "extra_config": {},
-        "backend": [
-          {
-            "encoding": "no-op",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/map/clear/{mapName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/map/{mapName}",
             "method": "DELETE",
-            "url_pattern": "/api/anyJS/v1/map/{mapName}",
-            "host": [
-              "http://anyjs_server:4445"
-            ],
-            "extra_config": {}
-          }
-        ]
-      }
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/map/{mapName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/obj",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/sync/obj",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/map",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/sync/map",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/unsync/map",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/unsync/map",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/unsync/obj",
+            "method": "POST",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "POST",
+                    "url_pattern": "/api/anyJS/v1/unsync/obj",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/obj/{objName}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/sync/obj/{objName}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/map/{mapName}/{key}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/sync/map/{mapName}/{key}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/obj/{objName}/id/{identifier}",
+            "method": "DELETE",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/sync/obj/{objName}/id/{identifier}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/sync/map/{mapName}/{key}/id/{identifier}",
+            "method": "DELETE",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "DELETE",
+                    "url_pattern": "/api/anyJS/v1/sync/map/{mapName}/{key}/id/{identifier}",
+                    "host": [
+                        "http://anyjs_server:4445"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        }
     ]
-  }
+}

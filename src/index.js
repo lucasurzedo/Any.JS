@@ -9,7 +9,7 @@ async function setupApp() {
   app.use(express.json());
   app.use('/api/anyJS/v1', routes);
 
-  mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to DB!'));
+  mongoose.connect('mongodb://db:27017/anyjs-db', { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to DB!'));
 
   return app;
 }
