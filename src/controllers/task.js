@@ -174,7 +174,9 @@ async function executeLocalBatch(req, res) {
     // eslint-disable-next-line no-await-in-loop
     await newTask.save();
 
-    executeFunction(req.body).then((result) => {
+    executeFunction({
+      args, code, mainClassPath, method, methodArgs: methodArgs[i], language,
+    }).then((result) => {
       newTask.taskResult = result;
       newTask.save();
     });
@@ -213,12 +215,12 @@ async function createTaskBatch(req, res) {
 
   let clusterSize = process.env.CLUSTER_SIZE;
 
-  for (let index = 1; index <= process.env.CLUSTER_SIZE; index += 1) {
+  for (let index = 0; index < process.env.CLUSTER_SIZE; index += 1) {
     const splicedArgs = methodArgs.splice(0, Math.ceil(methodArgs.length / clusterSize));
     clusterSize -= 1;
 
     const localBatch = {
-      taskNamePrefix,
+      taskNamePrefix: `${taskNamePrefix}${index}-`,
       code,
       args,
       mainClassPath,
@@ -228,7 +230,7 @@ async function createTaskBatch(req, res) {
 
     const body = JSON.stringify(localBatch);
     // eslint-disable-next-line no-await-in-loop
-    await fetch(`http://anyjs_server:4445/api/anyJS/v1/task/localBatch/${language}`, {
+    await fetch(`http://localhost:4445/api/anyJS/v1/task/localBatch/${language}`, {
       method: 'POST',
       body,
       headers: {

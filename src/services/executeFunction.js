@@ -71,51 +71,56 @@ async function executeJavaMethod(parameters) {
     promisify: require('util').promisify,
   };
 
-  const path = `./src/codesJava/${code}`;
+  try {
+    const path = `./src/codesJava/${code}`;
 
-  const files = fs.readdirSync(path);
-  files.forEach((element) => {
-    java.classpath.push(`${path}/${element}`);
-  });
+    const files = fs.readdirSync(path);
+    files.forEach((element) => {
+      java.classpath.push(`${path}/${element}`);
+    });
 
-  const Class = java.import(mainClassPath);
+    const Class = java.import(mainClassPath);
 
-  if (args.length > 0) {
-    if (args.length === 1) {
-      const objArgs = args[0][code];
+    if (args.length > 0) {
+      if (args.length === 1) {
+        const objArgs = args[0][code];
+        const obj = new Class(...objArgs);
+
+        if (methodArgs.length > 0) {
+          return await obj[method](...methodArgs);
+        }
+        return await obj[method];
+      }
+      const objArgs = [];
+      let argAux = [];
+      for (let i = 0; i < args.length; i += 1) {
+        for (const key in args[i]) {
+          if (key === code) {
+            objArgs.push(args[i][key]);
+          } else {
+            argAux = args[i][key];
+            const ObjAux = java.import(`${key}`);
+            objArgs.push(new ObjAux(...argAux));
+          }
+        }
+      }
       const obj = new Class(...objArgs);
 
       if (methodArgs.length > 0) {
         return await obj[method](...methodArgs);
       }
-      return await obj[method];
+      return await obj[method]();
     }
-    const objArgs = [];
-    let argAux = [];
-    for (let i = 0; i < args.length; i += 1) {
-      for (const key in args[i]) {
-        if (key === code) {
-          objArgs.push(args[i][key]);
-        } else {
-          argAux = args[i][key];
-          const ObjAux = java.import(`${key}`);
-          objArgs.push(new ObjAux(...argAux));
-        }
-      }
-    }
-    const obj = new Class(...objArgs);
+
+    const obj = new Class();
 
     if (methodArgs.length > 0) {
       return await obj[method](...methodArgs);
     }
     return await obj[method]();
+  } catch (error) {
+    return error;
   }
-  const obj = new Class();
-
-  if (methodArgs.length > 0) {
-    return await obj[method](...methodArgs);
-  }
-  return await obj[method]();
 }
 
 async function executePythonMethod(parameters) {
@@ -148,7 +153,7 @@ async function executePythonMethod(parameters) {
 
   const obj = await Class[mainClass](...objArgs);
 
-  const result = obj[method](...methodArgs);
+  const result = await obj[method](...methodArgs);
   python.exit();
   return result;
 }
