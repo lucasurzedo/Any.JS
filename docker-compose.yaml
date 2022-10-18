@@ -33,14 +33,12 @@ services:
     depends_on:
       - mongo
     deploy:
-      mode: global
+      replicas: 8
       placement:
         constraints:
           - "node.role==worker"
     volumes:
       - anyjs:/data
-    environment:
-      CLUSTER_SIZE: 4
     ports:
       - "4545:4545"
 
