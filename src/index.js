@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const routes = require('./routes');
+require('dotenv/config');
 
 const app = express();
 const port = 4445;
@@ -9,7 +10,7 @@ async function setupApp() {
   app.use(express.json());
   app.use('/api/anyJS/v1', routes);
 
-  mongoose.connect('mongodb://mongo:27017/anyjs', { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to DB!'));
+  mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }, () => console.log('Connected to DB!'));
 
   return app;
 }

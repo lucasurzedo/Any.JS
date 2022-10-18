@@ -4,6 +4,14 @@ const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 const fs = require('fs');
+const java = require('java');
+
+java.asyncOptions = {
+  asyncSuffix: undefined,
+  syncSuffix: '',
+  promiseSuffix: 'Promise',
+  promisify: require('util').promisify,
+};
 
 const pool = new Pool({ max: CPUs });
 
@@ -61,15 +69,6 @@ async function executeJavaMethod(parameters) {
     method,
     methodArgs,
   } = parameters;
-
-  const java = require('java');
-
-  java.asyncOptions = {
-    asyncSuffix: undefined,
-    syncSuffix: '',
-    promiseSuffix: 'Promise',
-    promisify: require('util').promisify,
-  };
 
   try {
     const path = `./src/codesJava/${code}`;
@@ -180,18 +179,31 @@ async function main() {
 }
 
 // eslint-disable-next-line no-shadow
-function executeFunction(workerData) {
-  return new Promise((resolve, reject) => {
-    pool.acquire(__filename, { workerData }, (err, worker) => {
-      if (err) reject(err);
-      console.log(`started worker (pool size: ${pool.size})`);
-      worker.on('message', resolve);
-      worker.on('error', reject);
-      worker.on('exit', (code) => {
-        if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
+async function executeFunction(workerData) {
+  if (workerData.language !== 'java') {
+    return new Promise((resolve, reject) => {
+      pool.acquire(__filename, { workerData }, (err, worker) => {
+        if (err) reject(err);
+        console.log(`started worker (pool size: ${pool.size})`);
+        worker.on('message', resolve);
+        worker.on('error', reject);
+        worker.on('exit', (code) => {
+          if (code !== 0) reject(new Error(`Worker stopped with exit code ${code}`));
+        });
       });
     });
-  });
+  }
+
+  try {
+    const method = LANGUAGEMETHOD[workerData.language];
+    return await method(workerData);
+  } catch (error) {
+    const jsonError = {
+      error: error.message,
+      result: 'error during execute process',
+    };
+    return jsonError;
+  }
 }
 
 main();

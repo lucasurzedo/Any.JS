@@ -158,6 +158,8 @@ async function executeLocalBatch(req, res) {
     language,
   } = req.params;
 
+  console.log(req.body);
+
   const collectionName = (`${code}_task`).toLowerCase();
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
@@ -177,6 +179,7 @@ async function executeLocalBatch(req, res) {
     executeFunction({
       args, code, mainClassPath, method, methodArgs: methodArgs[i], language,
     }).then((result) => {
+      console.log(result);
       newTask.taskResult = result;
       newTask.save();
     });
@@ -213,6 +216,17 @@ async function createTaskBatch(req, res) {
     return;
   }
 
+  let serverPort;
+  let service;
+
+  if (language !== 'java') {
+    serverPort = 4445;
+    service = 'anyjs_server';
+  } else {
+    serverPort = 4545;
+    service = 'anyjs_server_java';
+  }
+
   let clusterSize = process.env.CLUSTER_SIZE;
 
   for (let index = 0; index < process.env.CLUSTER_SIZE; index += 1) {
@@ -229,8 +243,9 @@ async function createTaskBatch(req, res) {
     };
 
     const body = JSON.stringify(localBatch);
+
     // eslint-disable-next-line no-await-in-loop
-    await fetch(`http://localhost:4445/api/anyJS/v1/task/localBatch/${language}`, {
+    await fetch(`http://${service}:${serverPort}/api/anyJS/v1/task/localBatch/${language}`, {
       method: 'POST',
       body,
       headers: {

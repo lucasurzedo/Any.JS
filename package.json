@@ -15,13 +15,13 @@
     "bson": "^4.2.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "java": "0.12.1",
+    "java": "git+https://github.com/lucasurzedo/node-java.git",
     "mongoose": "^5.12.1",
+    "node-fetch": "^1.7.3",
     "nodejs-file-downloader": "^4.5.3",
     "pythonia": "^1.0.0",
     "valid-url": "^1.0.9",
-    "worker-threads-pool": "^2.0.0",
-    "node-fetch": "^1.7.3"
+    "worker-threads-pool": "^2.0.0"
   },
   "devDependencies": {
     "eslint": "^8.13.0",

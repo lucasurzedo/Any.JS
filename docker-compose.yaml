@@ -28,6 +28,22 @@ services:
     ports:
       - "4445:4445"
 
+  server_java:
+    image: lucasurzedo/anyjs-java:1.0
+    depends_on:
+      - mongo
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - "node.role==worker"
+    volumes:
+      - anyjs:/data
+    environment:
+      CLUSTER_SIZE: 4
+    ports:
+      - "4545:4545"
+
   observer:
     image: lucasurzedo/anyjsobserver:1.0
     deploy:

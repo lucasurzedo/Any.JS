@@ -18,9 +18,9 @@ RUN apt install openjdk-8-jdk -y && apt install python2 -y
 
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-ENV PATH=$PATH:$JAVA_HOME/bin
+# ENV PATH=$PATH:$JAVA_HOME/bin
 
-ENV LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/lib/amd64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/
+# ENV LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/lib/amd64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server/
 
 # Copy application dependency manifests to the container image.
 # A wildcard is used to ensure both package.json AND package-lock.json are copied.
