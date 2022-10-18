@@ -230,6 +230,8 @@ async function createTaskBatch(req, res) {
     clusterSize = process.env.JAVA_CLUSTER_SIZE;
   }
 
+  console.log(`Local batch cluster size: ${clusterSize}`);
+
   let coutAux = clusterSize;
   for (let index = 0; index < clusterSize; index += 1) {
     const splicedArgs = methodArgs.splice(0, Math.ceil(methodArgs.length / coutAux));
@@ -254,6 +256,7 @@ async function createTaskBatch(req, res) {
         'Content-Type': 'application/json',
       },
     });
+    console.log('Sending a batch to run tasks');
   }
 
   const jsonResult = {
