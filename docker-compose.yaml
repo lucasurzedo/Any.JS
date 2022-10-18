@@ -25,6 +25,7 @@ services:
       - anyjs:/data
     environment:
       CLUSTER_SIZE: 4
+      JAVA_CLUSTER_SIZE: 8
     ports:
       - "4445:4445"
 

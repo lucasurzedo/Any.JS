@@ -218,20 +218,22 @@ async function createTaskBatch(req, res) {
 
   let serverPort;
   let service;
+  let clusterSize;
 
   if (language !== 'java') {
     serverPort = 4445;
     service = 'anyjs_server';
+    clusterSize = process.env.CLUSTER_SIZE;
   } else {
     serverPort = 4545;
     service = 'anyjs_server_java';
+    clusterSize = process.env.JAVA_CLUSTER_SIZE;
   }
 
-  let clusterSize = process.env.CLUSTER_SIZE;
-
-  for (let index = 0; index < process.env.CLUSTER_SIZE; index += 1) {
-    const splicedArgs = methodArgs.splice(0, Math.ceil(methodArgs.length / clusterSize));
-    clusterSize -= 1;
+  let coutAux = clusterSize;
+  for (let index = 0; index < clusterSize; index += 1) {
+    const splicedArgs = methodArgs.splice(0, Math.ceil(methodArgs.length / coutAux));
+    coutAux -= 1;
 
     const localBatch = {
       taskNamePrefix: `${taskNamePrefix}${index}-`,
