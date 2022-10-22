@@ -70,10 +70,10 @@ async function setElements(req, res) {
 
   const collectionExists = await db.hasCollection(collectionName);
 
-  if (collectionExists) {
+  if (!collectionExists) {
     const jsonError = {
       uri: `${req.baseUrl}${req.url}`,
-      result: 'duplicated map',
+      result: `there is no map ${mapName}`,
     };
     res.status(409).send(jsonError);
     return;
@@ -96,7 +96,7 @@ async function setElements(req, res) {
   }
 
   const jsonResult = {
-    result: `${req.baseUrl}${req.url}/entries/${mapName}`,
+    result: `${req.baseUrl}${req.url}/elements/${mapName}`,
   };
 
   res.status(201).send(jsonResult);
