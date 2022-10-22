@@ -809,6 +809,10 @@
         },
         {
             "endpoint": "/api/anyJS/v1/observer/{service}/{collectionName}/{documentName}",
+            "input_query_strings": [
+                "timeout",
+                "count"
+            ],
             "method": "GET",
             "output_encoding": "no-op",
             "extra_config": {},
@@ -826,6 +830,10 @@
         },
         {
             "endpoint": "/api/anyJS/v1/observer/{service}/{collectionName}",
+            "input_query_strings": [
+                "timeout",
+                "count"
+            ],
             "method": "GET",
             "output_encoding": "no-op",
             "extra_config": {},
