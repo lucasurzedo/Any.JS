@@ -806,6 +806,40 @@
                     "extra_config": {}
                 }
             ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/observer/{service}/{collectionName}/{documentName}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/observer/{service}/{collectionName}/{documentName}",
+                    "host": [
+                        "http://anyjs_observer:4447"
+                    ],
+                    "extra_config": {}
+                }
+            ]
+        },
+        {
+            "endpoint": "/api/anyJS/v1/observer/{service}/{collectionName}",
+            "method": "GET",
+            "output_encoding": "no-op",
+            "extra_config": {},
+            "backend": [
+                {
+                    "encoding": "no-op",
+                    "method": "GET",
+                    "url_pattern": "/api/anyJS/v1/observer/{service}/{collectionName}",
+                    "host": [
+                        "http://anyjs_observer:4447"
+                    ],
+                    "extra_config": {}
+                }
+            ]
         }
     ]
 }
