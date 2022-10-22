@@ -44,8 +44,9 @@ services:
       - "4545:4545"
 
   observer:
-    image: lucasurzedo/anyjsobserver:1.0
+    image: lucasurzedo/anyjs-observer:1.0
     deploy:
+      mode: global
       placement:
         constraints:
           - "node.role==worker"
