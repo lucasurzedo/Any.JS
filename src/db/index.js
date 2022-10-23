@@ -37,12 +37,14 @@ async function getAllDocuments(collectionName, skip, limit) {
       limit = 0;
     }
 
-    const documents = await collection.find().skip(parseInt(skip, 10))
-      .limit(parseInt(limit, 10)).toArray();
+    const documents = collection.find({}, async (err, data) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(await data.toArray());
+    });
 
-    console.log(documents);
-
-    return documents;
+    return await documents.toArray();
   } catch (error) {
     return [];
   }
