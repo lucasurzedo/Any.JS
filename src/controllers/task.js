@@ -164,6 +164,12 @@ async function executeLocalBatch(req, res) {
 
   const Task = mongoose.model(collectionName, ModelTask, collectionName);
 
+  const jsonResult = {
+    result: 'start executions',
+  };
+
+  res.status(200).send(jsonResult);
+
   for (let i = 0; i < methodArgs.length; i += 1) {
     const newTask = new Task({
       executionName: `${taskNamePrefix}${i}`,
@@ -185,11 +191,6 @@ async function executeLocalBatch(req, res) {
     });
   }
 
-  const jsonResult = {
-    result: 'success',
-  };
-
-  res.status(200).send(jsonResult);
 }
 
 async function createTaskBatch(req, res) {
@@ -249,7 +250,7 @@ async function createTaskBatch(req, res) {
     const body = JSON.stringify(localBatch);
 
     // eslint-disable-next-line no-await-in-loop
-    fetch(`http://${service}:${serverPort}/api/anyJS/v1/task/localBatch/${language}`, {
+    await fetch(`http://${service}:${serverPort}/api/anyJS/v1/task/localBatch/${language}`, {
       method: 'POST',
       body,
       headers: {
