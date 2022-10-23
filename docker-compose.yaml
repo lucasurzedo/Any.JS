@@ -1,16 +1,16 @@
 version: '3.7'
 
 services:
-  mongo:
-    image: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - '/mnt/data:/data/db'
-    deploy:
-      placement:
-        constraints:
-          - "node.role==manager"
+  # mongo:
+  #   image: mongo
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - '/mnt/data:/data/db'
+  #   deploy:
+  #     placement:
+  #       constraints:
+  #         - "node.role==manager"
 
   server:
     image: lucasurzedo/anyjs:1.0
