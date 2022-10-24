@@ -4,14 +4,6 @@ const { isMainThread, parentPort, workerData } = require('worker_threads');
 const Pool = require('worker-threads-pool');
 const CPUs = require('os').cpus().length;
 const fs = require('fs');
-const java = require('java');
-
-java.asyncOptions = {
-  asyncSuffix: undefined,
-  syncSuffix: '',
-  promiseSuffix: 'Promise',
-  promisify: require('util').promisify,
-};
 
 const pool = new Pool({ max: CPUs });
 
@@ -69,6 +61,18 @@ async function executeJavaMethod(parameters) {
     method,
     methodArgs,
   } = parameters;
+
+  const java = require('java');
+  try {
+    java.asyncOptions = {
+      asyncSuffix: undefined,
+      syncSuffix: '',
+      promiseSuffix: 'Promise',
+      promisify: require('util').promisify,
+    };
+  } catch (error) {
+    console.log('java already initiated');
+  }
 
   try {
     const path = `./src/codesJava/${code}`;
