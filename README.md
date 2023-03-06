@@ -28,6 +28,9 @@ The REST API can be called by any client developed with any programming language
 
 Details about the REST API at [open api documentation](https://app.swaggerhub.com/apis-docs/lucasurzedo/AnyJS/1.0.0).
 
+### Docker image
+
+If you want to use the middleware docker image, you can access it directly from docker hub at this [link](https://hub.docker.com/r/lucasurzedo/anyjs).
 
 ### Research background
 
